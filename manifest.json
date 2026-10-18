@@ -1,0 +1,21 @@
+{
+  "name": "UK RF Terrain Mapper",
+  "short_name": "RF Mapper",
+  "description": "UK Amateur Radio Repeater & Terrain Line-of-Sight tool.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#060a12",
+  "theme_color": "#06b6d4",
+  "icons": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Radio_tower_icon.svg/192px-Radio_tower_icon.svg.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Radio_tower_icon.svg/512px-Radio_tower_icon.svg.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

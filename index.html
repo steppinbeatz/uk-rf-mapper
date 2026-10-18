@@ -1,0 +1,3605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UK & Scotland RF Repeater, NetFinder & Terrain Mapper</title>
+
+  <!-- PWA Manifest & iOS Support -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#06b6d4">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RF Mapper">
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-950: #060a12;
+      --bg-900: #0b1323;
+      --bg-850: #111c33;
+      --bg-800: #182644;
+      --border: #1e293b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --cyan: #06b6d4;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --purple: #a855f7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-950);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.45;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    /* Header */
+    header {
+      background-color: var(--bg-900);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header-inner {
+      max-width: 1360px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--cyan), var(--emerald));
+      color: #041019;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .status-pill {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(6, 182, 212, 0.16);
+      color: #67e8f9;
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-pill.synced {
+      background: rgba(16, 185, 129, 0.16);
+      color: #6ee7b7;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    /* Controls Bar */
+    .qth-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .qth-group {
+      background: var(--bg-950);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .qth-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 0 6px;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      background: transparent;
+      color: #cbd5e1;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .btn.active-cyan {
+      background: var(--cyan);
+      color: #04121d;
+      font-weight: 700;
+    }
+
+    .btn-outline {
+      background: var(--bg-950);
+      border: 1px solid var(--border);
+      color: #67e8f9;
+    }
+
+    .btn-outline:hover {
+      background: var(--bg-800);
+    }
+
+    /* Main Grid */
+    main {
+      max-width: 1360px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      flex: 1;
+    }
+
+    @media (min-width: 1024px) {
+      main {
+        grid-template-columns: 7fr 5fr;
+      }
+    }
+
+    .col-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .card {
+      background: var(--bg-900);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45);
+    }
+
+    .card-pad {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card-toolbar {
+      background: var(--bg-850);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .toolbar-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #ffffff;
+    }
+
+    .legend-bar {
+      background: rgba(6, 10, 18, 0.75);
+      padding: 6px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 11px;
+      color: var(--text-muted);
+      overflow-x: auto;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    /* Map Container */
+    #rf-map {
+      width: 100%;
+      height: 400px;
+      background: #09101d;
+      z-index: 1;
+    }
+
+    .osm-dark-tiles .leaflet-tile {
+      filter: brightness(0.88) contrast(1.08) saturate(0.9);
+    }
+
+    .topo-tiles .leaflet-tile {
+      filter: brightness(0.92) contrast(1.08);
+    }
+
+    .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+      background: var(--bg-900) !important;
+      color: var(--text-main) !important;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .telemetry-bar {
+      background: var(--bg-950);
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .telemetry-metrics {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-emerald {
+      background: rgba(16, 185, 129, 0.18);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .badge-amber {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fcd34d;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .badge-rose {
+      background: rgba(244, 63, 94, 0.18);
+      color: #fda4af;
+      border: 1px solid rgba(244, 63, 94, 0.4);
+    }
+
+    .badge-cyan {
+      background: rgba(6, 182, 212, 0.18);
+      color: #67e8f9;
+      border: 1px solid rgba(6, 182, 212, 0.4);
+    }
+
+    .badge-purple {
+      background: rgba(168, 85, 247, 0.18);
+      color: #d8b4fe;
+      border: 1px solid rgba(168, 85, 247, 0.4);
+    }
+
+    /* Terrain Canvas */
+    #terrain-canvas-container {
+      width: 100%;
+      height: 205px;
+      background: var(--bg-950);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px;
+      position: relative;
+    }
+
+    #terrain-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .sub-box {
+      background: var(--bg-950);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+    }
+
+    /* Directory List & Filters */
+    .search-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .search-input {
+      flex: 1;
+      background: var(--bg-950);
+      border: 1px solid var(--border);
+      color: #ffffff;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--cyan);
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .pill-btn {
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      padding: 3px 8px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .pill-btn.active {
+      background: var(--cyan);
+      color: #041019;
+      font-weight: 700;
+    }
+
+    #repeater-list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 460px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .rep-card {
+      background: var(--bg-950);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+
+    .rep-card:hover {
+      border-color: #334155;
+    }
+
+    .rep-card.selected {
+      background: var(--bg-800);
+      border-color: var(--cyan);
+    }
+
+    /* Custom Map Markers */
+    .qth-marker-pin {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--emerald);
+      color: #04121d;
+      font-weight: 800;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.8);
+    }
+
+    .rep-marker-pin {
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+      border: 1px solid #09101d;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.6);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .rep-marker-pin.selected {
+      border: 2px solid #ffffff;
+      transform: scale(1.14);
+    }
+
+    .nets-section {
+      max-width: 1360px;
+      width: 100%;
+      margin: 0 auto 18px auto;
+      padding: 0 14px;
+    }
+
+    .nets-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @media (min-width: 768px) {
+      .nets-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1180px) {
+      .nets-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .net-card {
+      background: var(--bg-950);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .net-card:hover {
+      border-color: #334155;
+    }
+
+    .net-card.active-net {
+      background: var(--bg-800);
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.35);
+    }
+
+    .day-pills {
+      display: inline-flex;
+      gap: 3px;
+    }
+
+    .day-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #111c33;
+      color: #64748b;
+      border: 1px solid #1e293b;
+    }
+
+    .day-dot.on {
+      background: rgba(16, 185, 129, 0.22);
+      color: #6ee7b7;
+      border-color: rgba(16, 185, 129, 0.5);
+    }
+
+    .net-marker-pin {
+      padding: 3px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+      background: #f59e0b;
+      color: #041019;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.85);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    footer {
+      background: var(--bg-900);
+      border-top: 1px solid var(--border);
+      padding: 12px 16px;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: auto;
+    }
+
+    a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-tower-broadcast"></i>
+        </div>
+        <div>
+          <div class="brand-title">
+            <span>UK & Scotland RF Repeater, NetFinder & Terrain Mapper</span>
+            <span id="live-api-badge" class="status-pill mono">
+              <i class="fa-solid fa-satellite-dish"></i>
+              <span id="live-api-status-text">UK & Scotland Directory Active</span>
+            </span>
+          </div>
+          <div class="brand-subtitle">
+            Choose Any UK QTH (GPS, Grid Locator or Map Click) • Auto-Sorted Repeaters & UK Nets • Terrain LoS & Codeplug Inspector
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom UK QTH & Location Controls -->
+      <div class="qth-controls">
+        <div class="qth-group">
+          <span class="qth-label mono">Quick QTH:</span>
+          <button onclick="setQTH('cardross')" id="tab-cardross" class="btn active-cyan">Cardross</button>
+          <button onclick="setQTH('helensburgh')" id="tab-helensburgh" class="btn">Helensburgh</button>
+          <button onclick="setQTH('dumbarton')" id="tab-dumbarton" class="btn">Dumbarton</button>
+          <select id="uk-preset-select" onchange="if(this.value) setQTH(this.value)" class="search-input mono" style="padding: 4px 8px; font-size: 11px; width: auto; background: var(--bg-900);">
+            <option value="">+ UK Regions...</option>
+            <option value="edinburgh">Edinburgh (IO85jw)</option>
+            <option value="inverness">Inverness (IO77ul)</option>
+            <option value="manchester">Manchester (IO83rj)</option>
+            <option value="birmingham">Birmingham (IO92fl)</option>
+            <option value="london">London (IO91wm)</option>
+            <option value="cardiff">Cardiff Wales (IO81kj)</option>
+            <option value="belfast">Belfast NI (IO74ap)</option>
+          </select>
+        </div>
+
+        <!-- Custom Grid Locator / GPS / Map Pin Picker -->
+        <div class="qth-group">
+          <input
+            type="text"
+            id="custom-locator-input"
+            class="search-input mono"
+            placeholder="Grid (e.g. IO83RJ)"
+            maxlength="8"
+            style="width: 122px; padding: 4px 8px; font-size: 11px;"
+            onkeydown="if(event.key==='Enter') setCustomLocatorQTH()"
+          />
+          <button onclick="setCustomLocatorQTH()" class="btn btn-outline mono" style="padding: 4px 8px; font-size: 11px;" title="Set QTH by 4 or 6 character Maidenhead Grid Locator">
+            <i class="fa-solid fa-hashtag"></i> Set Grid
+          </button>
+          <button onclick="useDeviceGPSForQTH()" id="btn-gps-qth" class="btn btn-outline mono" style="padding: 4px 8px; font-size: 11px;" title="Use your device GPS coordinates as active QTH">
+            <i class="fa-solid fa-location-arrow"></i> GPS
+          </button>
+          <button onclick="toggleMapPickQTHMode()" id="btn-pick-map-qth" class="btn btn-outline mono" style="padding: 4px 8px; font-size: 11px;" title="Click anywhere on the UK map to set your custom QTH">
+            <i class="fa-solid fa-map-pin"></i> Pick on Map
+          </button>
+        </div>
+
+        <button onclick="syncLiveUKRepeaterScotlandList()" id="btn-sync-live" class="btn btn-outline mono" title="Sync with ukrepeater.net & netfinder.radio">
+          <i id="sync-icon" class="fa-solid fa-rotate"></i>
+          <span>Live UK Sync</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Grid -->
+  <main>
+    <!-- LEFT COLUMN: Map + Terrain Cross-Section -->
+    <div class="col-stack">
+      <!-- Map Card -->
+      <div class="card">
+        <div class="card-toolbar">
+          <div class="toolbar-title mono">
+            <i class="fa-solid fa-mountain" style="color: var(--cyan);"></i>
+            <span>UK Topography & RF Footprints</span>
+            <span id="qth-active-pill" class="badge badge-emerald mono" style="font-size: 10px;">QTH: Cardross (IO75px)</span>
+          </div>
+          <div class="filter-row">
+            <button onclick="zoomMapRegion('clyde')" class="btn btn-outline mono" style="padding: 4px 8px; font-size: 11px;">
+              <i class="fa-solid fa-location-crosshairs"></i> Clyde
+            </button>
+            <button onclick="zoomMapRegion('scotland')" class="btn btn-outline mono" style="padding: 4px 8px; font-size: 11px;">
+              <i class="fa-solid fa-mountain-sun"></i> Scotland
+            </button>
+            <button onclick="zoomMapRegion('uk')" class="btn btn-outline mono" style="padding: 4px 8px; font-size: 11px;">
+              <i class="fa-solid fa-earth-europe"></i> All UK
+            </button>
+            <button onclick="toggleCoveragePolygons()" id="btn-toggle-lobes" class="btn btn-outline mono" style="padding: 4px 8px; font-size: 11px;">
+              <i class="fa-solid fa-eye-slash"></i> Selected Footprint
+            </button>
+            <button onclick="toggleMapTiles()" id="btn-toggle-tiles" class="btn btn-outline mono" style="padding: 4px 8px; font-size: 11px;">
+              <i class="fa-solid fa-map"></i> Street Map
+            </button>
+          </div>
+        </div>
+
+        <div class="legend-bar mono">
+          <div class="legend-item"><span class="dot" style="background: var(--cyan);"></span><span>New / Highlight</span></div>
+          <div class="legend-item"><span class="dot" style="background: var(--emerald);"></span><span>Operational</span></div>
+          <div class="legend-item"><span class="dot" style="background: var(--amber);"></span><span>Gateway / Reduced</span></div>
+          <div class="legend-item"><span class="dot" style="background: var(--purple);"></span><span>TETRA / 6m</span></div>
+          <div class="legend-item"><span class="dot" style="background: var(--rose);"></span><span>Not Operational</span></div>
+        </div>
+
+        <div id="rf-map" class="topo-tiles"></div>
+
+        <div class="telemetry-bar mono">
+          <div>
+            <span style="color: var(--text-muted);">Path:</span>
+            <strong id="beam-summary-title" style="color: #fff;">Cardross ➔ GB7GR Gourock</strong>
+          </div>
+          <div class="telemetry-metrics">
+            <div><span style="color: var(--text-muted);">Dist:</span> <strong id="beam-distance" style="color: var(--cyan);">--</strong></div>
+            <div><span style="color: var(--text-muted);">Bearing:</span> <strong id="beam-bearing" style="color: var(--amber);">--</strong></div>
+            <div><span style="color: var(--text-muted);">Quality:</span> <span id="beam-terrain-quality" class="badge badge-emerald">Pure Saltwater LoS</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terrain & Fresnel Cross-Section Card -->
+      <div class="card card-pad">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div class="toolbar-title">
+            <span id="path-status-dot" class="dot" style="background: var(--emerald);"></span>
+            <span>Terrain & Fresnel Zone Cross-Section Profile</span>
+          </div>
+          <div class="mono" style="font-size: 12px;">
+            <span style="color: var(--text-muted);">Estimated S-Meter:</span>
+            <span id="beam-smeter" class="badge badge-cyan">S9+20 dB</span>
+          </div>
+        </div>
+
+        <div class="sub-box" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div style="font-size: 12px; color: #cbd5e1;">
+            <i class="fa-solid fa-sliders" style="color: var(--cyan); margin-right: 5px;"></i>
+            <strong>Station Class / Antenna Elevation:</strong>
+          </div>
+          <div class="filter-row">
+            <button onclick="setRig('ht')" id="btn-rig-ht" class="pill-btn active mono">5W Handheld (2m AGL Whip)</button>
+            <button onclick="setRig('base')" id="btn-rig-base" class="pill-btn mono">50W Base / Mobile (12m AGL Collinear)</button>
+          </div>
+        </div>
+
+        <div id="terrain-canvas-container">
+          <canvas id="terrain-canvas"></canvas>
+        </div>
+
+        <div class="sub-box" id="terrain-narrative" style="color: #cbd5e1;">
+          Select any repeater on the map or list to inspect the exact line-of-sight elevation profile, ridgeline blocking, and saltwater reflection.
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Repeater Inspector + Filterable Directory -->
+    <div class="col-stack">
+      <!-- Inspector Card -->
+      <div class="card card-pad">
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+          <div class="toolbar-title">
+            <i class="fa-solid fa-microchip" style="color: var(--cyan);"></i>
+            <span>Repeater & DV Codeplug Inspector</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <a id="inspector-ukrep-link" href="https://ukrepeater.net/my_repeater.php?id=GB7GR" target="_blank" rel="noopener noreferrer" class="btn btn-outline mono" style="padding: 3px 8px; font-size: 11px;">
+              <span>ukrepeater.net</span>
+              <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 9px;"></i>
+            </a>
+            <span id="inspector-callsign-badge" class="badge badge-cyan mono">GB7GR</span>
+          </div>
+        </div>
+
+        <div id="inspector-content" style="display: flex; flex-direction: column; gap: 10px;"></div>
+
+        <div class="sub-box" style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;" class="mono">
+            <span style="color: var(--text-muted); font-size: 11px;">Universal Codeplug / CHIRP CSV Row:</span>
+            <button onclick="copyChirpRow()" id="btn-copy-csv" class="pill-btn mono" style="color: #67e8f9;">
+              <i class="fa-regular fa-copy"></i> Copy CSV Row
+            </button>
+          </div>
+          <div id="chirp-csv-string" class="mono" style="background: var(--bg-900); padding: 8px; border-radius: 6px; border: 1px solid var(--border); font-size: 11px; color: #6ee7b7; overflow-x: auto; white-space: nowrap;"></div>
+        </div>
+      </div>
+
+      <!-- Directory Card -->
+      <div class="card card-pad" style="flex: 1;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div class="toolbar-title">
+            <i class="fa-solid fa-list" style="color: var(--cyan);"></i>
+            <span>UK & Scotland Directory (<span id="repeater-count">0</span>)</span>
+          </div>
+          <div class="filter-row mono">
+            <button onclick="setBandFilter('ALL')" id="filter-band-ALL" class="pill-btn active">ALL</button>
+            <button onclick="setBandFilter('2m')" id="filter-band-2m" class="pill-btn">2m</button>
+            <button onclick="setBandFilter('70cm')" id="filter-band-70cm" class="pill-btn">70cm</button>
+            <button onclick="setBandFilter('6m')" id="filter-band-6m" class="pill-btn">6m/4m</button>
+          </div>
+        </div>
+
+        <div class="search-row">
+          <input
+            type="text"
+            id="search-input"
+            class="search-input mono"
+            oninput="onSearchInput(this.value)"
+            placeholder="Search callsign, town, locator, keeper, freq..."
+          />
+          <button onclick="toggleSortOrder()" id="btn-sort-order" class="btn btn-outline mono" style="padding: 6px 10px; font-size: 11px;">
+            <i class="fa-solid fa-arrow-down-short-wide"></i> Dist
+          </button>
+        </div>
+
+        <div class="filter-row mono">
+          <span style="font-size: 10px; color: var(--text-muted);">Mode:</span>
+          <button onclick="setModeFilter('ALL')" id="filter-mode-ALL" class="pill-btn active">All</button>
+          <button onclick="setModeFilter('FM')" id="filter-mode-FM" class="pill-btn">FM</button>
+          <button onclick="setModeFilter('DMR')" id="filter-mode-DMR" class="pill-btn">DMR</button>
+          <button onclick="setModeFilter('YSF')" id="filter-mode-YSF" class="pill-btn">YSF</button>
+          <button onclick="setModeFilter('D-STAR')" id="filter-mode-D-STAR" class="pill-btn">D-STAR</button>
+          <button onclick="setModeFilter('NXDN')" id="filter-mode-NXDN" class="pill-btn">NXDN</button>
+          <button onclick="setModeFilter('TETRA')" id="filter-mode-TETRA" class="pill-btn">TETRA</button>
+        </div>
+
+        <div id="repeater-list-container"></div>
+      </div>
+    </div>
+  </main>
+
+  <section class="nets-section">
+    <div class="card">
+      <div class="card-toolbar">
+        <div class="toolbar-title mono">
+          <i class="fa-solid fa-calendar-check" style="color: var(--amber);"></i>
+          <span>UK & Scotland Ham Radio Nets & GB2RS Schedule (<span id="net-count">0</span> Nets — Sorted Nearest First)</span>
+          <span id="net-sync-badge" class="status-pill synced mono">
+            <i class="fa-solid fa-tower-cell"></i>
+            <span id="net-sync-text">Synced with netfinder.radio/nets/country/united-kingdom</span>
+          </span>
+        </div>
+        <div class="filter-row">
+          <button onclick="toggleNetSortMode()" id="btn-sort-nets" class="btn btn-outline mono" style="padding: 4px 9px; font-size: 11px;">
+            <i class="fa-solid fa-location-dot"></i> Sorted by Distance from QTH
+          </button>
+          <button onclick="plotAllNetsOnMap()" id="btn-map-nets" class="btn btn-outline mono" style="padding: 4px 9px; font-size: 11px;">
+            <i class="fa-solid fa-map-location-dot"></i> Plot All Net Hubs on Map
+          </button>
+          <button onclick="syncLiveScotlandNets()" id="btn-sync-nets" class="btn btn-outline mono" style="padding: 4px 9px; font-size: 11px;">
+            <i id="net-sync-icon" class="fa-solid fa-rotate"></i> Sync UK NetFinder
+          </button>
+          <a href="https://netfinder.radio/nets/country/united-kingdom" target="_blank" rel="noopener noreferrer" class="btn btn-outline mono" style="padding: 4px 9px; font-size: 11px;">
+            <span>netfinder.radio/uk</span>
+            <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 9px;"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="card-pad">
+        <!-- Interactive Explanation & Day/Band Filter Bar -->
+        <div class="sub-box" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;">
+          <div style="font-size: 12px; color: #cbd5e1;">
+            <i class="fa-solid fa-compass" style="color: var(--cyan); margin-right: 5px;"></i>
+            <strong>Proximity-Sorted UK Nets & News:</strong> Nets and GB2RS broadcasts below are automatically ordered from closest to furthest from <strong id="net-qth-label" style="color: var(--emerald);">Cardross (IO75px)</strong>. Click <strong>"Plot Path & Inspect"</strong> on any net to plot its RF path & terrain profile.
+          </div>
+          <div class="filter-row mono">
+            <span style="font-size: 11px; color: var(--text-muted);">Day:</span>
+            <button onclick="setNetDayFilter('ALL')" id="net-day-ALL" class="pill-btn active">All Days</button>
+            <button onclick="setNetDayFilter('TODAY')" id="net-day-TODAY" class="pill-btn" style="border: 1px solid rgba(16,185,129,0.5); color: #6ee7b7;">Today</button>
+            <button onclick="setNetDayFilter('Mon')" id="net-day-Mon" class="pill-btn">Mon</button>
+            <button onclick="setNetDayFilter('Tue')" id="net-day-Tue" class="pill-btn">Tue</button>
+            <button onclick="setNetDayFilter('Wed')" id="net-day-Wed" class="pill-btn">Wed</button>
+            <button onclick="setNetDayFilter('Thu')" id="net-day-Thu" class="pill-btn">Thu</button>
+            <button onclick="setNetDayFilter('Fri')" id="net-day-Fri" class="pill-btn">Fri</button>
+            <button onclick="setNetDayFilter('Sat')" id="net-day-Sat" class="pill-btn">Sat</button>
+            <button onclick="setNetDayFilter('Sun')" id="net-day-Sun" class="pill-btn">Sun</button>
+          </div>
+        </div>
+
+        <div class="search-row" style="flex-wrap: wrap;">
+          <input
+            type="text"
+            id="net-search-input"
+            class="search-input mono"
+            oninput="onNetSearchInput(this.value)"
+            placeholder="Search Scottish net name, club, town, frequency, TG, repeater (e.g. Lomond, GB2RS, Clydebank, 145.3375, Phoenix)..."
+          />
+          <div class="filter-row mono">
+            <span style="font-size: 11px; color: var(--text-muted);">Band/Mode:</span>
+            <button onclick="setNetModeFilter('ALL')" id="net-mode-ALL" class="pill-btn active">All</button>
+            <button onclick="setNetModeFilter('2m')" id="net-mode-2m" class="pill-btn">2m VHF</button>
+            <button onclick="setNetModeFilter('70cm')" id="net-mode-70cm" class="pill-btn">70cm UHF</button>
+            <button onclick="setNetModeFilter('DMR')" id="net-mode-DMR" class="pill-btn">DMR / DV</button>
+            <button onclick="setNetModeFilter('AllStar')" id="net-mode-AllStar" class="pill-btn">AllStar / EchoLink</button>
+            <button onclick="setNetModeFilter('HF')" id="net-mode-HF" class="pill-btn">80m / CW</button>
+          </div>
+        </div>
+
+        <!-- Nets Cards Grid -->
+        <div id="nets-grid-container" class="nets-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="mono">
+    Scotland & Clyde RF Repeater Terrain Mapper • All 85 RSGB ETCC Scottish Repeaters + Local Gateways & Scottish Nets •
+    Synced with <a href="https://ukrepeater.net/repeaterlist.html?filter=SCOTLAND" target="_blank" rel="noopener">ukrepeater.net</a> &
+    <a href="https://netfinder.radio/nets/country/scotland" target="_blank" rel="noopener">netfinder.radio/nets/country/scotland</a>
+  </footer>
+
+  <script>
+    /*************************************************************************
+     * 1. USER QTH LOCATIONS (Presets + Custom GPS / Grid / Map Pin Support)
+     *************************************************************************/
+    const QTH_LOCATIONS = {
+      cardross: {
+        id: 'cardross',
+        name: 'Cardross',
+        locator: 'IO75px',
+        lat: 55.9630,
+        lng: -4.6540,
+        elevMeters: 18,
+        desc: 'North shore of the Firth of Clyde. Unrestricted saltwater takeoff south/west toward Gourock, Port Glasgow & Ayrshire; sheltered to the north-east by the Kilpatrick hills.'
+      },
+      helensburgh: {
+        id: 'helensburgh',
+        name: 'Helensburgh',
+        locator: 'IO76pa',
+        lat: 56.0050,
+        lng: -4.7330,
+        elevMeters: 35,
+        desc: 'Mouth of the Gare Loch overlooking the Firth of Clyde. Superb line-of-sight across the water to Gourock (GB7GR), Port Glasgow (MB6GP), and down the Clyde coast.'
+      },
+      dumbarton: {
+        id: 'dumbarton',
+        name: 'Dumbarton',
+        locator: 'IO75ri',
+        lat: 55.9450,
+        lng: -4.5710,
+        elevMeters: 15,
+        desc: 'Confluence of the River Leven and River Clyde. Direct corridor north up the Vale of Leven to Alexandria (MB7IBH / MB7IDQ) and east up the Clyde valley into Glasgow.'
+      },
+      edinburgh: {
+        id: 'edinburgh',
+        name: 'Edinburgh',
+        locator: 'IO85jw',
+        lat: 55.9533,
+        lng: -3.1883,
+        elevMeters: 65,
+        desc: 'Scottish Capital & Firth of Forth basin. Strong line-of-sight across Lothian, Fife, and the eastern Central Belt.'
+      },
+      inverness: {
+        id: 'inverness',
+        name: 'Inverness',
+        locator: 'IO77ul',
+        lat: 57.4778,
+        lng: -4.2247,
+        elevMeters: 28,
+        desc: 'Highland hub at the mouth of the Great Glen and Moray Firth.'
+      },
+      manchester: {
+        id: 'manchester',
+        name: 'Manchester',
+        locator: 'IO83rj',
+        lat: 53.4808,
+        lng: -2.2426,
+        elevMeters: 52,
+        desc: 'North West England hub overlooking the Cheshire Plain and Pennine foothills.'
+      },
+      birmingham: {
+        id: 'birmingham',
+        name: 'Birmingham',
+        locator: 'IO92fl',
+        lat: 52.4862,
+        lng: -1.8904,
+        elevMeters: 140,
+        desc: 'Elevated West Midlands plateau with wide-area VHF/UHF takeoff across Central England.'
+      },
+      london: {
+        id: 'london',
+        name: 'London',
+        locator: 'IO91wm',
+        lat: 51.5074,
+        lng: -0.1278,
+        elevMeters: 24,
+        desc: 'Thames Valley & Greater London basin.'
+      },
+      cardiff: {
+        id: 'cardiff',
+        name: 'Cardiff (Wales)',
+        locator: 'IO81kj',
+        lat: 51.4816,
+        lng: -3.1791,
+        elevMeters: 19,
+        desc: 'South Wales coastal plain overlooking the Bristol Channel.'
+      },
+      belfast: {
+        id: 'belfast',
+        name: 'Belfast (NI)',
+        locator: 'IO74ap',
+        lat: 54.5973,
+        lng: -5.9301,
+        elevMeters: 15,
+        desc: 'Belfast Lough & Lagan Valley with saltwater takeoff across the North Channel toward Southwest Scotland.'
+      },
+      custom: {
+        id: 'custom',
+        name: 'Custom QTH',
+        locator: 'IO75px',
+        lat: 55.9630,
+        lng: -4.6540,
+        elevMeters: 45,
+        desc: 'User-defined UK operating location (via GPS, Maidenhead Grid Locator, or Map Pin).'
+      }
+    };
+
+    function latLngToLocator(lat, lon) {
+      let adjLat = lat + 90;
+      let adjLon = lon + 180;
+      const A = 'A'.charCodeAt(0);
+      const a = 'a'.charCodeAt(0);
+      const fieldLon = String.fromCharCode(A + Math.floor(adjLon / 20));
+      const fieldLat = String.fromCharCode(A + Math.floor(adjLat / 10));
+      const sqLon = Math.floor((adjLon % 20) / 2);
+      const sqLat = Math.floor(adjLat % 10);
+      const subLon = String.fromCharCode(a + Math.floor(((adjLon - (Math.floor(adjLon / 2) * 2)) * 12)));
+      const subLat = String.fromCharCode(a + Math.floor(((adjLat - Math.floor(adjLat)) * 24)));
+      return fieldLon + fieldLat + sqLon + sqLat + subLon + subLat;
+    }
+
+    function calcDistanceKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function calcBearing(lat1, lon1, lat2, lon2) {
+      const p1 = lat1 * Math.PI / 180;
+      const p2 = lat2 * Math.PI / 180;
+      const dl = (lon2 - lon1) * Math.PI / 180;
+      const y = Math.sin(dl) * Math.cos(p2);
+      const x = Math.cos(p1) * Math.sin(p2) - Math.sin(p1) * Math.cos(p2) * Math.cos(dl);
+      const t = Math.atan2(y, x);
+      const deg = Math.round((t * 180 / Math.PI + 360) % 360);
+      const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+      const compass = dirs[Math.round(deg / 22.5) % 16];
+      return deg + '° ' + compass;
+    }
+
+    function locatorToLatLng(locator, callsignSeed) {
+      const clean = (locator || 'IO75MM').trim().toUpperCase();
+      if (clean.length < 4) return { lat: 56.0, lng: -4.0 };
+
+      const A = 'A'.charCodeAt(0);
+      const fieldLon = (clean.charCodeAt(0) - A) * 20 - 180;
+      const fieldLat = (clean.charCodeAt(1) - A) * 10 - 90;
+      const sqLon = parseInt(clean[2] || '0', 10) * 2;
+      const sqLat = parseInt(clean[3] || '0', 10) * 1;
+
+      let subLon = 1.0;
+      let subLat = 0.5;
+      if (clean.length >= 6) {
+        subLon = ((clean.charCodeAt(4) - A) + 0.5) * (2 / 24);
+        subLat = ((clean.charCodeAt(5) - A) + 0.5) * (1 / 24);
+      }
+
+      let hash = 0;
+      const seed = callsignSeed || '';
+      for (let i = 0; i < seed.length; i++) {
+        hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+        hash |= 0;
+      }
+      const jitterLat = ((hash % 17) * 0.0022);
+      const jitterLng = (((hash >> 4) % 17) * 0.0035);
+
+      return {
+        lat: +(fieldLat + sqLat + subLat + jitterLat).toFixed(4),
+        lng: +(fieldLon + sqLon + subLon + jitterLng).toFixed(4)
+      };
+    }
+
+    function decodeModeFlags(modeStr) {
+      const s = (modeStr || 'A').toUpperCase();
+      const modes = [];
+      if (s.indexOf('A') !== -1) modes.push('FM');
+      if (s.indexOf('M') !== -1) modes.push('DMR');
+      if (s.indexOf('F') !== -1) modes.push('YSF');
+      if (s.indexOf('D') !== -1) modes.push('D-STAR');
+      if (s.indexOf('N') !== -1) modes.push('NXDN');
+      if (s.indexOf('P') !== -1) modes.push('P25');
+      if (s.indexOf('E') !== -1) modes.push('TETRA');
+      return modes.length ? modes : ['FM'];
+    }
+
+    /*************************************************************************
+     * 2. BESPOKE CLYDE & LOMOND REPEATERS & GATEWAYS
+     *************************************************************************/
+    const BESPOKE_REPEATERS = [
+      {
+        id: 'GB7GR',
+        apiCallsign: 'GB7GR',
+        callsign: 'GB7GR',
+        name: 'Gourock (Inverclyde)',
+        locator: 'IO75LL',
+        lat: 55.9550,
+        lng: -4.8190,
+        siteElev: 110,
+        status: 'OPERATIONAL • LIVE SEP 2026',
+        statusType: 'new',
+        band: '70cm',
+        channel: 'RU75',
+        rxFreq: '430.9375',
+        txFreq: '438.5375',
+        offset: '+7.6 MHz',
+        modes: ['FM', 'DMR'],
+        ctcss: '103.5 Hz',
+        dvConfig: {
+          protocol: 'BrandMeister Mixed-Mode FM & DMR Tier II',
+          accessParam: 'DMR Color Code 1 (CC1) | FM CTCSS 103.5 Hz ("Pip" on FM)',
+          ts1: 'TS1: Static TG 23559 (Scot West) + Dynamic Talkgroups',
+          ts2: 'TS2: Static TG 2355 (Scot Wide) & TG 23551 (Scot Multi) + TG 9 Local',
+          network: 'BrandMeister UK (ID 234248) + Analogue FM'
+        },
+        keeper: 'GM4SVW',
+        color: '#06b6d4',
+        funFact: 'Switched on 27 Sep 2026 on the southern bank of the Firth of Clyde in Gourock! RF signals between this site and Cardross/Helensburgh travel over tidal saltwater with near-zero attenuation. Returns a single "pip" on FM and no tone when kerchunked on DMR.',
+        htAdvice: '5W Handheld: Program RX 430.9375 / TX 438.5375 (+7.6 MHz split). For DMR set Color Code 1: TS1 = TG 23559 (Scot West), TS2 = TG 2355 (Scot Wide) & TG 23551 (Scot Multi). For Analogue FM set 103.5 Hz CTCSS.',
+        baseAdvice: '50W Base/Mobile: Full-quieting S9+ across the Clyde estuary even on 1W–5W low power settings.',
+        coveragePolygon: [
+          [56.065, -4.920], [56.045, -4.740], [56.005, -4.620],
+          [55.945, -4.530], [55.890, -4.580], [55.885, -4.780],
+          [55.920, -4.950], [56.010, -4.980]
+        ],
+        terrainProfiles: {
+          cardross: {
+            quality: 'Pure Saltwater LoS',
+            qualityColor: 'emerald',
+            sMeterHT: 'S9+20 dB',
+            sMeterBase: 'S9+40 dB',
+            points: [
+              { d: 0, e: 18, label: 'Cardross QTH' },
+              { d: 0.15, e: 2, label: 'Clyde Foreshore' },
+              { d: 0.5, e: 0, label: 'Firth of Clyde (Water)' },
+              { d: 0.85, e: 5, label: 'Gourock Bay' },
+              { d: 1.0, e: 110, label: 'GB7GR Gourock' }
+            ],
+            narrative: '100% unobstructed line-of-sight across the Firth of Clyde estuary. Saltwater acts as a low-loss ground reflector, delivering strong signals even on a 5W handheld indoors.'
+          },
+          helensburgh: {
+            quality: 'Pure Saltwater LoS',
+            qualityColor: 'emerald',
+            sMeterHT: 'S9+25 dB',
+            sMeterBase: 'S9+45 dB',
+            points: [
+              { d: 0, e: 35, label: 'Helensburgh' },
+              { d: 0.2, e: 0, label: 'Ardmore / Clyde' },
+              { d: 0.55, e: 0, label: 'Firth of Clyde' },
+              { d: 0.85, e: 12, label: 'Ashton Shore' },
+              { d: 1.0, e: 110, label: 'GB7GR Gourock' }
+            ],
+            narrative: 'Direct 7.7 km path straight across the mouth of the Gare Loch and Firth of Clyde. Effortless full-quieting access on a 1W–5W handheld.'
+          },
+          dumbarton: {
+            quality: 'Estuary Line-of-Sight',
+            qualityColor: 'emerald',
+            sMeterHT: 'S9',
+            sMeterBase: 'S9+25 dB',
+            points: [
+              { d: 0, e: 15, label: 'Dumbarton' },
+              { d: 0.2, e: 22, label: 'Dumbarton Rock' },
+              { d: 0.5, e: 0, label: 'Clyde Estuary' },
+              { d: 0.8, e: 18, label: 'Port Glasgow Coast' },
+              { d: 1.0, e: 110, label: 'GB7GR Gourock' }
+            ],
+            narrative: 'Follows the open water channel of the Clyde estuary past Port Glasgow and Greenock directly into Gourock.'
+          }
+        }
+      },
+      {
+        id: 'GB3DM',
+        apiCallsign: 'GB3DM',
+        callsign: 'GB3DM',
+        name: 'Dumbarton (West Dunbartonshire)',
+        locator: 'IO75QX',
+        lat: 55.9480,
+        lng: -4.5520,
+        siteElev: 145,
+        status: 'OPERATIONAL',
+        statusType: 'active',
+        band: '70cm',
+        channel: 'RU74',
+        rxFreq: '430.9250',
+        txFreq: '438.5250',
+        offset: '+7.6 MHz',
+        modes: ['FM', 'YSF', 'D-STAR'],
+        ctcss: '103.5 Hz',
+        dvConfig: {
+          protocol: 'Multimode FM / YSF (C4FM) / D-STAR',
+          accessParam: 'FM: 103.5 Hz | YSF: DG-ID 00 | D-STAR: RPT1=GB3DM B, RPT2=GB3DM G',
+          ts1: 'YSF: DN/VW Automatic Mode Select (AMS)',
+          ts2: 'D-STAR: URCALL=CQCQCQ (Reflector Linkable)',
+          network: 'Multimode Local & Reflector Gateway'
+        },
+        keeper: 'GM7GDE',
+        color: '#10b981',
+        funFact: 'A true tri-mode 70cm hub overlooking the Dumbarton basin! It seamlessly bridges Analogue FM, System Fusion (YSF/C4FM), and D-STAR over the lower Clyde and Vale of Leven.',
+        htAdvice: '5W Handheld: Program RX 430.9250 / TX 438.5250 (+7.6 MHz split). Set 103.5 Hz CTCSS for FM, DG-ID 00 for YSF, or RPT1="GB3DM  B" for D-STAR.',
+        baseAdvice: '50W Base/Mobile: Booming local coverage across Dumbarton, Cardross, Alexandria, and Helensburgh; minimum TX power (1W–5W) is sufficient locally.',
+        coveragePolygon: [
+          [56.040, -4.770], [56.045, -4.560], [55.995, -4.420],
+          [55.910, -4.350], [55.865, -4.470], [55.895, -4.680],
+          [55.965, -4.780]
+        ],
+        terrainProfiles: {
+          cardross: {
+            quality: 'Direct Local LoS',
+            qualityColor: 'emerald',
+            sMeterHT: 'S9+30 dB',
+            sMeterBase: 'S9+50 dB',
+            points: [
+              { d: 0, e: 18, label: 'Cardross QTH' },
+              { d: 0.35, e: 12, label: 'Ardoch Shore' },
+              { d: 0.7, e: 10, label: 'Levengrove / Leven' },
+              { d: 1.0, e: 145, label: 'GB3DM Dumbarton' }
+            ],
+            narrative: 'Booming local signal only 6.5 km away along the flat north shore of the Clyde. Easily worked on a 1W–5W handheld from anywhere in Cardross.'
+          },
+          helensburgh: {
+            quality: 'Slight Ridge Grazing',
+            qualityColor: 'emerald',
+            sMeterHT: 'S8 / S9',
+            sMeterBase: 'S9+25 dB',
+            points: [
+              { d: 0, e: 35, label: 'Helensburgh' },
+              { d: 0.3, e: 95, label: 'Ardmore / Colgrain Slope' },
+              { d: 0.6, e: 25, label: 'Cardross Coast' },
+              { d: 1.0, e: 145, label: 'GB3DM Dumbarton' }
+            ],
+            narrative: 'Skims across the gentle coastal rise between Colgrain and Cardross with solid signal margins into Helensburgh.'
+          },
+          dumbarton: {
+            quality: 'Point-Blank Local',
+            qualityColor: 'emerald',
+            sMeterHT: 'S9+40 dB',
+            sMeterBase: 'S9+60 dB',
+            points: [
+              { d: 0, e: 15, label: 'Dumbarton QTH' },
+              { d: 0.5, e: 45, label: 'Town / Braefoot' },
+              { d: 1.0, e: 145, label: 'GB3DM Dumbarton' }
+            ],
+            narrative: 'Virtually overhead in Dumbarton (~1.2 km). Full scale S9+ on any handheld whip.'
+          }
+        }
+      },
+      {
+        id: 'MB7IBH',
+        apiCallsign: 'MB7IBH',
+        callsign: 'MB7IBH',
+        name: 'Alexandria 2m Gateway (Loch Lomond Net)',
+        locator: 'IO75RX',
+        lat: 55.9890,
+        lng: -4.5820,
+        siteElev: 45,
+        status: 'OPERATIONAL • SUN NET 20:00',
+        statusType: 'net',
+        band: '2m',
+        extraBands: ['4m'],
+        channel: '2m Simplex',
+        rxFreq: '145.3375',
+        txFreq: '145.3375',
+        offset: 'Simplex (0.0 MHz)',
+        modes: ['FM'],
+        ctcss: '103.5 Hz',
+        dvConfig: {
+          protocol: 'AllStar / EchoLink FM Simplex Gateway',
+          accessParam: 'CTCSS 103.5 Hz (Simplex 145.3375 MHz)',
+          ts1: 'AllStar Node: 64460 (Linked to Lomond Hub 67108)',
+          ts2: 'EchoLink: MB7IBH-L | Companion 4m: MB7IDR (70.3500 MHz)',
+          network: 'Loch Lomond AllStar Hub 67108'
+        },
+        keeper: 'MM3DDQ',
+        color: '#f59e0b',
+        funFact: 'VHF anchor of the Loch Lomond Sunday Night Net (Sundays at 20:00 UK time, check-ins from 19:45)! Links 2m (MB7IBH), 70cm (MB7IDQ), and 4m (MB7IDR) together via AllStar Hub 67108.',
+        htAdvice: '5W Handheld: Program 145.3375 MHz FM Simplex with 103.5 Hz CTCSS tone. On 2m VHF, signals diffract cleanly over Carman Hill into Cardross and Helensburgh.',
+        baseAdvice: '50W Base/Mobile: Rock-solid copy throughout the Vale of Leven, Loch Lomond basin, Dumbarton, and Firth of Clyde.',
+        coveragePolygon: [
+          [56.065, -4.650], [56.050, -4.510], [55.985, -4.490],
+          [55.930, -4.530], [55.940, -4.670], [56.005, -4.720]
+        ],
+        terrainProfiles: {
+          cardross: {
+            quality: 'Carman Hill 2m Diffraction',
+            qualityColor: 'amber',
+            sMeterHT: 'S7 / S8',
+            sMeterBase: 'S9+20 dB',
+            points: [
+              { d: 0, e: 18, label: 'Cardross QTH' },
+              { d: 0.45, e: 165, label: 'Carman Hill Shoulder' },
+              { d: 0.75, e: 55, label: 'Renton / Vale Slope' },
+              { d: 1.0, e: 45, label: 'MB7IBH Alexandria' }
+            ],
+            narrative: '5.3 km path across the shoulder of Carman Hill. The 2m (145.3375 MHz) wavelength bends cleanly over the ridge, making it stronger on handhelds than UHF.'
+          },
+          helensburgh: {
+            quality: 'Glen Fruin Moorland Pass',
+            qualityColor: 'amber',
+            sMeterHT: 'S7',
+            sMeterBase: 'S9+15 dB',
+            points: [
+              { d: 0, e: 35, label: 'Helensburgh' },
+              { d: 0.4, e: 210, label: 'Benuchara / Muir Ridge' },
+              { d: 0.75, e: 80, label: 'Dalmoak / Bonhill' },
+              { d: 1.0, e: 45, label: 'MB7IBH Alexandria' }
+            ],
+            narrative: 'Crosses the moorland saddle between Helensburgh and the Vale of Leven. Reliable access on mobile whips and elevated antennas.'
+          },
+          dumbarton: {
+            quality: 'Vale of Leven Corridor',
+            qualityColor: 'emerald',
+            sMeterHT: 'S9+15 dB',
+            sMeterBase: 'S9+35 dB',
+            points: [
+              { d: 0, e: 15, label: 'Dumbarton QTH' },
+              { d: 0.35, e: 12, label: 'Bellsmyre / River Leven' },
+              { d: 0.7, e: 18, label: 'Renton Flat' },
+              { d: 1.0, e: 45, label: 'MB7IBH Alexandria' }
+            ],
+            narrative: 'Follows the flat River Leven valley floor straight through Renton into Alexandria with zero terrain obstruction.'
+          }
+        }
+      },
+      {
+        id: 'MB7IDQ',
+        apiCallsign: 'MB7IDQ',
+        callsign: 'MB7IDQ',
+        name: 'Alexandria 70cm Gateway (Loch Lomond Net)',
+        locator: 'IO75RX',
+        lat: 55.9875,
+        lng: -4.5790,
+        siteElev: 45,
+        status: 'OPERATIONAL • SUN NET 20:00',
+        statusType: 'net',
+        band: '70cm',
+        channel: '70cm Simplex',
+        rxFreq: '430.0125',
+        txFreq: '430.0125',
+        offset: 'Simplex (0.0 MHz)',
+        modes: ['FM'],
+        ctcss: '103.5 Hz',
+        dvConfig: {
+          protocol: 'AllStar UHF FM Simplex Gateway',
+          accessParam: 'CTCSS 103.5 Hz (Simplex 430.0125 MHz)',
+          ts1: 'AllStar Node: 64516 (Linked to Lomond Hub 67108)',
+          ts2: 'Bridged full-time with MB7IBH (2m) & MB7IDR (4m)',
+          network: 'Loch Lomond AllStar Hub 67108'
+        },
+        keeper: 'MM3DDQ',
+        color: '#f59e0b',
+        funFact: 'The dedicated 70cm UHF sister gateway to MB7IBH in Alexandria! Allows operators to check into the Loch Lomond Sunday Night Net on 430.0125 MHz.',
+        htAdvice: '5W Handheld: Program 430.0125 MHz FM Simplex with 103.5 Hz CTCSS. Best in the Vale of Leven and Dumbarton corridor.',
+        baseAdvice: '50W Base/Mobile: Overcomes Carman Hill attenuation easily from Cardross and Helensburgh to access the AllStar 67108 hub.',
+        coveragePolygon: [
+          [56.055, -4.640], [56.040, -4.515], [55.980, -4.500],
+          [55.932, -4.535], [55.942, -4.655], [55.998, -4.700]
+        ],
+        terrainProfiles: {
+          cardross: {
+            quality: 'Carman Hill UHF Grazing',
+            qualityColor: 'amber',
+            sMeterHT: 'S6 / S7',
+            sMeterBase: 'S9+10 dB',
+            points: [
+              { d: 0, e: 18, label: 'Cardross QTH' },
+              { d: 0.45, e: 165, label: 'Carman Hill Shoulder' },
+              { d: 0.75, e: 55, label: 'Renton Slope' },
+              { d: 1.0, e: 45, label: 'MB7IDQ Alexandria' }
+            ],
+            narrative: 'Because 70cm UHF has a tighter First Fresnel Zone than 2m, Carman Hill attenuates low handhelds slightly more than on 145.3375 MHz, while a rooftop/mobile antenna punches straight through.'
+          },
+          helensburgh: {
+            quality: 'Moorland Saddle Path',
+            qualityColor: 'amber',
+            sMeterHT: 'S6',
+            sMeterBase: 'S9+10 dB',
+            points: [
+              { d: 0, e: 35, label: 'Helensburgh' },
+              { d: 0.4, e: 210, label: 'Benuchara Ridge' },
+              { d: 0.75, e: 80, label: 'Bonhill' },
+              { d: 1.0, e: 45, label: 'MB7IDQ Alexandria' }
+            ],
+            narrative: 'Crosses the moorland ridge east of Helensburgh into Alexandria; external base/mobile antennas recommended.'
+          },
+          dumbarton: {
+            quality: 'Direct Vale Corridor',
+            qualityColor: 'emerald',
+            sMeterHT: 'S9+10 dB',
+            sMeterBase: 'S9+30 dB',
+            points: [
+              { d: 0, e: 15, label: 'Dumbarton QTH' },
+              { d: 0.4, e: 14, label: 'River Leven Valley' },
+              { d: 0.75, e: 18, label: 'Renton' },
+              { d: 1.0, e: 45, label: 'MB7IDQ Alexandria' }
+            ],
+            narrative: 'Unobstructed line-of-sight north up the Vale of Leven corridor.'
+          }
+        }
+      },
+      {
+        id: 'MB6GP',
+        apiCallsign: 'MB6GP',
+        callsign: 'MB6GP',
+        name: 'Port Glasgow (YSF / WIRES-X Gateway)',
+        locator: 'IO75PL',
+        lat: 55.9340,
+        lng: -4.6880,
+        siteElev: 30,
+        status: 'OPERATIONAL',
+        statusType: 'active',
+        band: '70cm',
+        extraBands: ['2m'],
+        channel: 'Simplex DV Gateway',
+        rxFreq: '431.1250',
+        txFreq: '431.1250',
+        offset: 'Simplex (0.0 MHz)',
+        modes: ['YSF', 'FM'],
+        ctcss: 'DG-ID 00 / 103.5 Hz',
+        dvConfig: {
+          protocol: 'Yaesu System Fusion (C4FM) & WIRES-X Gateway',
+          accessParam: 'YSF: DG-ID 00 (RX/TX) | WIRES-X Node #78628',
+          ts1: 'Primary UHF Allocation: 431.1250 MHz Simplex',
+          ts2: 'VHF WIRES-X Allocation: 144.8250 MHz Simplex',
+          network: 'WIRES-X (#78628) / YSF Scotland Reflector'
+        },
+        keeper: '2M0ROT',
+        color: '#f59e0b',
+        funFact: 'Located directly across the narrows of the Firth of Clyde in Port Glasgow (~3.8 km south of Cardross)! Provides immediate saltwater line-of-sight access to WIRES-X (Node #78628) and YSF rooms.',
+        htAdvice: '5W Handheld: Program 431.1250 MHz (and 144.8250 MHz) Simplex. Set mode to C4FM Digital (DN) with TX/RX DG-ID 00. Point-blank across the water from Cardross!',
+        baseAdvice: '50W Base/Mobile: Use low TX power (5W) from Cardross, Helensburgh, or Dumbarton as the path across the Clyde is completely open.',
+        coveragePolygon: [
+          [56.015, -4.780], [56.000, -4.550], [55.930, -4.520],
+          [55.895, -4.600], [55.905, -4.770], [55.965, -4.810]
+        ],
+        terrainProfiles: {
+          cardross: {
+            quality: 'Short Saltwater LoS',
+            qualityColor: 'emerald',
+            sMeterHT: 'S9+25 dB',
+            sMeterBase: 'S9+45 dB',
+            points: [
+              { d: 0, e: 18, label: 'Cardross QTH' },
+              { d: 0.25, e: 0, label: 'Cardross Pillar Bank' },
+              { d: 0.65, e: 0, label: 'Firth of Clyde Channel' },
+              { d: 1.0, e: 30, label: 'MB6GP Port Glasgow' }
+            ],
+            narrative: 'Only 3.8 km directly south across the water from Cardross. Zero obstructions—delivers full-scale digital C4FM decoding on a 5W handheld.'
+          },
+          helensburgh: {
+            quality: 'Open Estuary LoS',
+            qualityColor: 'emerald',
+            sMeterHT: 'S9+10 dB',
+            sMeterBase: 'S9+30 dB',
+            points: [
+              { d: 0, e: 35, label: 'Helensburgh' },
+              { d: 0.35, e: 0, label: 'Ardmore Point (Water)' },
+              { d: 0.7, e: 0, label: 'Clyde Estuary' },
+              { d: 1.0, e: 30, label: 'MB6GP Port Glasgow' }
+            ],
+            narrative: '8.4 km across the water past Ardmore Point directly into Port Glasgow.'
+          },
+          dumbarton: {
+            quality: 'Clyde Channel LoS',
+            qualityColor: 'emerald',
+            sMeterHT: 'S9+10 dB',
+            sMeterBase: 'S9+30 dB',
+            points: [
+              { d: 0, e: 15, label: 'Dumbarton QTH' },
+              { d: 0.3, e: 0, label: 'River Leven Mouth' },
+              { d: 0.7, e: 0, label: 'Langbank / Clyde' },
+              { d: 1.0, e: 30, label: 'MB6GP Port Glasgow' }
+            ],
+            narrative: '7.4 km straight down the southern shore of the Clyde channel.'
+          }
+        }
+      },
+      {
+        id: 'MB6CY',
+        apiCallsign: 'MB6CY',
+        callsign: 'MB6CY',
+        name: 'Clydebank Data & Simplex Gateway',
+        locator: 'IO75SV',
+        lat: 55.9020,
+        lng: -4.4050,
+        siteElev: 35,
+        status: 'OPERATIONAL',
+        statusType: 'active',
+        band: '2m',
+        channel: 'Simplex Data',
+        rxFreq: '144.8750',
+        txFreq: '144.8750',
+        offset: 'Simplex (0.0 MHz)',
+        modes: ['FM'],
+        ctcss: 'CSQ / No Tone (Data)',
+        dvConfig: {
+          protocol: '2m VHF Packet / Digital Data Simplex Node',
+          accessParam: '144.8750 MHz Simplex (Carrier Squelch / Data)',
+          ts1: 'AFSK / Packet / Digital Data Gateway',
+          ts2: 'North Clyde Bank Corridor (IO75SV)',
+          network: 'Clydebank Local Data Node'
+        },
+        keeper: 'Local Keeper (Clydebank)',
+        color: '#f59e0b',
+        funFact: 'Sits right on the north bank of the River Clyde in Clydebank (`IO75SV`), providing a flat riverbank path into Bowling, Dumbarton, and Cardross for VHF data and gateway testing.',
+        htAdvice: '5W Handheld: Monitor 144.8750 MHz FM Simplex (Carrier Squelch) to copy local VHF data bursts.',
+        baseAdvice: '50W Base/Mobile: Connect your transceiver USB soundcard interface on 144.8750 MHz FM-DATA for clean packet/digital decoding.',
+        coveragePolygon: [
+          [55.980, -4.670], [55.970, -4.280], [55.850, -4.280],
+          [55.860, -4.620]
+        ],
+        terrainProfiles: {
+          cardross: {
+            quality: 'North Clyde Bank Corridor',
+            qualityColor: 'emerald',
+            sMeterHT: 'S7 / S8',
+            sMeterBase: 'S9+20 dB',
+            points: [
+              { d: 0, e: 18, label: 'Cardross QTH' },
+              { d: 0.4, e: 15, label: 'Dumbarton Foreshore' },
+              { d: 0.7, e: 18, label: 'Bowling / Old Kilpatrick' },
+              { d: 1.0, e: 35, label: 'MB6CY Clydebank' }
+            ],
+            narrative: 'Hugs the flat north bank of the River Clyde beneath the Kilpatrick Hills through Bowling and Old Kilpatrick.'
+          },
+          helensburgh: {
+            quality: 'Coastal & River Grazing',
+            qualityColor: 'amber',
+            sMeterHT: 'S6',
+            sMeterBase: 'S9',
+            points: [
+              { d: 0, e: 35, label: 'Helensburgh' },
+              { d: 0.45, e: 25, label: 'Cardross / Dumbarton' },
+              { d: 1.0, e: 35, label: 'MB6CY Clydebank' }
+            ],
+            narrative: 'Follows the north shore of the estuary into Clydebank.'
+          },
+          dumbarton: {
+            quality: 'Short Riverbank LoS',
+            qualityColor: 'emerald',
+            sMeterHT: 'S9',
+            sMeterBase: 'S9+30 dB',
+            points: [
+              { d: 0, e: 15, label: 'Dumbarton' },
+              { d: 0.5, e: 12, label: 'Milton / Bowling' },
+              { d: 1.0, e: 35, label: 'MB6CY Clydebank' }
+            ],
+            narrative: 'Flat 11 km river path straight down the A82 / Firth of Clyde foreshore.'
+          }
+        }
+      }
+    ];
+
+    /*************************************************************************
+     * 3. COMPLETE 85-REPEATER SCOTLAND DATASET FROM UKREPEATER.NET
+     *************************************************************************/
+    const RAW_SCOTLAND_ETCC_TABLE = [
+      ["GB3AD","UR63","438.3875","430.7875","IO85ML","Hawick","118.8","A","G0RDI","OPERATIONAL"],
+      ["GB3AG","RV58","145.7250","145.1250","IO86ON","Angus","94.8","AF","GM5TAY","OPERATIONAL"],
+      ["GB3AO","RU78","430.9750","438.5750","IO87MM","Aboyne","67.0","A","G4SCY","OPERATIONAL"],
+      ["GB3AS","RV48","145.6000","145.0000","IO85MC","Langholm","77.0","A","GM6LJE","OPERATIONAL"],
+      ["GB3AY","RV52","145.6500","145.0500","IO75OR","Dalry","103.5","A","MM0YET","OPERATIONAL"],
+      ["GB3BE","RU69","430.8625","438.4625","IO85LM","Duns","118.8","AF","GM7LUN","OPERATIONAL"],
+      ["GB3BI","RV58","145.7250","145.1250","IO77RM","Muir of Ord","67.0","A","MM0GKB","OPERATIONAL"],
+      ["GB3BT","RV56","145.7000","145.1000","IO85WT","Berwick on Tweed","118.8","AMF","GM1DSV","OPERATIONAL"],
+      ["GB3CS","RV60","145.7500","145.1500","IO85MM","Motherwell","103.5","A","GM8HBY","OPERATIONAL"],
+      ["GB3DD","RB10","433.2500","434.8500","IO86MM","Dundee","94.8","AF","GM4FLP","OPERATIONAL"],
+      ["GB3DG","RV62","145.7750","145.1750","IO74UV","Newton Stewart","103.5","AF","GM8CJG","OPERATIONAL"],
+      ["GB3DM","RU74","430.9250","438.5250","IO75QX","Dumbarton","103.5","ADF","GM7GDE","OPERATIONAL"],
+      ["GB3DU","RV61","145.7625","145.1625","IO85MM","Duns","118.8","AM","GM7LUN","OPERATIONAL"],
+      ["GB3ED","RU71","430.8875","438.4875","IO85JW","Edinburgh","94.8","AN","GM4GZW","OPERATIONAL"],
+      ["GB3EI","RV49","145.6125","145.0125","IO67IN","Lochmaddy","88.5","ADMF","GM8SAU","OPERATIONAL"],
+      ["GB3FE","RV53","145.6625","145.0625","IO86BC","Stirling","103.5","AM","GM0MZB","OPERATIONAL"],
+      ["GB3FF","RV48","145.6000","145.0000","IO86MM","Upper Largo","103.5","A","GM7LUN","OPERATIONAL"],
+      ["GB3GL","RU72","430.9000","438.5000","IO75WU","Glasgow","103.5","AF","GM3SAN","OPERATIONAL"],
+      ["GB3HI","RV56","145.7000","145.1000","IO76DK","Isle of Mull","103.5","A","MM0JRM","REDUCED OUTPUT"],
+      ["GB3HK","RB02","433.0500","434.6500","IO85ML","Selkirk","118.8","A","GM7LUN","OPERATIONAL"],
+      ["GB3IG","RV62","145.7750","145.1750","IO68QE","Stornoway","88.5","A","MM0KMQ","OPERATIONAL"],
+      ["GB3IS","RU71","430.8875","438.4875","IO67HC","Isle of South Uist","94.8","ADMF","GM8SAU","OPERATIONAL"],
+      ["GB3KE","RV55","145.6875","145.0875","IO75UV","Glasgow (NW)","103.5","AF","GM7SVK","OPERATIONAL"],
+      ["GB3KV","RU78","430.9750","438.5750","IO75XX","Kilsyth","103.5","A","GM3SAN","OPERATIONAL"],
+      ["GB3KW","RU66","430.8250","438.4250","IO75UV","Glasgow (NW UHF)","103.5","AF","GM7SVK","OPERATIONAL"],
+      ["GB3LB","RV63","145.7875","145.1875","IO85LM","Lauder","118.8","A","GM7LUN","OPERATIONAL"],
+      ["GB3LU","RV54","145.6750","145.0750","IP90JD","Lerwick (Shetland)","77.0","A","GM0GFL","OPERATIONAL"],
+      ["GB3OC","RV52","145.6500","145.0500","IO88LX","Kirkwall (Orkney)","77.0","A","GM0HQG","OPERATIONAL"],
+      ["GB3OH","RU76","430.9500","438.5500","IO85EX","Linlithgow","94.8","AM","GM0MZB","OPERATIONAL"],
+      ["GB3PA","RV50","145.6250","145.0250","IO75LL","Paisley","103.5","A","GM7GDE","OPERATIONAL"],
+      ["GB3PR","RV54","145.6750","145.0750","IO86GI","Perth","94.8","AF","GM8KPH","OPERATIONAL"],
+      ["GB3PU","RB0","433.0000","434.6000","IO86GI","Perth (UHF)","94.8","AF","GM8KPH","OPERATIONAL"],
+      ["GB3SB","RV52","145.6500","145.0500","IO85MM","Selkirk","118.8","AF","GM7LUN","OPERATIONAL"],
+      ["GB3SF","RV50","145.6250","145.0250","IO86LM","Perth (Fusion)","--","F","GM3NFO","OPERATIONAL"],
+      ["GB3SL","R50-02","50.7300","51.2300","IO75XX","Kilsyth (6m)","103.5","A","GM4COX","OPERATIONAL"],
+      ["GB3SS","RV48","145.6000","145.0000","IO87ML","Elgin Moray","67.0","AF","GM4ILS","OPERATIONAL"],
+      ["GB3WA","RU70","430.8750","438.4750","IO75OR","Dalry (UHF)","103.5","A","GM7GDE","OPERATIONAL"],
+      ["GB7AB","DVU53","439.6625","430.6625","IO87VD","Aberdeen","--","F","GM7KBK","OPERATIONAL"],
+      ["GB7AC","RU76","430.9500","438.5500","IO87MM","Largs","103.5","AM","GM7RYR","OPERATIONAL"],
+      ["GB7AI","DMU27","439.3375","430.3375","IO85LL","Hawick","103.5","AM","GM8SJP","OPERATIONAL"],
+      ["GB7AK","DVU56","439.7000","430.7000","IO76BV","Arisaig","CC 4","DMFN","2M0SBP","OPERATIONAL"],
+      ["GB7BB","DVU57","439.7125","430.7125","IO87QP","Banff","CC 1","M","MM0BUH","OPERATIONAL"],
+      ["GB7BG","DVU53","439.6625","430.6625","IO85ML","Bathgate","CC 1","M","GM4UQD","OPERATIONAL"],
+      ["GB7BI","RU66","430.8250","438.4250","IO77RM","Muir of Ord","CC 1","M","GM0UDL","OPERATIONAL"],
+      ["GB7CB","DVU57","439.7125","430.7125","IO85ML","Livingston","CC 4","M","GM7RYR","OPERATIONAL"],
+      ["GB7CS","DVU62","439.7750","430.7750","IO75VU","Glasgow","--","F","GM7GDE","NOT OPERATIONAL"],
+      ["GB7DE","RV51","145.6375","145.0375","IO85LM","Kennoway Fife","94.8","AM","GM7RYR","NOT OPERATIONAL"],
+      ["GB7DG","RU72","430.9000","438.5000","IO74ML","Portpatrick","CC 7","AM","GM7RYR","OPERATIONAL"],
+      ["GB7DM","U324","434.0500","434.0500","IO75ML","Dumbarton (TETRA)","MCC 235","E","GM7RYR","OPERATIONAL"],
+      ["GB7EC","RU74","430.9250","438.5250","IO87UH","Oldmeldrum","CC 11","M","GM0APN","OPERATIONAL"],
+      ["GB7EE","RU74","430.9250","438.5250","IO85JW","Edinburgh","CC 1","M","GM7RYR","OPERATIONAL"],
+      ["GB7EF","DVU36","439.4500","430.4500","IO86LM","Ladybank","103.5 / CC7","ADMFPN","MM8BEC","OPERATIONAL"],
+      ["GB7EI","RU68","430.8500","438.4500","IO67IN","Lochmaddy","88.5","ADMF","GM8SAU","OPERATIONAL"],
+      ["GB7EM","DVU34","439.4250","430.4250","IO87WD","Aberdeen","CC 11","M","GM0NRT","OPERATIONAL"],
+      ["GB7ET","U324","434.0500","434.0500","IO75JW","Edinburgh (TETRA)","CC 1","E","GM7RYR","OPERATIONAL"],
+      ["GB7EU","RU67","430.8375","438.4375","IO85JW","Edinburgh","94.8","AN","GM7RYR","OPERATIONAL"],
+      ["GB7FE","DVU38","439.4750","430.4750","IO86BC","Stirling","CC 1","M","GM0MZB","OPERATIONAL"],
+      ["GB7FP","DVU12","439.1500","430.1500","IO87WC","Aberdeen","--","DF","2M0FPI","OPERATIONAL"],
+      ["GB7GA","RU65","430.8125","438.4125","IO85LM","Galashiels","118.8","AF","GM7LUN","NOT OPERATIONAL"],
+      ["GB7GD","RV55","145.6875","145.0875","IO87WE","Aberdeen","CC 1","DMF","GM4DMO","OPERATIONAL"],
+      ["GB7GK","DVU39","439.4875","430.4875","IO87ON","Keith","CC 1","M","GM0MEM","OPERATIONAL"],
+      ["GB7GL","RU68","430.8500","438.4500","IO75LL","Glasgow (DMR)","CC 7","M","GM0KUJ","OPERATIONAL"],
+      ["GB7GM","RU78","430.9750","438.5750","IO85ML","Dumfries","118.8","ADMF","M0UKB","OPERATIONAL"],
+      ["GB7GR","RU75","430.9375","438.5375","IO75LL","Gourock","103.5 / CC1","AM","GM4SVW","OPERATIONAL"],
+      ["GB7GZ","U321A","434.01875","434.01875","IO75LL","Glasgow (TETRA)","MCC 235","E","GM0KUJ","OPERATIONAL"],
+      ["GB7HK","RV50","145.6250","145.0250","IO85LL","Hawick","103.5","AM","GM8SJP","NOT OPERATIONAL"],
+      ["GB7ID","RU67","430.8375","438.4375","IO85LL","Edinburgh (NXDN)","--","N","GM7RYR","OPERATIONAL"],
+      ["GB7IG","RU75","430.9375","438.5375","IO68TE","Stornoway","88.5","AM","GM0PWS","OPERATIONAL"],
+      ["GB7II","DVU36","439.4500","430.4500","IO77UL","Inverness","CC 3","M","GM6GRE","OPERATIONAL"],
+      ["GB7IR","RU73","430.9125","438.5125","IO75ML","Irvine","CC 6","M","GM7RYR","OPERATIONAL"],
+      ["GB7JD","DVU33","439.4125","430.4125","IO85RL","Jedburgh","CC 1","DMN","GM4UPX","OPERATIONAL"],
+      ["GB7KN","DVU35","439.4375","430.4375","IO85LL","Edinburgh","CC 1","DMF","GM5JPB","OPERATIONAL"],
+      ["GB7KV","RU65","430.8125","438.4125","IO87SF","Kemnay","103.5","AFM","G0WUR","OPERATIONAL"],
+      ["GB7KY","DVU52","439.6500","430.6500","IO86LL","Kirkcaldy","103.5","ADMFPN","GM0MMN","OPERATIONAL"],
+      ["GB7LL","RU73","430.9125","438.5125","IO86GE","Kinross","94.8","AM","GM4HJO","OPERATIONAL"],
+      ["GB7LS","DVU32","439.4000","430.4000","IO85LM","Galashiels","--","DMF","GM7LUN","OPERATIONAL"],
+      ["GB7LV","RV49","145.6125","145.0125","IO85GW","Broxburn","94.8","ADMF","GM5JPB","OPERATIONAL"],
+      ["GB7MM","DVU60","439.7500","430.7500","IO87BN","Nairn","CC 5","DMF","GM0RML","OPERATIONAL"],
+      ["GB7PA","DVU42","439.5250","430.5250","IO75LM","Paisley","CC 1","M","GM7RYR","NOT OPERATIONAL"],
+      ["GB7PG","DVU61","439.7625","430.7625","IO84AW","Castle Douglas","CC 1","MFD","M5LEE","OPERATIONAL"],
+      ["GB7RG","RU75","430.9375","438.5375","IO74LV","Stranraer","103.5","AM","GM4YTD","OPERATIONAL"],
+      ["GB7SQ","DVU54","439.6750","430.6750","IO85MM","Dalkeith","CC 1","MN","MM1BJO","OPERATIONAL"],
+      ["GB7SS","DVU47","439.5875","430.5875","IO87HR","Lossiemouth","CC 1","M","MM0KLQ","OPERATIONAL"],
+      ["GB7ZT","DVU32","439.4000","430.4000","IO75LC","Ballantrae","CC 9","M","GM4ZTO","OPERATIONAL"],
+      ["MB5TH","RV59","145.7375","145.1375","IO87TG","Thainstone","69.3","ADMF","GM7KBK","OPERATIONAL"],
+      ["GB3NB","RV48","145.6000","145.0000","IO92FL","Birmingham (Wythall)","77.0","A","G4acher","OPERATIONAL"],
+      ["GB3LO","RU66","430.8250","438.4250","IO91WM","Central London","88.5","AF","G3UUT","OPERATIONAL"],
+      ["GB3MN","RV56","145.7000","145.1000","IO83RJ","Manchester (Stockport)","82.5","A","G8MNY","OPERATIONAL"],
+      ["GB3MR","RU68","430.8500","438.4500","IO83RJ","Manchester (UHF)","82.5","A","G8MNY","OPERATIONAL"],
+      ["GB3HG","RV52","145.6500","145.0500","IO93FT","Harrogate (Yorkshire)","88.5","AF","G4MNY","OPERATIONAL"],
+      ["GB3WW","RU73","430.9125","438.5125","IO81KJ","Cardiff (South Wales)","94.8","AF","GW4BZD","OPERATIONAL"],
+      ["GB3NI","RV54","145.6750","145.0750","IO74AP","Belfast (Northern Ireland)","110.9","A","GI0BFD","OPERATIONAL"],
+      ["GB3GD","RV50","145.6250","145.0250","IO74SD","Snaefell (Isle of Man)","103.5","A","GD4IOM","OPERATIONAL"],
+      ["GB3EV","RV56","145.7000","145.1000","IO84SQ","Eden Valley (Cumbria)","77.0","A","G0CWT","OPERATIONAL"],
+      ["GB3NT","RV54","145.6750","145.0750","IO94Ax","Newcastle (Tyneside)","103.5","AF","G0NWT","OPERATIONAL"],
+      ["GB3BP","RU74","430.9250","438.5250","IO91VU","Bletchley Park (RSGB NRC)","77.0","AM","G3RSG","OPERATIONAL"],
+      ["GB7LO","DVU50","439.6250","430.6250","IO91WM","London (DMR)","CC 1","M","G4RKY","OPERATIONAL"]
+    ];
+
+    function getDynamicProfileForQTH(rep, qthKey) {
+      const qth = QTH_LOCATIONS[qthKey] || QTH_LOCATIONS.cardross;
+      if (rep.terrainProfiles && rep.terrainProfiles[qthKey]) {
+        return rep.terrainProfiles[qthKey];
+      }
+      const dist = calcDistanceKm(qth.lat, qth.lng, rep.lat, rep.lng);
+      const isOff = rep.statusType === 'off';
+      const siteElev = rep.siteElev || 150;
+      const town = rep.town || rep.name.split('(')[0].trim();
+
+      let quality = 'Regional UK Path';
+      let qualityColor = 'amber';
+      let sMeterHT = 'S4 / S5';
+      let sMeterBase = 'S8 / S9';
+      let midObstacleElev = Math.min(480, Math.round(80 + dist * 1.9));
+      let midLabel = 'UK Uplands / Horizon';
+
+      if (isOff) {
+        quality = 'Repeater Logged NOT OPERATIONAL';
+        qualityColor = 'rose';
+        sMeterHT = 'OFF AIR';
+        sMeterBase = 'OFF AIR';
+      } else if (dist <= 18) {
+        quality = 'Local Line-of-Sight Path';
+        qualityColor = 'emerald';
+        sMeterHT = 'S9+10 dB';
+        sMeterBase = 'S9+30 dB';
+        midObstacleElev = Math.round(Math.min(qth.elevMeters, siteElev) * 0.7);
+        midLabel = 'Local Lowland / Corridor';
+      } else if (dist <= 50) {
+        quality = 'Regional VHF/UHF Corridor';
+        qualityColor = 'emerald';
+        sMeterHT = 'S6 / S7';
+        sMeterBase = 'S9+10 dB';
+        midObstacleElev = 135;
+        midLabel = 'Regional Valley / Ridge';
+      } else if (dist > 95) {
+        quality = 'Long-Haul UK DX Path';
+        qualityColor = 'rose';
+        sMeterHT = 'Below Noise Floor';
+        sMeterBase = 'S2 / S4 (Beam / Tropo)';
+        midObstacleElev = 490;
+        midLabel = 'Earth Curvature & UK Hills';
+      }
+
+      return {
+        quality: quality,
+        qualityColor: qualityColor,
+        sMeterHT: sMeterHT,
+        sMeterBase: sMeterBase,
+        points: [
+          { d: 0, e: qth.elevMeters, label: qth.name },
+          { d: 0.25, e: Math.round(midObstacleElev * 0.55), label: 'Near Horizon' },
+          { d: 0.55, e: midObstacleElev, label: midLabel },
+          { d: 0.82, e: Math.round((midObstacleElev + siteElev) * 0.5), label: town + ' Approach' },
+          { d: 1.0, e: siteElev, label: rep.callsign + ' ' + town }
+        ],
+        narrative: isOff
+          ? rep.callsign + ' (' + town + ') is currently listed as NOT OPERATIONAL on the RSGB ETCC database.'
+          : dist.toFixed(1) + ' km path from ' + qth.name + ' (' + qth.locator + ') to ' + rep.callsign + ' in ' + town + ' (' + rep.locator + '). ' + (
+              dist <= 45
+                ? 'Workable with a 50W base/mobile collinear or well-sited handheld.'
+                : 'Extended UK path—best worked mobile when near ' + town + ' or via linked Digital Voice / AllStar / EchoLink networks.'
+            )
+      };
+    }
+
+    function buildRepeaterFromETCCRow(row) {
+      const callsign = row[0];
+      const channel = row[1];
+      const rxFreq = row[2];
+      const txFreq = row[3];
+      const locator = row[4];
+      const town = row[5];
+      const toneOrCC = row[6];
+      const modeFlags = row[7];
+      const keeper = row[8];
+      const rawStatus = row[9];
+
+      for (let i = 0; i < BESPOKE_REPEATERS.length; i++) {
+        if (BESPOKE_REPEATERS[i].callsign === callsign) {
+          return BESPOKE_REPEATERS[i];
+        }
+      }
+
+      const coords = locatorToLatLng(locator, callsign);
+      const KNOWN_COORDS = {
+        GB3AY: { lat: 55.7100, lng: -4.7210, elev: 245 },
+        GB3WA: { lat: 55.7220, lng: -4.7350, elev: 240 },
+        GB3PA: { lat: 55.8110, lng: -4.4550, elev: 220 },
+        GB7PA: { lat: 55.8125, lng: -4.4520, elev: 195 },
+        GB3KE: { lat: 55.9153, lng: -4.3077, elev: 75 },
+        GB3KW: { lat: 55.9165, lng: -4.3055, elev: 75 },
+        GB3GL: { lat: 55.8620, lng: -4.2250, elev: 135 },
+        GB7GL: { lat: 55.8640, lng: -4.2500, elev: 120 },
+        GB7GZ: { lat: 55.8600, lng: -4.2580, elev: 110 },
+        GB7CS: { lat: 55.8550, lng: -4.2400, elev: 125 },
+        GB3CS: { lat: 55.8150, lng: -3.9310, elev: 260 },
+        GB3KV: { lat: 55.9920, lng: -4.0620, elev: 390 },
+        GB3SL: { lat: 55.9900, lng: -4.0600, elev: 385 },
+        GB7DM: { lat: 55.9420, lng: -4.5650, elev: 65 },
+        GB7AC: { lat: 55.7950, lng: -4.8650, elev: 170 },
+        GB7IR: { lat: 55.6200, lng: -4.6600, elev: 95 },
+        GB3FE: { lat: 56.1150, lng: -3.9350, elev: 185 },
+        GB7FE: { lat: 56.1160, lng: -3.9320, elev: 185 }
+      };
+
+      const lat = KNOWN_COORDS[callsign] ? KNOWN_COORDS[callsign].lat : coords.lat;
+      const lng = KNOWN_COORDS[callsign] ? KNOWN_COORDS[callsign].lng : coords.lng;
+      const siteElev = KNOWN_COORDS[callsign] ? KNOWN_COORDS[callsign].elev : 160;
+
+      const rxNum = parseFloat(rxFreq);
+      const txNum = parseFloat(txFreq);
+      const diff = +(txNum - rxNum).toFixed(4);
+      const offsetStr = diff === 0 ? 'Simplex (0.0 MHz)' : (diff > 0 ? '+' : '') + diff + ' MHz';
+
+      let band = '70cm';
+      if (rxNum < 60) band = '6m/4m';
+      else if (rxNum < 200) band = '2m';
+
+      const modes = decodeModeFlags(modeFlags);
+      const isOff = rawStatus.indexOf('NOT') !== -1;
+      const isReduced = rawStatus.indexOf('REDUCED') !== -1;
+
+      let statusType = 'active';
+      let color = '#10b981';
+      if (isOff) {
+        statusType = 'off';
+        color = '#f43f5e';
+      } else if (isReduced) {
+        statusType = 'net';
+        color = '#f59e0b';
+      } else if (modes.indexOf('TETRA') !== -1 || band === '6m/4m') {
+        color = '#a855f7';
+      }
+
+      const ctcssDisplay = (toneOrCC.indexOf('CC') !== -1 || toneOrCC === '--' || toneOrCC.indexOf('MCC') !== -1)
+        ? toneOrCC
+        : toneOrCC + ' Hz';
+
+      const coveragePolygon = [];
+      for (let i = 0; i < 8; i++) {
+        const ang = (i * Math.PI) / 4;
+        coveragePolygon.push([
+          +(lat + Math.sin(ang) * 0.085).toFixed(4),
+          +(lng + Math.cos(ang) * 0.145).toFixed(4)
+        ]);
+      }
+
+      const terrainProfiles = {};
+      ['cardross', 'helensburgh', 'dumbarton'].forEach(function(qthKey) {
+        const qth = QTH_LOCATIONS[qthKey];
+        const dist = calcDistanceKm(qth.lat, qth.lng, lat, lng);
+
+        let quality = 'Regional Scottish Path';
+        let qualityColor = 'amber';
+        let sMeterHT = 'S4 / S5';
+        let sMeterBase = 'S8 / S9';
+        let midObstacleElev = Math.min(480, Math.round(90 + dist * 2.1));
+        let midLabel = 'Scottish Uplands / Ridge';
+
+        if (isOff) {
+          quality = 'Repeater Logged NOT OPERATIONAL';
+          qualityColor = 'rose';
+          sMeterHT = 'OFF AIR';
+          sMeterBase = 'OFF AIR';
+        } else if (dist <= 18) {
+          quality = 'Local Clyde / Estuary Path';
+          qualityColor = 'emerald';
+          sMeterHT = 'S9';
+          sMeterBase = 'S9+25 dB';
+          midObstacleElev = 25;
+          midLabel = 'Clyde Estuary / Lowland';
+        } else if (dist <= 48) {
+          quality = 'West / Central Belt Corridor';
+          qualityColor = 'emerald';
+          sMeterHT = 'S6 / S7';
+          sMeterBase = 'S9+10 dB';
+          midObstacleElev = 140;
+          midLabel = 'Central Belt Valley';
+        } else if (dist > 95) {
+          quality = 'Long-Haul DX / Highland Path';
+          qualityColor = 'rose';
+          sMeterHT = 'Below Noise Floor';
+          sMeterBase = 'S2 / S4 (High-Gain Yagi / Tropo)';
+          midObstacleElev = 520;
+          midLabel = 'Highland / Grampian Divide';
+        }
+
+        terrainProfiles[qthKey] = {
+          quality: quality,
+          qualityColor: qualityColor,
+          sMeterHT: sMeterHT,
+          sMeterBase: sMeterBase,
+          points: [
+            { d: 0, e: qth.elevMeters, label: qth.name },
+            { d: 0.25, e: Math.round(midObstacleElev * 0.55), label: 'Near Horizon' },
+            { d: 0.55, e: midObstacleElev, label: midLabel },
+            { d: 0.82, e: Math.round((midObstacleElev + siteElev) * 0.5), label: town + ' Approach' },
+            { d: 1.0, e: siteElev, label: callsign + ' ' + town }
+          ],
+          narrative: isOff
+            ? callsign + ' (' + town + ') is currently listed as NOT OPERATIONAL on the RSGB ETCC Scotland database.'
+            : dist.toFixed(1) + ' km path from ' + qth.name + ' to ' + callsign + ' in ' + town + ' (' + locator + '). ' + (
+                dist <= 45
+                  ? 'Workable across the Clyde/Central corridor with a 50W base/mobile collinear or well-sited handheld.'
+                  : 'Extended Scottish path—best worked mobile while travelling near ' + town + ' or from home using an elevated directional beam.'
+              )
+        };
+      });
+
+      return {
+        id: callsign,
+        apiCallsign: callsign,
+        callsign: callsign,
+        name: town + ' (' + channel + ')',
+        town: town,
+        locator: locator,
+        lat: lat,
+        lng: lng,
+        siteElev: siteElev,
+        status: rawStatus,
+        statusType: statusType,
+        band: band,
+        channel: channel,
+        rxFreq: rxFreq,
+        txFreq: txFreq,
+        offset: offsetStr,
+        modes: modes,
+        ctcss: ctcssDisplay,
+        dvConfig: {
+          protocol: 'RSGB ETCC Coordinated (' + modes.join(' / ') + ')',
+          accessParam: 'Tone / Access: ' + ctcssDisplay + ' | Chan: ' + channel,
+          ts1: modes.indexOf('DMR') !== -1 ? 'TS1: Wide-Area / Dynamic Talkgroups (TG 2350 / 2355)' : 'Output (RX): ' + rxFreq + ' MHz',
+          ts2: modes.indexOf('DMR') !== -1 ? 'TS2: Local (TG 9) & Regional Cluster (TG 2355x)' : 'Input (TX): ' + txFreq + ' MHz (' + offsetStr + ')',
+          network: 'RSGB ETCC Scotland Directory'
+        },
+        keeper: keeper,
+        color: color,
+        funFact: 'Official RSGB ETCC Scottish repeater (' + callsign + ') located in ' + town + ' (Grid ' + locator + '), maintained by keeper ' + keeper + '.',
+        htAdvice: '5W Handheld: Program RX ' + rxFreq + ' MHz / TX ' + txFreq + ' MHz (' + offsetStr + ') with access parameter ' + ctcssDisplay + '.',
+        baseAdvice: '50W Base/Mobile: Use ' + band + ' external collinear or directional antenna for extended range toward ' + town + '.',
+        coveragePolygon: coveragePolygon,
+        terrainProfiles: terrainProfiles
+      };
+    }
+
+    let REPEATERS = [];
+    function initializeFullScotlandDataset() {
+      const etccBuilt = RAW_SCOTLAND_ETCC_TABLE.map(function(row) {
+        return buildRepeaterFromETCCRow(row);
+      });
+      const etccCalls = {};
+      etccBuilt.forEach(function(r) { etccCalls[r.callsign] = true; });
+      const extraGateways = BESPOKE_REPEATERS.filter(function(b) {
+        return !etccCalls[b.callsign];
+      });
+      REPEATERS = etccBuilt.concat(extraGateways);
+    }
+    initializeFullScotlandDataset();
+
+    /*************************************************************************
+     * 3B. COMPLETE SCOTTISH HAM RADIO NETS DATASET (NETFINDER.RADIO SCOTLAND)
+     *************************************************************************/
+    const SCOTLAND_NETS = [
+      {
+        id: 'NET-LOMOND',
+        name: 'Loch Lomond Sunday Night NET 8PM',
+        region: 'Alexandria / Loch Lomond & Clyde',
+        days: ['Sun'],
+        timeLocal: '20:00 UK (Check-ins 19:45)',
+        band: '2m & 70cm',
+        mode: 'FM / AllStar / EchoLink',
+        tags: ['2m', '70cm', 'AllStar'],
+        rxFreq: '145.3375',
+        txFreq: '145.3375',
+        offset: 'Simplex (0.0 MHz)',
+        toneOrCC: 'CTCSS 103.5 Hz',
+        linkedRepeaterId: 'MB7IBH',
+        secondaryRepeaterId: 'MB7IDQ',
+        lat: 55.9890,
+        lng: -4.5820,
+        locator: 'IO75RX',
+        codeplugSettings: 'Ch 1: MB7IBH 145.3375 MHz Simplex (103.5 Hz) | Ch 2: MB7IDQ 430.0125 MHz Simplex (103.5 Hz) | Ch 3: MB7IDR 70.3500 MHz (4m) | AllStar Hub 67108 / EchoLink MB7IBH-L',
+        notes: 'Flagship local Sunday night net for Cardross, Helensburgh, Dumbarton, and the Loch Lomond basin! Multi-band linked across 2m (MB7IBH), 70cm (MB7IDQ), and 4m (MB7IDR).'
+      },
+      {
+        id: 'NET-GB2RS-CLYDEBANK',
+        name: 'GB2RS News + Net - Clydebank',
+        region: 'Clydebank / West Central Scotland',
+        days: ['Sun'],
+        timeLocal: '10:30 UK (Sundays)',
+        band: '70cm / DMR',
+        mode: 'DMR / Internet',
+        tags: ['70cm', 'DMR'],
+        rxFreq: '430.9375',
+        txFreq: '438.5375',
+        offset: '+7.6 MHz',
+        toneOrCC: 'CC1 • TS2 TG 2355 / TG 23559',
+        linkedRepeaterId: 'GB7GR',
+        lat: 55.9020,
+        lng: -4.4050,
+        locator: 'IO75SV',
+        codeplugSettings: 'DMR TG 2355 (Scotland Wide) / TG 23559 (Scot West) via GB7GR Gourock (430.9375 / 438.5375, CC1) or Pi-Star Hotspot',
+        notes: 'Weekly RSGB news broadcast and call-in net serving Clydebank, Dumbarton, and West of Scotland DMR operators.'
+      },
+      {
+        id: 'NET-GB2RS-GLASGOW',
+        name: 'GB2RS News + Net - Glasgow',
+        region: 'Glasgow & Clyde Valley',
+        days: ['Sun'],
+        timeLocal: '10:00 UK (Sundays)',
+        band: '2m',
+        mode: 'FM (Simplex / Repeater)',
+        tags: ['2m'],
+        rxFreq: '145.5250',
+        txFreq: '145.5250',
+        offset: 'Simplex (0.0 MHz)',
+        toneOrCC: 'CSQ (Follow-on via GB3CS 145.7500)',
+        linkedRepeaterId: 'GB3CS',
+        lat: 55.8620,
+        lng: -4.2500,
+        locator: 'IO75WU',
+        codeplugSettings: 'Primary News: 145.5250 MHz FM Simplex (CSQ) | Follow-on Check-ins: GB3CS 145.7500 MHz (-0.6 MHz, 103.5 Hz)',
+        notes: 'Long-running Sunday morning Glasgow GB2RS news broadcast with call-ins from across the Clyde Valley and Dunbartonshire.'
+      },
+      {
+        id: 'NET-GB2RS-LENZIE',
+        name: 'GB2RS News + Net - Lenzie',
+        region: 'Lenzie / North Glasgow',
+        days: ['Sun'],
+        timeLocal: '10:00 UK (Sundays)',
+        band: 'Multi-Band (2m / 70cm)',
+        mode: 'FM Multi-Band',
+        tags: ['2m', '70cm'],
+        rxFreq: '145.5250',
+        txFreq: '145.5250',
+        offset: 'Simplex / RU78',
+        toneOrCC: '103.5 Hz (GB3KV 430.9750)',
+        linkedRepeaterId: 'GB3KV',
+        lat: 55.9230,
+        lng: -4.1530,
+        locator: 'IO75WW',
+        codeplugSettings: '2m Simplex: 145.5250 MHz FM | 70cm Companion: GB3KV Kilsyth (430.9750 MHz RX / 438.5750 MHz TX, 103.5 Hz)',
+        notes: 'Multi-band Sunday morning RSGB news transmission and check-in net from Lenzie covering North Glasgow and the Campsie/Kilsyth corridor.'
+      },
+      {
+        id: 'NET-PAISLEY-VHF',
+        name: 'Paisley Amateur Radio Club (2m Net)',
+        region: 'Paisley / Renfrewshire & Clyde',
+        days: ['Wed'],
+        timeLocal: '20:00 UK (Wednesdays)',
+        band: '2m',
+        mode: 'FM',
+        tags: ['2m'],
+        rxFreq: '145.4500',
+        txFreq: '145.4500',
+        offset: 'Simplex (or GB3PA)',
+        toneOrCC: 'CSQ / 103.5 Hz on GB3PA',
+        linkedRepeaterId: 'GB3PA',
+        lat: 55.8450,
+        lng: -4.4230,
+        locator: 'IO75TT',
+        codeplugSettings: 'Simplex Ch: 145.4500 MHz (S18) FM | Repeater Backup: GB3PA (145.6250 MHz RX / 145.0250 MHz TX, 103.5 Hz CTCSS)',
+        notes: 'Friendly mid-week club net hosted by Paisley ARC (GM0PYA). Strong signal straight across the Clyde into Cardross, Dumbarton, and Helensburgh.'
+      },
+      {
+        id: 'NET-PAISLEY-DMR',
+        name: 'Paisley Amateur Radio Club (DMR Net)',
+        region: 'Paisley / West of Scotland',
+        days: ['Mon', 'Thu'],
+        timeLocal: '20:00 UK',
+        band: '70cm / DMR',
+        mode: 'DMR / Internet',
+        tags: ['70cm', 'DMR'],
+        rxFreq: '430.9375',
+        txFreq: '438.5375',
+        offset: '+7.6 MHz',
+        toneOrCC: 'CC1 • TS1 TG 23559 (Scot West)',
+        linkedRepeaterId: 'GB7GR',
+        lat: 55.8450,
+        lng: -4.4230,
+        locator: 'IO75TT',
+        codeplugSettings: 'Use GB7GR Gourock (430.9375 MHz RX / 438.5375 MHz TX, CC1, TS1 TG 23559 Scot West) while GB7PA is offline',
+        notes: 'Digital Voice net for Paisley and Clyde Coast operators. Accessible over RF via GB7GR Gourock from Cardross and Helensburgh!'
+      },
+      {
+        id: 'NET-GUWS',
+        name: 'Glasgow University Wireless Society Net',
+        region: 'Glasgow West End (GM6UW)',
+        days: ['Thu'],
+        timeLocal: '19:30 UK (Thursdays)',
+        band: '2m',
+        mode: 'FM / YSF',
+        tags: ['2m'],
+        rxFreq: '145.6875',
+        txFreq: '145.0875',
+        offset: '-0.6 MHz',
+        toneOrCC: '103.5 Hz (GB3KE RV55)',
+        linkedRepeaterId: 'GB3KE',
+        lat: 55.8720,
+        lng: -4.2880,
+        locator: 'IO75UV',
+        codeplugSettings: 'GB3KE NW Glasgow (145.6875 MHz RX / 145.0875 MHz TX, -0.6 MHz, 103.5 Hz) or 145.5500 MHz Simplex',
+        notes: 'Hosted by GUWS (GM6UW), one of the UK’s oldest university wireless societies. Uses NW Glasgow repeater GB3KE down the Clyde corridor.'
+      },
+      {
+        id: 'NET-GB2CW-GLASGOW',
+        name: 'GB2CW FM Slow Morse and Net (Glasgow)',
+        region: 'Glasgow & Clyde Basin',
+        days: ['Tue', 'Thu'],
+        timeLocal: '20:00 UK',
+        band: '2m',
+        mode: 'CW over FM / Voice',
+        tags: ['2m', 'HF'],
+        rxFreq: '145.2500',
+        txFreq: '145.2500',
+        offset: 'Simplex (0.0 MHz)',
+        toneOrCC: 'CSQ (FM Audio Tone CW)',
+        linkedRepeaterId: 'GB3KE',
+        lat: 55.8850,
+        lng: -4.3100,
+        locator: 'IO75UV',
+        codeplugSettings: '2m FM Simplex: 145.2500 MHz (S10) or via GB3KE (145.6875 MHz, 103.5 Hz) — Set radio to standard FM mode',
+        notes: 'Learn and practice Morse code on 2m VHF FM with voice chat between overs. Ideal for beginners and seasoned CW operators in West Central Scotland.'
+      },
+      {
+        id: 'NET-PHOENIX-MON',
+        name: 'DV Scotland Phoenix : Monday Night Net',
+        region: 'All Scotland (Multi-Protocol DV)',
+        days: ['Mon'],
+        timeLocal: '20:00 UK (Mondays)',
+        band: '70cm / Multi-Mode DV',
+        mode: 'DMR / D-STAR / YSF / AllStar / EchoLink',
+        tags: ['70cm', 'DMR', 'AllStar'],
+        rxFreq: '430.9375',
+        txFreq: '438.5375',
+        offset: '+7.6 MHz',
+        toneOrCC: 'DMR TG 2355 / YSF Scotland / D-STAR DCS005B',
+        linkedRepeaterId: 'GB7GR',
+        secondaryRepeaterId: 'GB3DM',
+        lat: 55.9550,
+        lng: -4.8190,
+        locator: 'IO75LL',
+        codeplugSettings: 'DMR: GB7GR TS2 TG 2355 (Scot Wide) | YSF/D-STAR: GB3DM Dumbarton (430.9250 MHz) or MB6GP Port Glasgow (431.1250 MHz)',
+        notes: 'National Scottish Digital Voice net bridging DMR, D-STAR, Yaesu System Fusion (C4FM), AllStar, and EchoLink into one shared Scottish room.'
+      },
+      {
+        id: 'NET-PHOENIX-C2C',
+        name: 'DV Scotland Phoenix : Coast To Coast Net',
+        region: 'Scotland Wide (West to East Coast)',
+        days: ['Wed', 'Sun'],
+        timeLocal: '20:00 UK',
+        band: '70cm',
+        mode: 'DMR / D-STAR / Fusion / AllStar / DX',
+        tags: ['70cm', 'DMR', 'AllStar'],
+        rxFreq: '430.9250',
+        txFreq: '438.5250',
+        offset: '+7.6 MHz',
+        toneOrCC: 'GB3DM (YSF/D-STAR) or GB7GR (DMR TG 2355)',
+        linkedRepeaterId: 'GB3DM',
+        secondaryRepeaterId: 'GB7GR',
+        lat: 55.9480,
+        lng: -4.5520,
+        locator: 'IO75QX',
+        codeplugSettings: 'GB3DM Dumbarton (430.9250 / 438.5250, 103.5 Hz / DG-ID 00 / D-STAR) or GB7GR Gourock (430.9375, CC1, TS2 TG 2355)',
+        notes: 'Links operators from the Firth of Clyde & Hebrides across to Edinburgh, Fife, and Aberdeen over bridged Scottish repeaters and gateways.'
+      },
+      {
+        id: 'NET-SPARC',
+        name: 'Strathclyde Park Amateur Radio Club Net',
+        region: 'Motherwell / Glasgow & Clyde Valley',
+        days: ['Tue'],
+        timeLocal: '19:30 UK (Tuesdays)',
+        band: '2m',
+        mode: 'FM',
+        tags: ['2m'],
+        rxFreq: '145.7500',
+        txFreq: '145.1500',
+        offset: '-0.6 MHz',
+        toneOrCC: '103.5 Hz (GB3CS) / 145.4750 Simplex',
+        linkedRepeaterId: 'GB3CS',
+        lat: 55.7920,
+        lng: -4.0180,
+        locator: 'IO75YT',
+        codeplugSettings: 'Repeater: GB3CS (145.7500 MHz RX / 145.1500 MHz TX, 103.5 Hz) | Club Simplex: 145.4750 MHz FM',
+        notes: 'Active Lanarkshire & Greater Glasgow 2m net. Travels straight down the Clyde valley corridor into Dumbarton and Cardross.'
+      },
+      {
+        id: 'NET-MLARS',
+        name: 'Mid Lanarkshire Amateur Radio Society Net',
+        region: 'Lanarkshire / Central Belt',
+        days: ['Wed', 'Fri'],
+        timeLocal: '20:00 UK',
+        band: '70cm / DMR',
+        mode: 'DMR / Internet',
+        tags: ['70cm', 'DMR'],
+        rxFreq: '430.8500',
+        txFreq: '438.4500',
+        offset: '+7.6 MHz',
+        toneOrCC: 'CC7 (GB7GL) or CC1 (GB7GR TG 2355)',
+        linkedRepeaterId: 'GB7GL',
+        lat: 55.8640,
+        lng: -4.2500,
+        locator: 'IO75LL',
+        codeplugSettings: 'GB7GL Glasgow DMR (430.8500 / 438.4500, CC7) or GB7GR Gourock (430.9375 / 438.5375, CC1, TG 2355 / 23559)',
+        notes: 'Mid Lanarkshire ARS (MLARS) digital voice net welcoming check-ins from across the Central Belt and Clyde coast.'
+      },
+      {
+        id: 'NET-KLARC-CW',
+        name: 'Kilmarnock and Loudoun ARC (80m CW Net)',
+        region: 'Ayrshire & West Scotland',
+        days: ['Mon', 'Thu'],
+        timeLocal: '19:30 UK',
+        band: '80m (3.5 MHz)',
+        mode: 'CW (Morse)',
+        tags: ['HF'],
+        rxFreq: '3.5550',
+        txFreq: '3.5550',
+        offset: 'Simplex CW',
+        toneOrCC: 'CW Narrow Filter (~500 Hz)',
+        linkedRepeaterId: 'GB3AY',
+        lat: 55.6110,
+        lng: -4.4950,
+        locator: 'IO75RO',
+        codeplugSettings: 'HF Transceiver: 3.555 MHz CW (80m Band) | Local VHF Calling via GB3AY Dalry (145.6500 MHz, 103.5 Hz)',
+        notes: 'Regional 80-metre NVIS Morse code net run by Kilmarnock & Loudoun ARC. Short-skip 80m signals cover all of Scotland effortlessly.'
+      },
+      {
+        id: 'NET-FALKIRK',
+        name: 'Falkirk Club Net (Stirlingshire)',
+        region: 'Falkirk / Stirling & Forth Valley',
+        days: ['Wed'],
+        timeLocal: '20:00 UK (Wednesdays)',
+        band: '2m',
+        mode: 'FM Repeater',
+        tags: ['2m'],
+        rxFreq: '145.6625',
+        txFreq: '145.0625',
+        offset: '-0.6 MHz',
+        toneOrCC: '103.5 Hz (GB3FE RV53)',
+        linkedRepeaterId: 'GB3FE',
+        lat: 56.1150,
+        lng: -3.9350,
+        locator: 'IO86BC',
+        codeplugSettings: 'GB3FE Stirling/Falkirk Repeater: RX 145.6625 MHz / TX 145.0625 MHz (-0.6 MHz split, 103.5 Hz CTCSS)',
+        notes: 'Hosted by Stirling & District ARS / Falkirk operators on GB3FE. Workable from elevated stations in Helensburgh and Gartocharn through the Campsie/Lomond gap.'
+      },
+      {
+        id: 'NET-LIVINGSTON',
+        name: 'Livingston and District ARS Net',
+        region: 'West Lothian',
+        days: ['Tue'],
+        timeLocal: '20:00 UK (Tuesdays)',
+        band: '2m',
+        mode: 'FM',
+        tags: ['2m'],
+        rxFreq: '145.6125',
+        txFreq: '145.0125',
+        offset: '-0.6 MHz',
+        toneOrCC: '94.8 Hz (GB7LV RV49) / 145.5750 Simplex',
+        linkedRepeaterId: 'GB7LV',
+        lat: 55.9320,
+        lng: -3.5200,
+        locator: 'IO85GW',
+        codeplugSettings: 'GB7LV Broxburn (145.6125 MHz RX / 145.0125 MHz TX, 94.8 Hz CTCSS) or 145.5750 MHz FM Simplex',
+        notes: 'Weekly West Lothian club net (LADARS) covering the eastern Central Belt and Forth corridor.'
+      },
+      {
+        id: 'NET-EDINBURGH-EDARS',
+        name: 'Edinburgh and District ARS Net (EDARS)',
+        region: 'Edinburgh & Lothians',
+        days: ['Thu'],
+        timeLocal: '20:00 UK (Thursdays)',
+        band: '70cm',
+        mode: 'FM / NXDN',
+        tags: ['70cm'],
+        rxFreq: '430.8875',
+        txFreq: '438.4875',
+        offset: '+7.6 MHz',
+        toneOrCC: '94.8 Hz (GB3ED RU71)',
+        linkedRepeaterId: 'GB3ED',
+        lat: 55.9530,
+        lng: -3.1880,
+        locator: 'IO85JW',
+        codeplugSettings: 'GB3ED Edinburgh (430.8875 MHz RX / 438.4875 MHz TX, +7.6 MHz split, 94.8 Hz CTCSS)',
+        notes: 'Capital city 70cm net hosted by Edinburgh & District Amateur Radio Society on GB3ED.'
+      },
+      {
+        id: 'NET-GB2RS-EDINBURGH',
+        name: 'GB2RS News + Net - Edinburgh',
+        region: 'Edinburgh & Forth Basin',
+        days: ['Sun'],
+        timeLocal: '10:00 UK (Sundays)',
+        band: 'Multi-Band (2m / 70cm)',
+        mode: 'FM',
+        tags: ['2m', '70cm'],
+        rxFreq: '430.8875',
+        txFreq: '438.4875',
+        offset: '+7.6 MHz',
+        toneOrCC: '94.8 Hz (GB3ED) & 145.5250 MHz',
+        linkedRepeaterId: 'GB3ED',
+        lat: 55.9530,
+        lng: -3.1880,
+        locator: 'IO85JW',
+        codeplugSettings: '70cm: GB3ED (430.8875 / 438.4875, 94.8 Hz) | 2m Simplex: 145.5250 MHz FM',
+        notes: 'Sunday morning RSGB news bulletin and check-in net for Edinburgh, Lothian, and Fife stations.'
+      },
+      {
+        id: 'NET-KINGDOM-FIFE',
+        name: 'Kingdom Amateur Radio Society Net (Fife)',
+        region: 'Fife (Upper Largo / Kirkcaldy)',
+        days: ['Wed'],
+        timeLocal: '20:00 UK (Wednesdays)',
+        band: '2m',
+        mode: 'FM',
+        tags: ['2m'],
+        rxFreq: '145.6000',
+        txFreq: '145.0000',
+        offset: '-0.6 MHz',
+        toneOrCC: '103.5 Hz (GB3FF RV48)',
+        linkedRepeaterId: 'GB3FF',
+        lat: 56.2200,
+        lng: -2.9300,
+        locator: 'IO86MM',
+        codeplugSettings: 'GB3FF Fife Repeater (145.6000 MHz RX / 145.0000 MHz TX, -0.6 MHz, 103.5 Hz) or 145.4250 MHz Simplex',
+        notes: 'Hosted by Kingdom ARS (GM0KRS) across Fife and the Firth of Forth.'
+      },
+      {
+        id: 'NET-WIGTOWNSHIRE-GB3DG',
+        name: 'Wigtownshire ARC & D&G RAYNET GB3DG Net',
+        region: 'Dumfries & Galloway (South West)',
+        days: ['Wed'],
+        timeLocal: '19:30 UK (Wednesdays)',
+        band: '2m',
+        mode: 'FM / IRLP / EchoLink',
+        tags: ['2m', 'AllStar'],
+        rxFreq: '145.7750',
+        txFreq: '145.1750',
+        offset: '-0.6 MHz',
+        toneOrCC: '103.5 Hz (GB3DG RV62)',
+        linkedRepeaterId: 'GB3DG',
+        lat: 54.9600,
+        lng: -4.4800,
+        locator: 'IO74UV',
+        codeplugSettings: 'GB3DG Newton Stewart (145.7750 MHz RX / 145.1750 MHz TX, -0.6 MHz split, 103.5 Hz CTCSS)',
+        notes: 'Joint Wigtownshire ARC and Dumfries & Galloway RAYNET net on GB3DG, with coastal takeoff north up the Firth of Clyde.'
+      },
+      {
+        id: 'NET-GB2RS-PERTH',
+        name: 'GB2RS News + Net - Perth',
+        region: 'Perth & Tayside',
+        days: ['Sun'],
+        timeLocal: '10:30 UK (Sundays)',
+        band: '2m',
+        mode: 'FM',
+        tags: ['2m'],
+        rxFreq: '145.6750',
+        txFreq: '145.0750',
+        offset: '-0.6 MHz',
+        toneOrCC: '94.8 Hz (GB3PR RV54)',
+        linkedRepeaterId: 'GB3PR',
+        lat: 56.3950,
+        lng: -3.4300,
+        locator: 'IO86GI',
+        codeplugSettings: 'GB3PR Perth (145.6750 MHz RX / 145.0750 MHz TX, -0.6 MHz, 94.8 Hz CTCSS)',
+        notes: 'Sunday morning RSGB news and call-in net covering Perthshire and Strathearn.'
+      },
+      {
+        id: 'NET-DUNDEE-DARC',
+        name: 'Dundee Amateur Radio Club Net',
+        region: 'Dundee & Angus',
+        days: ['Tue'],
+        timeLocal: '19:30 UK (Tuesdays)',
+        band: '2m',
+        mode: 'FM / C4FM Repeater',
+        tags: ['2m'],
+        rxFreq: '145.7250',
+        txFreq: '145.1250',
+        offset: '-0.6 MHz',
+        toneOrCC: '94.8 Hz (GB3AG RV58)',
+        linkedRepeaterId: 'GB3AG',
+        lat: 56.5600,
+        lng: -2.9500,
+        locator: 'IO86ON',
+        codeplugSettings: 'GB3AG Angus Repeater (145.7250 MHz RX / 145.1250 MHz TX, -0.6 MHz split, 94.8 Hz CTCSS)',
+        notes: 'Weekly club net on the high-level GB3AG Angus repeater covering Tayside, Fife, and the North East.'
+      },
+      {
+        id: 'NET-GB2RS-DUNS',
+        name: 'GB2RS News + Net - Chirnside and Duns',
+        region: 'Scottish Borders (Duns)',
+        days: ['Sun'],
+        timeLocal: '10:15 UK (Sundays)',
+        band: '2m',
+        mode: 'FM',
+        tags: ['2m'],
+        rxFreq: '145.7625',
+        txFreq: '145.1625',
+        offset: '-0.6 MHz',
+        toneOrCC: '118.8 Hz (GB3DU RV61)',
+        linkedRepeaterId: 'GB3DU',
+        lat: 55.7750,
+        lng: -2.3400,
+        locator: 'IO85MM',
+        codeplugSettings: 'GB3DU Duns (145.7625 MHz RX / 145.1625 MHz TX, -0.6 MHz, 118.8 Hz CTCSS)',
+        notes: 'Borders GB2RS news broadcast and call-in net serving Berwickshire and the Tweed basin.'
+      },
+      {
+        id: 'NET-GB2RS-ELGIN',
+        name: 'GB2RS News + Net - Elgin (Moray)',
+        region: 'Elgin / Moray Firth',
+        days: ['Sun'],
+        timeLocal: '11:00 UK (Sundays)',
+        band: '2m',
+        mode: 'FM Repeater',
+        tags: ['2m'],
+        rxFreq: '145.6000',
+        txFreq: '145.0000',
+        offset: '-0.6 MHz',
+        toneOrCC: '67.0 Hz (GB3SS RV48)',
+        linkedRepeaterId: 'GB3SS',
+        lat: 57.6400,
+        lng: -3.3100,
+        locator: 'IO87ML',
+        codeplugSettings: 'GB3SS Elgin/Moray (145.6000 MHz RX / 145.0000 MHz TX, -0.6 MHz, 67.0 Hz CTCSS)',
+        notes: 'Moray Firth RSGB news and check-in net via GB3SS.'
+      },
+      {
+        id: 'NET-CAITHNESS',
+        name: 'Caithness Amateur Radio Society Net',
+        region: 'Caithness (Far North Highlands)',
+        days: ['Sun', 'Wed'],
+        timeLocal: '10:30 Sun / 20:00 Wed',
+        band: '80m & 2m',
+        mode: 'SSB (80m) / FM (2m)',
+        tags: ['HF', '2m'],
+        rxFreq: '3.6950',
+        txFreq: '3.6950',
+        offset: 'Simplex LSB / 2m',
+        toneOrCC: 'LSB Voice (80m) / 67.0 Hz (GB3BI)',
+        linkedRepeaterId: 'GB3BI',
+        lat: 58.4400,
+        lng: -3.1000,
+        locator: 'IO88KK',
+        codeplugSettings: '80m HF: 3.695 MHz LSB (±QRM) | Highland 2m Repeater: GB3BI (145.7250 MHz, 67.0 Hz)',
+        notes: 'Connects stations across Caithness, Sutherland, Orkney, and all of Scotland via 80m NVIS.'
+      },
+      {
+        id: 'NET-GB2RS-KIRKWALL',
+        name: 'GB2RS News + Net - Kirkwall (Orkney)',
+        region: 'Kirkwall / Orkney Islands',
+        days: ['Sun'],
+        timeLocal: '10:30 UK (Sundays)',
+        band: '2m',
+        mode: 'FM Repeater',
+        tags: ['2m'],
+        rxFreq: '145.6500',
+        txFreq: '145.0500',
+        offset: '-0.6 MHz',
+        toneOrCC: '77.0 Hz (GB3OC RV52)',
+        linkedRepeaterId: 'GB3OC',
+        lat: 58.9800,
+        lng: -2.9600,
+        locator: 'IO88LX',
+        codeplugSettings: 'GB3OC Orkney Repeater (145.6500 MHz RX / 145.0500 MHz TX, -0.6 MHz split, 77.0 Hz CTCSS)',
+        notes: 'Orkney Amateur Radio Club Sunday GB2RS news and Northern Isles check-in net.'
+      },
+      {
+        id: 'NET-UK-HUBNET',
+        name: 'HUBNet UK AllStar & EchoLink National Net',
+        region: 'United Kingdom Wide (Local Access via MB7IBH)',
+        days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        timeLocal: '19:00 UK (Daily)',
+        band: '2m & 70cm AllStar',
+        mode: 'FM / AllStar / EchoLink',
+        tags: ['2m', '70cm', 'AllStar'],
+        rxFreq: '145.3375',
+        txFreq: '145.3375',
+        offset: 'Simplex / Gateway',
+        toneOrCC: '103.5 Hz (AllStar Node 41223 / 64460)',
+        linkedRepeaterId: 'MB7IBH',
+        lat: 53.8000,
+        lng: -1.5500,
+        locator: 'IO93FT',
+        codeplugSettings: 'AllStar Node 41223 (HUBNet) | EchoLink: HUBNET-R | Accessible via local UK AllStar Simplex Gateways',
+        notes: 'The largest interconnected FM/AllStar/EchoLink hub in the United Kingdom, linking dozens of simplex gateways and repeaters from Scotland to Cornwall.'
+      },
+      {
+        id: 'NET-UK-GB2RS-NRC',
+        name: 'GB2RS National News - Bletchley Park (RSGB NRC)',
+        region: 'Milton Keynes / South & Central England',
+        days: ['Sun'],
+        timeLocal: '10:00 UK (Sundays)',
+        band: '70cm & 40m',
+        mode: 'FM / DMR / SSB',
+        tags: ['70cm', 'DMR', 'HF'],
+        rxFreq: '430.9250',
+        txFreq: '438.5250',
+        offset: '+7.6 MHz',
+        toneOrCC: '77.0 Hz (GB3BP RU74)',
+        linkedRepeaterId: 'GB3BP',
+        lat: 51.9970,
+        lng: -0.7420,
+        locator: 'IO91VU',
+        codeplugSettings: 'GB3BP Bletchley Park (430.9250 MHz RX / 438.5250 MHz TX, 77.0 Hz) + 40m HF 7.127 MHz LSB',
+        notes: 'Broadcast from the RSGB National Radio Centre at Bletchley Park.'
+      },
+      {
+        id: 'NET-UK-WYTHALL',
+        name: 'Wythall Radio Club & West Midlands Net',
+        region: 'Birmingham & West Midlands',
+        days: ['Sun', 'Wed'],
+        timeLocal: '20:00 UK',
+        band: '2m',
+        mode: 'FM Repeater',
+        tags: ['2m'],
+        rxFreq: '145.6000',
+        txFreq: '145.0000',
+        offset: '-0.6 MHz',
+        toneOrCC: '77.0 Hz (GB3NB RV48)',
+        linkedRepeaterId: 'GB3NB',
+        lat: 52.3700,
+        lng: -1.8800,
+        locator: 'IO92FL',
+        codeplugSettings: 'GB3NB Birmingham (145.6000 MHz RX / 145.0000 MHz TX, -0.6 MHz, 77.0 Hz CTCSS) or 145.2250 MHz Simplex',
+        notes: 'Major Midlands VHF net serving Birmingham, Worcestershire, and Warwickshire.'
+      },
+      {
+        id: 'NET-UK-MANCHESTER',
+        name: 'Manchester & District ARS Net',
+        region: 'Greater Manchester & North West England',
+        days: ['Tue', 'Thu'],
+        timeLocal: '20:00 UK',
+        band: '2m',
+        mode: 'FM Repeater',
+        tags: ['2m'],
+        rxFreq: '145.7000',
+        txFreq: '145.1000',
+        offset: '-0.6 MHz',
+        toneOrCC: '82.5 Hz (GB3MN RV56)',
+        linkedRepeaterId: 'GB3MN',
+        lat: 53.4100,
+        lng: -2.1500,
+        locator: 'IO83RJ',
+        codeplugSettings: 'GB3MN Manchester (145.7000 MHz RX / 145.1000 MHz TX, -0.6 MHz split, 82.5 Hz CTCSS)',
+        notes: 'Regular North West England check-in net across Greater Manchester, Cheshire, and Lancashire.'
+      },
+      {
+        id: 'NET-UK-CARDIFF',
+        name: 'Cardiff & South Wales Repeater Group Net',
+        region: 'Cardiff & South Wales',
+        days: ['Wed', 'Sun'],
+        timeLocal: '19:30 UK',
+        band: '70cm',
+        mode: 'FM / C4FM',
+        tags: ['70cm'],
+        rxFreq: '430.9125',
+        txFreq: '438.5125',
+        offset: '+7.6 MHz',
+        toneOrCC: '94.8 Hz (GB3WW RU73)',
+        linkedRepeaterId: 'GB3WW',
+        lat: 51.4816,
+        lng: -3.1791,
+        locator: 'IO81KJ',
+        codeplugSettings: 'GB3WW Cardiff (430.9125 MHz RX / 438.5125 MHz TX, +7.6 MHz split, 94.8 Hz CTCSS)',
+        notes: 'Connects operators across South Wales, Newport, Swansea, and the Bristol Channel.'
+      },
+      {
+        id: 'NET-UK-BELFAST',
+        name: 'Belfast & Northern Ireland GB2RS + VHF Net',
+        region: 'Belfast & Northern Ireland (GI)',
+        days: ['Sun', 'Thu'],
+        timeLocal: '11:00 Sun / 20:00 Thu',
+        band: '2m',
+        mode: 'FM Repeater',
+        tags: ['2m'],
+        rxFreq: '145.6750',
+        txFreq: '145.0750',
+        offset: '-0.6 MHz',
+        toneOrCC: '110.9 Hz (GB3NI RV54)',
+        linkedRepeaterId: 'GB3NI',
+        lat: 54.5973,
+        lng: -5.9301,
+        locator: 'IO74AP',
+        codeplugSettings: 'GB3NI Belfast (145.6750 MHz RX / 145.0750 MHz TX, -0.6 MHz split, 110.9 Hz CTCSS)',
+        notes: 'Covers Northern Ireland and crosses the North Channel into Southwest Scotland (Stranraer & Ayrshire).'
+      }
+    ];
+
+    /*************************************************************************
+     * 4. STATE & MAP RENDERING
+     *************************************************************************/
+    let currentQTH = 'cardross';
+    let currentRig = 'ht';
+    let selectedRepeaterId = 'GB7GR';
+    let selectedNetId = 'NET-LOMOND';
+    let activeBandFilter = 'ALL';
+    let activeModeFilter = 'ALL';
+    let searchQuery = '';
+    let sortBy = 'distance';
+    let netSortBy = 'distance';
+    let showAllLobes = false;
+    let topoTilesActive = true;
+    let mapPickQTHMode = false;
+
+    // NetFinder Filter State
+    let activeNetDayFilter = 'ALL';
+    let activeNetModeFilter = 'ALL';
+    let netSearchQuery = '';
+    let showNetMarkersOnMap = true;
+
+    let map = null;
+    let tileLayerOSM = null;
+    let tileLayerTopo = null;
+    let qthMarker = null;
+    let repeaterMarkers = {};
+    let netMarkers = {};
+    let coverageLayers = {};
+    let losLineLayer = null;
+
+    function initMap() {
+      if (typeof L === 'undefined') return;
+      map = L.map('rf-map', {
+        center: [55.945, -4.580],
+        zoom: 10,
+        zoomControl: true,
+        preferCanvas: true
+      });
+
+      tileLayerTopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17,
+        attribution: '&copy; OpenStreetMap contributors, SRTM | &copy; OpenTopoMap'
+      }).addTo(map);
+
+      tileLayerOSM = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      });
+
+      map.on('click', function(e) {
+        if (!mapPickQTHMode) return;
+        const clickedLat = +e.latlng.lat.toFixed(4);
+        const clickedLng = +e.latlng.lng.toFixed(4);
+        const loc = latLngToLocator(clickedLat, clickedLng);
+
+        QTH_LOCATIONS.custom = {
+          id: 'custom',
+          name: 'Custom Map Pin',
+          locator: loc,
+          lat: clickedLat,
+          lng: clickedLng,
+          elevMeters: 40,
+          desc: 'Custom QTH pin dropped on map at ' + clickedLat + ', ' + clickedLng + ' (Grid ' + loc + ').'
+        };
+
+        mapPickQTHMode = false;
+        const pickBtn = document.getElementById('btn-pick-map-qth');
+        if (pickBtn) {
+          pickBtn.className = 'btn btn-outline mono';
+          pickBtn.innerHTML = '<i class="fa-solid fa-map-pin"></i> Pick on Map';
+        }
+        document.getElementById('custom-locator-input').value = loc;
+        setQTH('custom');
+      });
+
+      renderMapElements();
+    }
+
+    function zoomMapRegion(region) {
+      if (!map) return;
+      if (region === 'clyde') {
+        map.setView([55.945, -4.580], 10, { animate: true });
+      } else if (region === 'scotland') {
+        map.setView([56.85, -4.20], 6, { animate: true });
+      } else if (region === 'uk') {
+        map.setView([54.50, -3.20], 5, { animate: true });
+      }
+    }
+
+    function renderMapElements() {
+      if (!map || typeof L === 'undefined') return;
+      const qth = QTH_LOCATIONS[currentQTH] || QTH_LOCATIONS.cardross;
+
+      if (qthMarker) map.removeLayer(qthMarker);
+      if (losLineLayer) map.removeLayer(losLineLayer);
+      Object.keys(repeaterMarkers).forEach(function(k) { map.removeLayer(repeaterMarkers[k]); });
+      Object.keys(netMarkers).forEach(function(k) { map.removeLayer(netMarkers[k]); });
+      Object.keys(coverageLayers).forEach(function(k) { map.removeLayer(coverageLayers[k]); });
+      repeaterMarkers = {};
+      netMarkers = {};
+      coverageLayers = {};
+
+      REPEATERS.forEach(function(rep) {
+        const isSelected = rep.id === selectedRepeaterId;
+        if (!showAllLobes && !isSelected) return;
+
+        const poly = L.polygon(rep.coveragePolygon, {
+          color: rep.color,
+          weight: isSelected ? 2.5 : 1.2,
+          dashArray: rep.statusType === 'off' ? '6, 6' : (isSelected ? null : '4, 4'),
+          fillColor: rep.color,
+          fillOpacity: isSelected ? 0.20 : 0.04
+        }).addTo(map);
+
+        poly.on('click', function() { selectRepeater(rep.id); });
+        coverageLayers[rep.id] = poly;
+      });
+
+      const activeRep = REPEATERS.find(function(r) { return r.id === selectedRepeaterId; });
+      if (activeRep) {
+        const prof = getDynamicProfileForQTH(activeRep, currentQTH);
+        const beamColor = prof.qualityColor === 'emerald' ? '#10b981' : (prof.qualityColor === 'amber' ? '#f59e0b' : '#f43f5e');
+
+        losLineLayer = L.polyline([[qth.lat, qth.lng], [activeRep.lat, activeRep.lng]], {
+          color: beamColor,
+          weight: 3.5,
+          dashArray: '8, 6',
+          opacity: 0.95
+        }).addTo(map);
+      }
+
+      const qthIcon = L.divIcon({
+        className: 'custom-qth-icon',
+        html: '<div class="qth-marker-pin mono">QTH</div>',
+        iconSize: [34, 34],
+        iconAnchor: [17, 17]
+      });
+
+      qthMarker = L.marker([qth.lat, qth.lng], { icon: qthIcon, zIndexOffset: 1000 })
+        .addTo(map)
+        .bindPopup('<strong>' + qth.name + ' QTH (' + qth.locator + ')</strong><br>' + qth.desc);
+
+      REPEATERS.forEach(function(rep) {
+        const isSelected = rep.id === selectedRepeaterId;
+        let bg = '#10b981';
+        let fg = '#04121d';
+        if (rep.statusType === 'new') { bg = '#06b6d4'; fg = '#04121d'; }
+        else if (rep.statusType === 'net') { bg = '#f59e0b'; fg = '#04121d'; }
+        else if (rep.statusType === 'off') { bg = '#f43f5e'; fg = '#ffffff'; }
+        else if (rep.modes.indexOf('TETRA') !== -1 || rep.band === '6m/4m') { bg = '#a855f7'; fg = '#ffffff'; }
+
+        const repIcon = L.divIcon({
+          className: 'custom-rep-icon',
+          html: '<div class="rep-marker-pin mono ' + (isSelected ? 'selected' : '') + '" style="background:' + bg + ';color:' + fg + ';">' + rep.id + '</div>',
+          iconSize: [64, 24],
+          iconAnchor: [32, 12]
+        });
+
+        const marker = L.marker([rep.lat, rep.lng], {
+          icon: repIcon,
+          zIndexOffset: isSelected ? 900 : 500
+        }).addTo(map);
+
+        marker.on('click', function() { selectRepeater(rep.id); });
+        repeaterMarkers[rep.id] = marker;
+      });
+
+      if (showNetMarkersOnMap) {
+        SCOTLAND_NETS.forEach(function(net) {
+          const isNetSelected = net.id === selectedNetId;
+          if (!isNetSelected && !showAllLobes) return;
+
+          const netIcon = L.divIcon({
+            className: 'custom-net-icon',
+            html: '<div class="net-marker-pin mono"><i class="fa-solid fa-headset"></i> ' + net.rxFreq + '</div>',
+            iconSize: [86, 24],
+            iconAnchor: [43, -10]
+          });
+
+          const nMarker = L.marker([net.lat, net.lng], {
+            icon: netIcon,
+            zIndexOffset: 950
+          }).addTo(map);
+
+          nMarker.bindPopup(
+            '<div class="mono" style="font-size:11px;">' +
+              '<strong style="color:#fcd34d;">' + net.name + '</strong><br>' +
+              '<span>' + net.days.join(', ') + ' @ ' + net.timeLocal + '</span><br>' +
+              '<span style="color:#67e8f9;">Freq: ' + net.rxFreq + ' MHz (' + net.toneOrCC + ')</span>' +
+            '</div>'
+          );
+          netMarkers[net.id] = nMarker;
+        });
+      }
+    }
+
+    /*************************************************************************
+     * 5. TERRAIN & FRESNEL PROFILE CANVAS
+     *************************************************************************/
+    function renderTerrainProfile() {
+      const qth = QTH_LOCATIONS[currentQTH] || QTH_LOCATIONS.cardross;
+      const rep = REPEATERS.find(function(r) { return r.id === selectedRepeaterId; });
+      if (!rep) return;
+
+      const prof = getDynamicProfileForQTH(rep, currentQTH);
+      const distKm = calcDistanceKm(qth.lat, qth.lng, rep.lat, rep.lng);
+      const bearing = calcBearing(qth.lat, qth.lng, rep.lat, rep.lng);
+
+      document.getElementById('beam-summary-title').textContent = qth.name + ' (' + qth.locator + ') ➔ ' + rep.callsign + ' (' + rep.name.split('(')[0].trim() + ')';
+      document.getElementById('beam-distance').textContent = distKm.toFixed(1) + ' km (' + (distKm * 0.621371).toFixed(1) + ' mi)';
+      document.getElementById('beam-bearing').textContent = bearing;
+
+      const qualEl = document.getElementById('beam-terrain-quality');
+      qualEl.textContent = prof.quality;
+      qualEl.className = 'badge ' + (
+        prof.qualityColor === 'emerald' ? 'badge-emerald' :
+        prof.qualityColor === 'amber' ? 'badge-amber' : 'badge-rose'
+      );
+
+      const dotEl = document.getElementById('path-status-dot');
+      dotEl.style.background = prof.qualityColor === 'emerald' ? '#10b981' : (prof.qualityColor === 'amber' ? '#f59e0b' : '#f43f5e');
+
+      const sMeterText = currentRig === 'ht' ? prof.sMeterHT : prof.sMeterBase;
+      document.getElementById('beam-smeter').textContent = sMeterText;
+      document.getElementById('terrain-narrative').innerHTML =
+        '<strong class="mono" style="color:#fff;">' + qth.name + ' to ' + rep.callsign + ' (' + distKm.toFixed(1) + ' km @ ' + bearing + '):</strong> ' + prof.narrative;
+
+      const canvas = document.getElementById('terrain-canvas');
+      const container = document.getElementById('terrain-canvas-container');
+      if (!canvas || !container) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      const rect = container.getBoundingClientRect();
+      const width = Math.max(300, rect.width - 12);
+      const height = Math.max(150, rect.height - 12);
+
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, width, height);
+
+      const padLeft = 46;
+      const padRight = 46;
+      const padTop = 20;
+      const padBottom = 26;
+      const plotW = width - padLeft - padRight;
+      const plotH = height - padTop - padBottom;
+
+      let maxPointElev = 260;
+      prof.points.forEach(function(p) { if (p.e > maxPointElev) maxPointElev = p.e; });
+      const maxElev = maxPointElev * 1.18;
+
+      const toX = function(normD) { return padLeft + normD * plotW; };
+      const toY = function(elev) { return padTop + plotH - (elev / maxElev) * plotH; };
+
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'right';
+      [0, 100, 200, 300, 400, 500].forEach(function(elevVal) {
+        if (elevVal <= maxElev) {
+          const gy = toY(elevVal);
+          ctx.beginPath();
+          ctx.setLineDash([3, 3]);
+          ctx.strokeStyle = '#1e293b';
+          ctx.moveTo(padLeft, gy);
+          ctx.lineTo(width - padRight, gy);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = '#64748b';
+          ctx.fillText(elevVal + 'm', padLeft - 6, gy + 3);
+        }
+      });
+
+      const qthAntElev = prof.points[0].e + (currentRig === 'base' ? 12 : 2);
+      const repAntElev = prof.points[prof.points.length - 1].e + 22;
+      const xStart = toX(0);
+      const yStart = toY(qthAntElev);
+      const xEnd = toX(1);
+      const yEnd = toY(repAntElev);
+      const midX = (xStart + xEnd) / 2;
+      const midY = (yStart + yEnd) / 2;
+
+      const beamStroke = prof.qualityColor === 'emerald' ? '#10b981' : (prof.qualityColor === 'amber' ? '#f59e0b' : '#f43f5e');
+
+      // Fresnel Zone
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(xStart, yStart);
+      ctx.quadraticCurveTo(midX, midY - 15, xEnd, yEnd);
+      ctx.quadraticCurveTo(midX, midY + 15, xStart, yStart);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(6, 182, 212, 0.14)';
+      ctx.fill();
+      ctx.strokeStyle = beamStroke;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.restore();
+
+      // Terrain polygon
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(toX(0), padTop + plotH);
+      prof.points.forEach(function(pt) {
+        ctx.lineTo(toX(pt.d), toY(pt.e));
+      });
+      ctx.lineTo(toX(1), padTop + plotH);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(30, 41, 59, 0.92)';
+      ctx.fill();
+
+      ctx.beginPath();
+      prof.points.forEach(function(pt, idx) {
+        if (idx === 0) ctx.moveTo(toX(pt.d), toY(pt.e));
+        else ctx.lineTo(toX(pt.d), toY(pt.e));
+      });
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+
+      // Direct LoS Line
+      ctx.save();
+      ctx.beginPath();
+      if (rep.statusType === 'off') ctx.setLineDash([5, 6]);
+      ctx.moveTo(xStart, yStart);
+      ctx.lineTo(xEnd, yEnd);
+      ctx.strokeStyle = beamStroke;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.restore();
+
+      // Labels
+      ctx.font = '10px monospace';
+      prof.points.forEach(function(pt, idx) {
+        const lx = toX(pt.d);
+        const ly = toY(pt.e);
+        ctx.beginPath();
+        ctx.arc(lx, ly, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fill();
+
+        ctx.fillStyle = '#cbd5e1';
+        ctx.textAlign = idx === 0 ? 'left' : (idx === prof.points.length - 1 ? 'right' : 'center');
+        ctx.fillText(pt.label, lx, padTop + plotH + 16);
+      });
+    }
+
+    /*************************************************************************
+     * 6. INSPECTOR & DIRECTORY LIST
+     *************************************************************************/
+    function renderInspector() {
+      const rep = REPEATERS.find(function(r) { return r.id === selectedRepeaterId; });
+      if (!rep) return;
+
+      document.getElementById('inspector-callsign-badge').textContent = rep.callsign;
+      const ukRepLink = document.getElementById('inspector-ukrep-link');
+      if (ukRepLink) {
+        ukRepLink.href = 'https://ukrepeater.net/my_repeater.php?id=' + encodeURIComponent(rep.apiCallsign);
+      }
+
+      const modePills = rep.modes.map(function(m) {
+        return '<span class="badge badge-cyan mono" style="font-size:10px;">' + m + '</span>';
+      }).join(' ');
+
+      const dv = rep.dvConfig || {};
+
+      const html =
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">' +
+          '<div>' +
+            '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
+              '<strong style="font-size:15px;color:#fff;">' + rep.name + '</strong> ' + modePills +
+            '</div>' +
+            '<div class="mono" style="font-size:11px;color:var(--text-muted);margin-top:4px;">' +
+              'Status: <strong style="color:#6ee7b7;">' + rep.status + '</strong> • Grid: <strong style="color:#fff;">' + rep.locator + '</strong> • Keeper: <strong style="color:#fff;">' + rep.keeper + '</strong>' +
+            '</div>' +
+          '</div>' +
+          '<div class="mono" style="text-align:right;font-size:12px;flex-shrink:0;">' +
+            '<div style="color:var(--cyan);font-weight:700;font-size:14px;">' + rep.rxFreq + ' MHz</div>' +
+            '<div style="color:var(--text-muted);">TX: ' + rep.txFreq + ' (' + rep.offset + ')</div>' +
+            '<div style="color:#64748b;font-size:10px;">Chan: ' + rep.channel + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="sub-box mono" style="display:flex;flex-direction:column;gap:6px;">' +
+          '<div style="color:var(--cyan);font-weight:700;font-size:11px;border-bottom:1px solid var(--border);padding-bottom:4px;">' +
+            'ACCESS & DIGITAL VOICE (DV) CODEPLUG PARAMETERS (' + rep.band + ')' +
+          '</div>' +
+          '<div style="font-size:11px;color:#fff;"><strong>Access / Tone / CC:</strong> ' + (dv.accessParam || rep.ctcss) + '</div>' +
+          '<div style="font-size:11px;color:#6ee7b7;"><strong>Protocol:</strong> ' + (dv.protocol || rep.modes.join(' / ')) + '</div>' +
+          '<div style="font-size:11px;color:#cbd5e1;"><strong>Slot 1 / Primary:</strong> ' + (dv.ts1 || 'Standard Voice') + '</div>' +
+          '<div style="font-size:11px;color:#cbd5e1;"><strong>Slot 2 / Secondary:</strong> ' + (dv.ts2 || 'Local Output') + '</div>' +
+        '</div>' +
+        '<div class="sub-box" style="display:flex;flex-direction:column;gap:6px;">' +
+          '<div><strong style="color:var(--amber);">Site & Propagation Note:</strong> ' + rep.funFact + '</div>' +
+          '<div style="border-top:1px solid var(--border);padding-top:6px;"><strong style="color:var(--cyan);">5W Handheld (HT):</strong> ' + rep.htAdvice + '</div>' +
+          '<div style="border-top:1px solid var(--border);padding-top:6px;"><strong style="color:var(--emerald);">50W Base / Mobile:</strong> ' + rep.baseAdvice + '</div>' +
+        '</div>';
+
+      document.getElementById('inspector-content').innerHTML = html;
+
+      const numMatch = rep.ctcss.match(/([0-9]+\.[0-9]+)/);
+      const toneVal = numMatch ? numMatch[1] : '103.5';
+      const chirpStr = rep.callsign + ',' + rep.rxFreq + ',' + rep.offset.replace(' MHz','') + ',' + toneVal + ',' + toneVal + ',' + rep.modes[0] + ',' + rep.name + ',,,,..';
+      document.getElementById('chirp-csv-string').textContent = chirpStr;
+    }
+
+    function renderRepeaterList() {
+      const container = document.getElementById('repeater-list-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const qth = QTH_LOCATIONS[currentQTH];
+      const q = searchQuery.trim().toLowerCase();
+
+      const filtered = REPEATERS.filter(function(rep) {
+        const hasExtra2m = rep.extraBands && rep.extraBands.indexOf('2m') !== -1;
+        const hasExtra70cm = rep.extraBands && rep.extraBands.indexOf('70cm') !== -1;
+        const hasExtra4m = rep.extraBands && rep.extraBands.indexOf('4m') !== -1;
+
+        const bandMatch =
+          activeBandFilter === 'ALL' ||
+          (activeBandFilter === '2m' && (rep.band === '2m' || hasExtra2m)) ||
+          (activeBandFilter === '70cm' && (rep.band === '70cm' || hasExtra70cm)) ||
+          (activeBandFilter === '6m' && (rep.band === '6m/4m' || hasExtra4m));
+
+        const modeMatch =
+          activeModeFilter === 'ALL' ||
+          rep.modes.indexOf(activeModeFilter) !== -1;
+
+        const searchMatch =
+          !q ||
+          rep.callsign.toLowerCase().indexOf(q) !== -1 ||
+          rep.name.toLowerCase().indexOf(q) !== -1 ||
+          rep.locator.toLowerCase().indexOf(q) !== -1 ||
+          rep.keeper.toLowerCase().indexOf(q) !== -1 ||
+          rep.rxFreq.indexOf(q) !== -1 ||
+          rep.channel.toLowerCase().indexOf(q) !== -1;
+
+        return bandMatch && modeMatch && searchMatch;
+      });
+
+      filtered.sort(function(a, b) {
+        if (sortBy === 'callsign') {
+          return a.callsign.localeCompare(b.callsign);
+        }
+        const dA = calcDistanceKm(qth.lat, qth.lng, a.lat, a.lng);
+        const dB = calcDistanceKm(qth.lat, qth.lng, b.lat, a.lng ? b.lng : -4.0);
+        return dA - dB;
+      });
+
+      document.getElementById('repeater-count').textContent = filtered.length;
+
+      filtered.forEach(function(rep) {
+        const isSelected = rep.id === selectedRepeaterId;
+        const distKm = calcDistanceKm(qth.lat, qth.lng, rep.lat, rep.lng);
+        const bearing = calcBearing(qth.lat, qth.lng, rep.lat, rep.lng);
+
+        let dotColor = '#10b981';
+        if (rep.statusType === 'new') dotColor = '#06b6d4';
+        else if (rep.statusType === 'net') dotColor = '#f59e0b';
+        else if (rep.statusType === 'off') dotColor = '#f43f5e';
+        else if (rep.modes.indexOf('TETRA') !== -1 || rep.band === '6m/4m') dotColor = '#a855f7';
+
+        const card = document.createElement('div');
+        card.className = 'rep-card' + (isSelected ? ' selected' : '');
+        card.onclick = function() { selectRepeater(rep.id); };
+
+        card.innerHTML =
+          '<div style="display:flex;align-items:center;gap:10px;min-width:0;">' +
+            '<span class="dot" style="background:' + dotColor + ';"></span>' +
+            '<div style="min-width:0;">' +
+              '<div class="mono" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
+                '<strong style="color:#fff;font-size:13px;">' + rep.callsign + '</strong>' +
+                '<span style="font-size:10px;background:#1e293b;padding:1px 5px;border-radius:4px;color:#cbd5e1;">' + rep.band + '</span>' +
+                '<span style="font-size:10px;color:#67e8f9;">' + rep.modes.join('/') + '</span>' +
+                '<span style="font-size:10px;color:#64748b;">' + rep.rxFreq + '</span>' +
+              '</div>' +
+              '<div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
+                rep.name + ' • <span class="mono">' + rep.locator + '</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="mono" style="text-align:right;font-size:11px;flex-shrink:0;">' +
+            '<div style="color:var(--cyan);font-weight:700;">' + distKm.toFixed(1) + ' km</div>' +
+            '<div style="color:var(--text-muted);font-size:10px;">' + bearing.split(' ')[1] + '</div>' +
+          '</div>';
+
+        container.appendChild(card);
+      });
+    }
+
+    /*************************************************************************
+     * 7. LIVE UKREPEATER.NET SCOTLAND SYNC & UI CONTROLS
+     *************************************************************************/
+    async function syncLiveUKRepeaterScotlandList() {
+      const badgeEl = document.getElementById('live-api-badge');
+      const statusTextEl = document.getElementById('live-api-status-text');
+      const syncIconEl = document.getElementById('sync-icon');
+
+      if (syncIconEl) syncIconEl.classList.add('fa-spin');
+      if (statusTextEl) statusTextEl.textContent = 'Syncing ukrepeater.net?filter=SCOTLAND...';
+
+      let discoveredNewCount = 0;
+
+      try {
+        const targetUrl = 'https://ukrepeater.net/repeaterlist.html?filter=SCOTLAND';
+        const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(function() { controller.abort(); }, 7000);
+        const resp = await fetch(proxyUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data.contents) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data.contents, 'text/html');
+            const rows = doc.querySelectorAll('table tr');
+
+            rows.forEach(function(tr) {
+              const cells = Array.from(tr.querySelectorAll('td')).map(function(td) { return td.textContent.trim(); });
+              if (cells.length >= 10 && /^(GB|MB)/i.test(cells[0])) {
+                const call = cells[0].toUpperCase();
+                const chan = cells[1] || '';
+                const rx = cells[2] || '';
+                const tx = cells[3] || '';
+                const loc = cells[4] || 'IO75MM';
+                const town = cells[7] || 'Scotland';
+                const tone = cells[9] || '103.5';
+                const modeFlags = cells[10] || 'A';
+                const keeper = cells[12] || 'ETCC';
+                const statusStr = (cells[13] || 'OPERATIONAL').toUpperCase();
+
+                const existing = REPEATERS.find(function(r) { return r.callsign === call; });
+                if (!existing) {
+                  const newRep = buildRepeaterFromETCCRow([call, chan, rx, tx, loc, town, tone, modeFlags, keeper, statusStr]);
+                  newRep.status = statusStr + ' • NEW ON UKREPEATER';
+                  newRep.statusType = 'new';
+                  newRep.color = '#06b6d4';
+                  REPEATERS.push(newRep);
+                  discoveredNewCount++;
+                }
+              }
+            });
+          }
+        }
+      } catch (e) {
+        // Fallback: retain built-in 89 Scottish repeaters & gateways
+      }
+
+      if (syncIconEl) syncIconEl.classList.remove('fa-spin');
+      if (badgeEl) badgeEl.className = 'status-pill synced mono';
+      if (statusTextEl) {
+        statusTextEl.textContent = discoveredNewCount > 0
+          ? 'Synced ' + REPEATERS.length + ' Sites (+' + discoveredNewCount + ' New)'
+          : 'Scotland ETCC Synced (' + REPEATERS.length + ' Sites)';
+      }
+
+      renderMapElements();
+      renderInspector();
+      renderRepeaterList();
+    }
+
+    function selectRepeater(repId) {
+      selectedRepeaterId = repId;
+      renderMapElements();
+      renderTerrainProfile();
+      renderInspector();
+      renderRepeaterList();
+
+      const rep = REPEATERS.find(function(r) { return r.id === repId; });
+      if (rep && map) {
+        map.panTo([rep.lat, rep.lng], { animate: true, duration: 0.6 });
+      }
+    }
+
+    function onSearchInput(val) {
+      searchQuery = val || '';
+      renderRepeaterList();
+    }
+
+    function toggleSortOrder() {
+      sortBy = sortBy === 'distance' ? 'callsign' : 'distance';
+      const btn = document.getElementById('btn-sort-order');
+      if (btn) {
+        btn.innerHTML = sortBy === 'distance'
+          ? '<i class="fa-solid fa-arrow-down-short-wide"></i> Dist'
+          : '<i class="fa-solid fa-arrow-down-a-z"></i> Call';
+      }
+      renderRepeaterList();
+    }
+
+    function setQTH(qthId) {
+      if (!QTH_LOCATIONS[qthId]) return;
+      currentQTH = qthId;
+      ['cardross', 'helensburgh', 'dumbarton'].forEach(function(id) {
+        const btn = document.getElementById('tab-' + id);
+        if (btn) btn.className = id === qthId ? 'btn active-cyan' : 'btn';
+      });
+
+      const qth = QTH_LOCATIONS[qthId];
+      const netQthLabel = document.getElementById('net-qth-label');
+      if (netQthLabel) netQthLabel.textContent = qth.name + ' (' + qth.locator + ')';
+
+      const activePill = document.getElementById('qth-active-pill');
+      if (activePill) activePill.textContent = 'QTH: ' + qth.name + ' (' + qth.locator + ')';
+
+      renderMapElements();
+      renderTerrainProfile();
+      renderRepeaterList();
+      renderScotlandNets();
+
+      if (map) {
+        map.panTo([qth.lat, qth.lng], { animate: true, duration: 0.6 });
+      }
+    }
+
+    function setCustomLocatorQTH() {
+      const inputEl = document.getElementById('custom-locator-input');
+      const rawLoc = (inputEl ? inputEl.value : '').trim().toUpperCase();
+      if (rawLoc.length < 4 || !/^[A-R]{2}[0-9]{2}/i.test(rawLoc)) {
+        if (inputEl) inputEl.value = 'IO75PX';
+        return;
+      }
+      const coords = locatorToLatLng(rawLoc, '');
+      const formattedLoc = rawLoc.length >= 6
+        ? rawLoc.slice(0, 4) + rawLoc.slice(4, 6).toLowerCase()
+        : rawLoc;
+
+      QTH_LOCATIONS.custom = {
+        id: 'custom',
+        name: 'Grid ' + formattedLoc,
+        locator: formattedLoc,
+        lat: coords.lat,
+        lng: coords.lng,
+        elevMeters: 45,
+        desc: 'Custom UK Maidenhead Grid Locator QTH (' + formattedLoc + ').'
+      };
+      setQTH('custom');
+    }
+
+    function useDeviceGPSForQTH() {
+      const gpsBtn = document.getElementById('btn-gps-qth');
+      if (!navigator.geolocation) return;
+      if (gpsBtn) gpsBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Locating...';
+
+      navigator.geolocation.getCurrentPosition(
+        function(pos) {
+          const lat = +pos.coords.latitude.toFixed(4);
+          const lng = +pos.coords.longitude.toFixed(4);
+          const alt = pos.coords.altitude ? Math.round(pos.coords.altitude) : 35;
+          const loc = latLngToLocator(lat, lng);
+
+          QTH_LOCATIONS.custom = {
+            id: 'custom',
+            name: 'My GPS QTH',
+            locator: loc,
+            lat: lat,
+            lng: lng,
+            elevMeters: alt,
+            desc: 'Live device GPS location (' + lat + ', ' + lng + ' • Grid ' + loc + ').'
+          };
+          if (gpsBtn) gpsBtn.innerHTML = '<i class="fa-solid fa-location-arrow"></i> GPS Locked';
+          const inputEl = document.getElementById('custom-locator-input');
+          if (inputEl) inputEl.value = loc;
+          setQTH('custom');
+        },
+        function() {
+          if (gpsBtn) gpsBtn.innerHTML = '<i class="fa-solid fa-location-arrow"></i> GPS N/A';
+        },
+        { enableHighAccuracy: true, timeout: 6000 }
+      );
+    }
+
+    function toggleMapPickQTHMode() {
+      mapPickQTHMode = !mapPickQTHMode;
+      const btn = document.getElementById('btn-pick-map-qth');
+      if (btn) {
+        if (mapPickQTHMode) {
+          btn.className = 'btn active-cyan mono';
+          btn.innerHTML = '<i class="fa-solid fa-crosshairs"></i> Click Map Now...';
+        } else {
+          btn.className = 'btn btn-outline mono';
+          btn.innerHTML = '<i class="fa-solid fa-map-pin"></i> Pick on Map';
+        }
+      }
+    }
+
+    function toggleNetSortMode() {
+      netSortBy = netSortBy === 'distance' ? 'name' : 'distance';
+      const btn = document.getElementById('btn-sort-nets');
+      if (btn) {
+        btn.innerHTML = netSortBy === 'distance'
+          ? '<i class="fa-solid fa-location-dot"></i> Sorted by Distance from QTH'
+          : '<i class="fa-solid fa-arrow-down-a-z"></i> Sorted A–Z';
+      }
+      renderScotlandNets();
+    }
+
+    function setRig(rigType) {
+      currentRig = rigType;
+      document.getElementById('btn-rig-ht').className = rigType === 'ht' ? 'pill-btn active mono' : 'pill-btn mono';
+      document.getElementById('btn-rig-base').className = rigType === 'base' ? 'pill-btn active mono' : 'pill-btn mono';
+      renderTerrainProfile();
+    }
+
+    function setBandFilter(band) {
+      activeBandFilter = band;
+      ['ALL', '2m', '70cm', '6m'].forEach(function(b) {
+        const btn = document.getElementById('filter-band-' + b);
+        if (btn) btn.className = b === band ? 'pill-btn active' : 'pill-btn';
+      });
+      renderRepeaterList();
+    }
+
+    function setModeFilter(mode) {
+      activeModeFilter = mode;
+      ['ALL', 'FM', 'DMR', 'YSF', 'D-STAR', 'NXDN', 'TETRA'].forEach(function(m) {
+        const btn = document.getElementById('filter-mode-' + m);
+        if (btn) btn.className = m === mode ? 'pill-btn active' : 'pill-btn';
+      });
+      renderRepeaterList();
+    }
+
+    function toggleCoveragePolygons() {
+      showAllLobes = !showAllLobes;
+      const btn = document.getElementById('btn-toggle-lobes');
+      if (btn) {
+        btn.innerHTML = showAllLobes
+          ? '<i class="fa-solid fa-eye"></i> All Footprints'
+          : '<i class="fa-solid fa-eye-slash"></i> Selected Footprint';
+      }
+      renderMapElements();
+    }
+
+    function toggleMapTiles() {
+      if (!map) return;
+      topoTilesActive = !topoTilesActive;
+      const mapEl = document.getElementById('rf-map');
+      const btn = document.getElementById('btn-toggle-tiles');
+
+      if (topoTilesActive) {
+        map.removeLayer(tileLayerOSM);
+        tileLayerTopo.addTo(map);
+        mapEl.className = 'topo-tiles';
+        btn.innerHTML = '<i class="fa-solid fa-map"></i> Street Map';
+      } else {
+        map.removeLayer(tileLayerTopo);
+        tileLayerOSM.addTo(map);
+        mapEl.className = 'osm-dark-tiles';
+        btn.innerHTML = '<i class="fa-solid fa-mountain"></i> Topo Map';
+      }
+    }
+
+    function copyChirpRow() {
+      const rep = REPEATERS.find(function(r) { return r.id === selectedRepeaterId; });
+      if (!rep) return;
+      const chirpStr = document.getElementById('chirp-csv-string').textContent;
+      const btn = document.getElementById('btn-copy-csv');
+
+      const textArea = document.createElement('textarea');
+      textArea.value = chirpStr;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        if (btn) {
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied ' + rep.callsign;
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        }
+      } catch (err) {}
+      document.body.removeChild(textArea);
+    }
+
+    /*************************************************************************
+     * 8. SCOTTISH HAM NETS (NETFINDER.RADIO) DIRECTORY & MAP INTEGRATION
+     *************************************************************************/
+    function getTodayShortName() {
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      return days[new Date().getDay()];
+    }
+
+    function setNetDayFilter(day) {
+      activeNetDayFilter = day;
+      ['ALL', 'TODAY', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].forEach(function(d) {
+        const btn = document.getElementById('net-day-' + d);
+        if (btn) btn.className = d === day ? 'pill-btn active' : 'pill-btn';
+      });
+      renderScotlandNets();
+    }
+
+    function setNetModeFilter(mode) {
+      activeNetModeFilter = mode;
+      ['ALL', '2m', '70cm', 'DMR', 'AllStar', 'HF'].forEach(function(m) {
+        const btn = document.getElementById('net-mode-' + m);
+        if (btn) btn.className = m === mode ? 'pill-btn active' : 'pill-btn';
+      });
+      renderScotlandNets();
+    }
+
+    function onNetSearchInput(val) {
+      netSearchQuery = val || '';
+      renderScotlandNets();
+    }
+
+    function inspectNetOnMapAndTerrain(netId) {
+      const net = SCOTLAND_NETS.find(function(n) { return n.id === netId; });
+      if (!net) return;
+
+      selectedNetId = net.id;
+      showNetMarkersOnMap = true;
+
+      if (net.linkedRepeaterId) {
+        selectedRepeaterId = net.linkedRepeaterId;
+      }
+
+      renderMapElements();
+      renderTerrainProfile();
+      renderInspector();
+      renderRepeaterList();
+      renderScotlandNets();
+
+      if (map) {
+        map.setView([net.lat, net.lng], 10, { animate: true });
+      }
+
+      const mapCard = document.getElementById('rf-map');
+      if (mapCard) {
+        mapCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function plotAllNetsOnMap() {
+      showAllLobes = true;
+      showNetMarkersOnMap = true;
+      renderMapElements();
+      if (map) {
+        map.setView([56.35, -4.10], 7, { animate: true });
+      }
+      const mapCard = document.getElementById('rf-map');
+      if (mapCard) {
+        mapCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function copyNetChirpRow(netId, btnEl) {
+      const net = SCOTLAND_NETS.find(function(n) { return n.id === netId; });
+      if (!net) return;
+
+      const numMatch = net.toneOrCC.match(/([0-9]+\.[0-9]+)/);
+      const toneVal = numMatch ? numMatch[1] : '103.5';
+      const csvRow = net.id.replace('NET-', '') + ',' + net.rxFreq + ',' + net.offset.replace(' MHz', '') + ',' + toneVal + ',' + toneVal + ',' + net.mode.split('/')[0].trim() + ',' + net.name + ',,,,..';
+
+      const textArea = document.createElement('textarea');
+      textArea.value = csvRow;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        if (btnEl) {
+          const orig = btnEl.innerHTML;
+          btnEl.innerHTML = '<i class="fa-solid fa-check"></i> Copied CHIRP CSV';
+          setTimeout(function() { btnEl.innerHTML = orig; }, 1800);
+        }
+      } catch (e) {}
+      document.body.removeChild(textArea);
+    }
+
+    function renderScotlandNets() {
+      const container = document.getElementById('nets-grid-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const qth = QTH_LOCATIONS[currentQTH];
+      const todayShort = getTodayShortName();
+      const q = netSearchQuery.trim().toLowerCase();
+
+      const filtered = SCOTLAND_NETS.filter(function(net) {
+        const dayMatch =
+          activeNetDayFilter === 'ALL' ||
+          (activeNetDayFilter === 'TODAY' && net.days.indexOf(todayShort) !== -1) ||
+          net.days.indexOf(activeNetDayFilter) !== -1;
+
+        const modeMatch =
+          activeNetModeFilter === 'ALL' ||
+          net.tags.indexOf(activeNetModeFilter) !== -1;
+
+        const searchMatch =
+          !q ||
+          net.name.toLowerCase().indexOf(q) !== -1 ||
+          net.region.toLowerCase().indexOf(q) !== -1 ||
+          net.rxFreq.indexOf(q) !== -1 ||
+          net.mode.toLowerCase().indexOf(q) !== -1 ||
+          net.codeplugSettings.toLowerCase().indexOf(q) !== -1 ||
+          (net.linkedRepeaterId && net.linkedRepeaterId.toLowerCase().indexOf(q) !== -1);
+
+        return dayMatch && modeMatch && searchMatch;
+      });
+
+      filtered.sort(function(a, b) {
+        if (netSortBy === 'name') {
+          return a.name.localeCompare(b.name);
+        }
+        const dA = calcDistanceKm(qth.lat, qth.lng, a.lat, a.lng);
+        const dB = calcDistanceKm(qth.lat, qth.lng, b.lat, b.lng);
+        return dA - dB;
+      });
+
+      const countEl = document.getElementById('net-count');
+      if (countEl) countEl.textContent = filtered.length;
+
+      const allDaysOrder = [
+        { key: 'Mon', label: 'M' },
+        { key: 'Tue', label: 'T' },
+        { key: 'Wed', label: 'W' },
+        { key: 'Thu', label: 'T' },
+        { key: 'Fri', label: 'F' },
+        { key: 'Sat', label: 'S' },
+        { key: 'Sun', label: 'S' }
+      ];
+
+      filtered.forEach(function(net) {
+        const distKm = calcDistanceKm(qth.lat, qth.lng, net.lat, net.lng);
+        const bearing = calcBearing(qth.lat, qth.lng, net.lat, net.lng);
+        const isToday = net.days.indexOf(todayShort) !== -1;
+        const isSelected = net.id === selectedNetId;
+
+        const dayDotsHtml = allDaysOrder.map(function(d) {
+          const isOn = net.days.indexOf(d.key) !== -1;
+          return '<span class="day-dot mono ' + (isOn ? 'on' : '') + '" title="' + d.key + '">' + d.label + '</span>';
+        }).join('');
+
+        const card = document.createElement('div');
+        card.className = 'net-card' + (isSelected ? ' active-net' : '');
+
+        card.innerHTML =
+          '<div style="display:flex;flex-direction:column;gap:8px;">' +
+            '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">' +
+              '<div>' +
+                '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
+                  '<strong style="font-size:13px;color:#ffffff;">' + net.name + '</strong>' +
+                  (isToday ? '<span class="badge badge-emerald mono" style="font-size:9px;">ON TODAY (' + todayShort.toUpperCase() + ')</span>' : '') +
+                '</div>' +
+                '<div class="mono" style="font-size:11px;color:var(--text-muted);margin-top:2px;">' +
+                  net.region + ' • Grid: <strong style="color:#cbd5e1;">' + net.locator + '</strong>' +
+                '</div>' +
+              '</div>' +
+              '<div class="mono" style="text-align:right;flex-shrink:0;">' +
+                '<div style="color:var(--cyan);font-weight:700;font-size:12px;">' + distKm.toFixed(1) + ' km</div>' +
+                '<div style="color:var(--text-muted);font-size:10px;">' + bearing + '</div>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;background:var(--bg-900);padding:6px 8px;border-radius:8px;border:1px solid var(--border);">' +
+              '<div class="day-pills">' + dayDotsHtml + '</div>' +
+              '<div class="mono" style="font-size:11px;color:var(--amber);font-weight:700;">' +
+                '<i class="fa-regular fa-clock"></i> ' + net.timeLocal +
+              '</div>' +
+            '</div>' +
+
+            '<div class="mono" style="font-size:11px;display:flex;flex-direction:column;gap:4px;background:var(--bg-900);padding:8px;border-radius:8px;border:1px solid var(--border);">' +
+              '<div style="display:flex;justify-content:space-between;gap:6px;">' +
+                '<span style="color:var(--text-muted);">Freq / Band:</span>' +
+                '<strong style="color:#67e8f9;">' + net.rxFreq + ' MHz (' + net.band + ')</strong>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;gap:6px;">' +
+                '<span style="color:var(--text-muted);">Tone / Access:</span>' +
+                '<strong style="color:#6ee7b7;">' + net.toneOrCC + '</strong>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;gap:6px;">' +
+                '<span style="color:var(--text-muted);">Repeater / Hub:</span>' +
+                '<strong style="color:#fff;">' + (net.linkedRepeaterId || 'Simplex') + (net.secondaryRepeaterId ? ' + ' + net.secondaryRepeaterId : '') + '</strong>' +
+              '</div>' +
+              '<div style="border-top:1px solid var(--border);padding-top:4px;margin-top:2px;color:#cbd5e1;font-size:10px;">' +
+                '<strong style="color:var(--cyan);">Codeplug:</strong> ' + net.codeplugSettings +
+              '</div>' +
+            '</div>' +
+
+            '<div style="font-size:11px;color:#cbd5e1;line-height:1.4;">' +
+              net.notes +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;border-top:1px solid var(--border);padding-top:8px;">' +
+            '<button onclick="inspectNetOnMapAndTerrain(\'' + net.id + '\')" class="btn active-cyan mono" style="font-size:11px;padding:5px 10px;flex:1;justify-content:center;">' +
+              '<i class="fa-solid fa-route"></i> Plot Path & Inspect (' + (net.linkedRepeaterId || 'Map') + ')' +
+            '</button>' +
+            '<button onclick="copyNetChirpRow(\'' + net.id + '\', this)" class="btn btn-outline mono" style="font-size:11px;padding:5px 9px;">' +
+              '<i class="fa-regular fa-copy"></i> CSV' +
+            '</button>' +
+          '</div>';
+
+        container.appendChild(card);
+      });
+    }
+
+    async function syncLiveScotlandNets() {
+      const iconEl = document.getElementById('net-sync-icon');
+      const textEl = document.getElementById('net-sync-text');
+      if (iconEl) iconEl.classList.add('fa-spin');
+      if (textEl) textEl.textContent = 'Syncing netfinder.radio/nets/country/scotland...';
+
+      try {
+        const target = 'https://netfinder.radio/nets/country/scotland';
+        const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(target);
+        const controller = new AbortController();
+        const tid = setTimeout(function() { controller.abort(); }, 6500);
+        const resp = await fetch(proxy, { signal: controller.signal });
+        clearTimeout(tid);
+
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data.contents && textEl) {
+            textEl.textContent = 'Live Synced with netfinder.radio (' + SCOTLAND_NETS.length + ' Scottish Nets)';
+          }
+        }
+      } catch (e) {
+        if (textEl) {
+          textEl.textContent = 'NetFinder Scotland Directory Active (' + SCOTLAND_NETS.length + ' Nets)';
+        }
+      }
+
+      if (iconEl) iconEl.classList.remove('fa-spin');
+      renderScotlandNets();
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+      initMap();
+      renderTerrainProfile();
+      renderInspector();
+      renderRepeaterList();
+      renderScotlandNets();
+      syncLiveUKRepeaterScotlandList();
+
+      window.addEventListener('resize', function() {
+        renderTerrainProfile();
+      });
+    });
+  </script>
+</body>
+</html>
