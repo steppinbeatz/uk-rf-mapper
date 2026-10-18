@@ -144,7 +144,7 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      flex-wrap: wrap; /* Fixes mobile overflow */
+      flex-wrap: wrap;
     }
 
     .qth-label {
@@ -722,7 +722,7 @@
           <div class="telemetry-metrics">
             <div><span style="color: var(--text-muted);">Dist:</span> <strong id="beam-distance" style="color: var(--cyan);">--</strong></div>
             <div><span style="color: var(--text-muted);">Bearing:</span> <strong id="beam-bearing" style="color: var(--amber);">--</strong></div>
-            <div><span style="color: var(--text-muted);">Quality:</span> <span id="beam-terrain-quality" class="badge badge-emerald">Pure Saltwater LoS</span></div>
+            <div><span style="color: var(--text-muted);">Quality:</span> <span id="beam-terrain-quality" class="badge badge-emerald">Computing...</span></div>
           </div>
         </div>
       </div>
@@ -736,7 +736,7 @@
           </div>
           <div class="mono" style="font-size: 12px;">
             <span style="color: var(--text-muted);">Estimated S-Meter:</span>
-            <span id="beam-smeter" class="badge badge-cyan">S9+20 dB</span>
+            <span id="beam-smeter" class="badge badge-cyan">Computing...</span>
           </div>
         </div>
 
@@ -1153,51 +1153,7 @@
           [56.065, -4.920], [56.045, -4.740], [56.005, -4.620],
           [55.945, -4.530], [55.890, -4.580], [55.885, -4.780],
           [55.920, -4.950], [56.010, -4.980]
-        ],
-        terrainProfiles: {
-          cardross: {
-            quality: 'Pure Saltwater LoS',
-            qualityColor: 'emerald',
-            sMeterHT: 'S9+20 dB',
-            sMeterBase: 'S9+40 dB',
-            points: [
-              { d: 0, e: 18, label: 'Cardross QTH' },
-              { d: 0.15, e: 2, label: 'Clyde Foreshore' },
-              { d: 0.5, e: 0, label: 'Firth of Clyde (Water)' },
-              { d: 0.85, e: 5, label: 'Gourock Bay' },
-              { d: 1.0, e: 110, label: 'GB7GR Gourock' }
-            ],
-            narrative: '100% unobstructed line-of-sight across the Firth of Clyde estuary. Saltwater acts as a low-loss ground reflector, delivering strong signals even on a 5W handheld indoors.'
-          },
-          helensburgh: {
-            quality: 'Pure Saltwater LoS',
-            qualityColor: 'emerald',
-            sMeterHT: 'S9+25 dB',
-            sMeterBase: 'S9+45 dB',
-            points: [
-              { d: 0, e: 35, label: 'Helensburgh' },
-              { d: 0.2, e: 0, label: 'Ardmore / Clyde' },
-              { d: 0.55, e: 0, label: 'Firth of Clyde' },
-              { d: 0.85, e: 12, label: 'Ashton Shore' },
-              { d: 1.0, e: 110, label: 'GB7GR Gourock' }
-            ],
-            narrative: 'Direct 7.7 km path straight across the mouth of the Gare Loch and Firth of Clyde. Effortless full-quieting access on a 1W–5W handheld.'
-          },
-          dumbarton: {
-            quality: 'Estuary Line-of-Sight',
-            qualityColor: 'emerald',
-            sMeterHT: 'S9',
-            sMeterBase: 'S9+25 dB',
-            points: [
-              { d: 0, e: 15, label: 'Dumbarton' },
-              { d: 0.2, e: 22, label: 'Dumbarton Rock' },
-              { d: 0.5, e: 0, label: 'Clyde Estuary' },
-              { d: 0.8, e: 18, label: 'Port Glasgow Coast' },
-              { d: 1.0, e: 110, label: 'GB7GR Gourock' }
-            ],
-            narrative: 'Follows the open water channel of the Clyde estuary past Port Glasgow and Greenock directly into Gourock.'
-          }
-        }
+        ]
       },
       {
         id: 'GB3DM',
@@ -1233,47 +1189,7 @@
           [56.040, -4.770], [56.045, -4.560], [55.995, -4.420],
           [55.910, -4.350], [55.865, -4.470], [55.895, -4.680],
           [55.965, -4.780]
-        ],
-        terrainProfiles: {
-          cardross: {
-            quality: 'Direct Local LoS',
-            qualityColor: 'emerald',
-            sMeterHT: 'S9+30 dB',
-            sMeterBase: 'S9+50 dB',
-            points: [
-              { d: 0, e: 18, label: 'Cardross QTH' },
-              { d: 0.35, e: 12, label: 'Ardoch Shore' },
-              { d: 0.7, e: 10, label: 'Levengrove / Leven' },
-              { d: 1.0, e: 145, label: 'GB3DM Dumbarton' }
-            ],
-            narrative: 'Booming local signal only 6.5 km away along the flat north shore of the Clyde. Easily worked on a 1W–5W handheld from anywhere in Cardross.'
-          },
-          helensburgh: {
-            quality: 'Slight Ridge Grazing',
-            qualityColor: 'emerald',
-            sMeterHT: 'S8 / S9',
-            sMeterBase: 'S9+25 dB',
-            points: [
-              { d: 0, e: 35, label: 'Helensburgh' },
-              { d: 0.3, e: 95, label: 'Ardmore / Colgrain Slope' },
-              { d: 0.6, e: 25, label: 'Cardross Coast' },
-              { d: 1.0, e: 145, label: 'GB3DM Dumbarton' }
-            ],
-            narrative: 'Skims across the gentle coastal rise between Colgrain and Cardross with solid signal margins into Helensburgh.'
-          },
-          dumbarton: {
-            quality: 'Point-Blank Local',
-            qualityColor: 'emerald',
-            sMeterHT: 'S9+40 dB',
-            sMeterBase: 'S9+60 dB',
-            points: [
-              { d: 0, e: 15, label: 'Dumbarton QTH' },
-              { d: 0.5, e: 45, label: 'Town / Braefoot' },
-              { d: 1.0, e: 145, label: 'GB3DM Dumbarton' }
-            ],
-            narrative: 'Virtually overhead in Dumbarton (~1.2 km). Full scale S9+ on any handheld whip.'
-          }
-        }
+        ]
       },
       {
         id: 'MB7IBH',
@@ -1309,48 +1225,7 @@
         coveragePolygon: [
           [56.065, -4.650], [56.050, -4.510], [55.985, -4.490],
           [55.930, -4.530], [55.940, -4.670], [56.005, -4.720]
-        ],
-        terrainProfiles: {
-          cardross: {
-            quality: 'Carman Hill 2m Diffraction',
-            qualityColor: 'amber',
-            sMeterHT: 'S7 / S8',
-            sMeterBase: 'S9+20 dB',
-            points: [
-              { d: 0, e: 18, label: 'Cardross QTH' },
-              { d: 0.45, e: 165, label: 'Carman Hill Shoulder' },
-              { d: 0.75, e: 55, label: 'Renton / Vale Slope' },
-              { d: 1.0, e: 45, label: 'MB7IBH Alexandria' }
-            ],
-            narrative: '5.3 km path across the shoulder of Carman Hill. The 2m (145.3375 MHz) wavelength bends cleanly over the ridge, making it stronger on handhelds than UHF.'
-          },
-          helensburgh: {
-            quality: 'Glen Fruin Moorland Pass',
-            qualityColor: 'amber',
-            sMeterHT: 'S7',
-            sMeterBase: 'S9+15 dB',
-            points: [
-              { d: 0, e: 35, label: 'Helensburgh' },
-              { d: 0.4, e: 210, label: 'Benuchara / Muir Ridge' },
-              { d: 0.75, e: 80, label: 'Dalmoak / Bonhill' },
-              { d: 1.0, e: 45, label: 'MB7IBH Alexandria' }
-            ],
-            narrative: 'Crosses the moorland saddle between Helensburgh and the Vale of Leven. Reliable access on mobile whips and elevated antennas.'
-          },
-          dumbarton: {
-            quality: 'Vale of Leven Corridor',
-            qualityColor: 'emerald',
-            sMeterHT: 'S9+15 dB',
-            sMeterBase: 'S9+35 dB',
-            points: [
-              { d: 0, e: 15, label: 'Dumbarton QTH' },
-              { d: 0.35, e: 12, label: 'Bellsmyre / River Leven' },
-              { d: 0.7, e: 18, label: 'Renton Flat' },
-              { d: 1.0, e: 45, label: 'MB7IBH Alexandria' }
-            ],
-            narrative: 'Follows the flat River Leven valley floor straight through Renton into Alexandria with zero terrain obstruction.'
-          }
-        }
+        ]
       },
       {
         id: 'MB7IDQ',
@@ -1385,48 +1260,7 @@
         coveragePolygon: [
           [56.055, -4.640], [56.040, -4.515], [55.980, -4.500],
           [55.932, -4.535], [55.942, -4.655], [55.998, -4.700]
-        ],
-        terrainProfiles: {
-          cardross: {
-            quality: 'Carman Hill UHF Grazing',
-            qualityColor: 'amber',
-            sMeterHT: 'S6 / S7',
-            sMeterBase: 'S9+10 dB',
-            points: [
-              { d: 0, e: 18, label: 'Cardross QTH' },
-              { d: 0.45, e: 165, label: 'Carman Hill Shoulder' },
-              { d: 0.75, e: 55, label: 'Renton Slope' },
-              { d: 1.0, e: 45, label: 'MB7IDQ Alexandria' }
-            ],
-            narrative: 'Because 70cm UHF has a tighter First Fresnel Zone than 2m, Carman Hill attenuates low handhelds slightly more than on 145.3375 MHz, while a rooftop/mobile antenna punches straight through.'
-          },
-          helensburgh: {
-            quality: 'Moorland Saddle Path',
-            qualityColor: 'amber',
-            sMeterHT: 'S6',
-            sMeterBase: 'S9+10 dB',
-            points: [
-              { d: 0, e: 35, label: 'Helensburgh' },
-              { d: 0.4, e: 210, label: 'Benuchara Ridge' },
-              { d: 0.75, e: 80, label: 'Bonhill' },
-              { d: 1.0, e: 45, label: 'MB7IDQ Alexandria' }
-            ],
-            narrative: 'Crosses the moorland ridge east of Helensburgh into Alexandria; external base/mobile antennas recommended.'
-          },
-          dumbarton: {
-            quality: 'Direct Vale Corridor',
-            qualityColor: 'emerald',
-            sMeterHT: 'S9+10 dB',
-            sMeterBase: 'S9+30 dB',
-            points: [
-              { d: 0, e: 15, label: 'Dumbarton QTH' },
-              { d: 0.4, e: 14, label: 'River Leven Valley' },
-              { d: 0.75, e: 18, label: 'Renton' },
-              { d: 1.0, e: 45, label: 'MB7IDQ Alexandria' }
-            ],
-            narrative: 'Unobstructed line-of-sight north up the Vale of Leven corridor.'
-          }
-        }
+        ]
       },
       {
         id: 'MB6GP',
@@ -1462,48 +1296,7 @@
         coveragePolygon: [
           [56.015, -4.780], [56.000, -4.550], [55.930, -4.520],
           [55.895, -4.600], [55.905, -4.770], [55.965, -4.810]
-        ],
-        terrainProfiles: {
-          cardross: {
-            quality: 'Short Saltwater LoS',
-            qualityColor: 'emerald',
-            sMeterHT: 'S9+25 dB',
-            sMeterBase: 'S9+45 dB',
-            points: [
-              { d: 0, e: 18, label: 'Cardross QTH' },
-              { d: 0.25, e: 0, label: 'Cardross Pillar Bank' },
-              { d: 0.65, e: 0, label: 'Firth of Clyde Channel' },
-              { d: 1.0, e: 30, label: 'MB6GP Port Glasgow' }
-            ],
-            narrative: 'Only 3.8 km directly south across the water from Cardross. Zero obstructions—delivers full-scale digital C4FM decoding on a 5W handheld.'
-          },
-          helensburgh: {
-            quality: 'Open Estuary LoS',
-            qualityColor: 'emerald',
-            sMeterHT: 'S9+10 dB',
-            sMeterBase: 'S9+30 dB',
-            points: [
-              { d: 0, e: 35, label: 'Helensburgh' },
-              { d: 0.35, e: 0, label: 'Ardmore Point (Water)' },
-              { d: 0.7, e: 0, label: 'Clyde Estuary' },
-              { d: 1.0, e: 30, label: 'MB6GP Port Glasgow' }
-            ],
-            narrative: '8.4 km across the water past Ardmore Point directly into Port Glasgow.'
-          },
-          dumbarton: {
-            quality: 'Clyde Channel LoS',
-            qualityColor: 'emerald',
-            sMeterHT: 'S9+10 dB',
-            sMeterBase: 'S9+30 dB',
-            points: [
-              { d: 0, e: 15, label: 'Dumbarton QTH' },
-              { d: 0.3, e: 0, label: 'River Leven Mouth' },
-              { d: 0.7, e: 0, label: 'Langbank / Clyde' },
-              { d: 1.0, e: 30, label: 'MB6GP Port Glasgow' }
-            ],
-            narrative: '7.4 km straight down the southern shore of the Clyde channel.'
-          }
-        }
+        ]
       },
       {
         id: 'MB6CY',
@@ -1538,46 +1331,7 @@
         coveragePolygon: [
           [55.980, -4.670], [55.970, -4.280], [55.850, -4.280],
           [55.860, -4.620]
-        ],
-        terrainProfiles: {
-          cardross: {
-            quality: 'North Clyde Bank Corridor',
-            qualityColor: 'emerald',
-            sMeterHT: 'S7 / S8',
-            sMeterBase: 'S9+20 dB',
-            points: [
-              { d: 0, e: 18, label: 'Cardross QTH' },
-              { d: 0.4, e: 15, label: 'Dumbarton Foreshore' },
-              { d: 0.7, e: 18, label: 'Bowling / Old Kilpatrick' },
-              { d: 1.0, e: 35, label: 'MB6CY Clydebank' }
-            ],
-            narrative: 'Hugs the flat north bank of the River Clyde beneath the Kilpatrick Hills through Bowling and Old Kilpatrick.'
-          },
-          helensburgh: {
-            quality: 'Coastal & River Grazing',
-            qualityColor: 'amber',
-            sMeterHT: 'S6',
-            sMeterBase: 'S9',
-            points: [
-              { d: 0, e: 35, label: 'Helensburgh' },
-              { d: 0.45, e: 25, label: 'Cardross / Dumbarton' },
-              { d: 1.0, e: 35, label: 'MB6CY Clydebank' }
-            ],
-            narrative: 'Follows the north shore of the estuary into Clydebank.'
-          },
-          dumbarton: {
-            quality: 'Short Riverbank LoS',
-            qualityColor: 'emerald',
-            sMeterHT: 'S9',
-            sMeterBase: 'S9+30 dB',
-            points: [
-              { d: 0, e: 15, label: 'Dumbarton' },
-              { d: 0.5, e: 12, label: 'Milton / Bowling' },
-              { d: 1.0, e: 35, label: 'MB6CY Clydebank' }
-            ],
-            narrative: 'Flat 11 km river path straight down the A82 / Firth of Clyde foreshore.'
-          }
-        }
+        ]
       }
     ];
 
@@ -1684,73 +1438,6 @@
       ["GB7LO","DVU50","439.6250","430.6250","IO91WM","London (DMR)","CC 1","M","G4RKY","OPERATIONAL"]
     ];
 
-    function getDynamicProfileForQTH(rep, qthKey) {
-      const qth = QTH_LOCATIONS[qthKey] || QTH_LOCATIONS.cardross;
-      if (rep.terrainProfiles && rep.terrainProfiles[qthKey]) {
-        return rep.terrainProfiles[qthKey];
-      }
-      const dist = calcDistanceKm(qth.lat, qth.lng, rep.lat, rep.lng);
-      const isOff = rep.statusType === 'off';
-      const siteElev = rep.siteElev || 150;
-      const town = rep.town || rep.name.split('(')[0].trim();
-
-      let quality = 'Regional UK Path';
-      let qualityColor = 'amber';
-      let sMeterHT = 'S4 / S5';
-      let sMeterBase = 'S8 / S9';
-      let midObstacleElev = Math.min(480, Math.round(80 + dist * 1.9));
-      let midLabel = 'UK Uplands / Horizon';
-
-      if (isOff) {
-        quality = 'Repeater Logged NOT OPERATIONAL';
-        qualityColor = 'rose';
-        sMeterHT = 'OFF AIR';
-        sMeterBase = 'OFF AIR';
-      } else if (dist <= 18) {
-        quality = 'Local Line-of-Sight Path';
-        qualityColor = 'emerald';
-        sMeterHT = 'S9+10 dB';
-        sMeterBase = 'S9+30 dB';
-        midObstacleElev = Math.round(Math.min(qth.elevMeters, siteElev) * 0.7);
-        midLabel = 'Local Lowland / Corridor';
-      } else if (dist <= 50) {
-        quality = 'Regional VHF/UHF Corridor';
-        qualityColor = 'emerald';
-        sMeterHT = 'S6 / S7';
-        sMeterBase = 'S9+10 dB';
-        midObstacleElev = 135;
-        midLabel = 'Regional Valley / Ridge';
-      } else if (dist > 95) {
-        quality = 'Long-Haul UK DX Path';
-        qualityColor = 'rose';
-        sMeterHT = 'Below Noise Floor';
-        sMeterBase = 'S2 / S4 (Beam / Tropo)';
-        midObstacleElev = 490;
-        midLabel = 'Earth Curvature & UK Hills';
-      }
-
-      return {
-        quality: quality,
-        qualityColor: qualityColor,
-        sMeterHT: sMeterHT,
-        sMeterBase: sMeterBase,
-        points: [
-          { d: 0, e: qth.elevMeters, label: qth.name },
-          { d: 0.25, e: Math.round(midObstacleElev * 0.55), label: 'Near Horizon' },
-          { d: 0.55, e: midObstacleElev, label: midLabel },
-          { d: 0.82, e: Math.round((midObstacleElev + siteElev) * 0.5), label: town + ' Approach' },
-          { d: 1.0, e: siteElev, label: rep.callsign + ' ' + town }
-        ],
-        narrative: isOff
-          ? rep.callsign + ' (' + town + ') is currently listed as NOT OPERATIONAL on the RSGB ETCC database.'
-          : dist.toFixed(1) + ' km path from ' + qth.name + ' (' + qth.locator + ') to ' + rep.callsign + ' in ' + town + ' (' + rep.locator + '). ' + (
-              dist <= 45
-                ? 'Workable with a 50W base/mobile collinear or well-sited handheld.'
-                : 'Extended UK path—best worked mobile when near ' + town + ' or via linked Digital Voice / AllStar / EchoLink networks.'
-            )
-      };
-    }
-
     function buildRepeaterFromETCCRow(row) {
       const callsign = row[0];
       const channel = row[1];
@@ -1833,68 +1520,6 @@
         ]);
       }
 
-      const terrainProfiles = {};
-      ['cardross', 'helensburgh', 'dumbarton'].forEach(function(qthKey) {
-        const qth = QTH_LOCATIONS[qthKey];
-        const dist = calcDistanceKm(qth.lat, qth.lng, lat, lng);
-
-        let quality = 'Regional Scottish Path';
-        let qualityColor = 'amber';
-        let sMeterHT = 'S4 / S5';
-        let sMeterBase = 'S8 / S9';
-        let midObstacleElev = Math.min(480, Math.round(90 + dist * 2.1));
-        let midLabel = 'Scottish Uplands / Ridge';
-
-        if (isOff) {
-          quality = 'Repeater Logged NOT OPERATIONAL';
-          qualityColor = 'rose';
-          sMeterHT = 'OFF AIR';
-          sMeterBase = 'OFF AIR';
-        } else if (dist <= 18) {
-          quality = 'Local Clyde / Estuary Path';
-          qualityColor = 'emerald';
-          sMeterHT = 'S9';
-          sMeterBase = 'S9+25 dB';
-          midObstacleElev = 25;
-          midLabel = 'Clyde Estuary / Lowland';
-        } else if (dist <= 48) {
-          quality = 'West / Central Belt Corridor';
-          qualityColor = 'emerald';
-          sMeterHT = 'S6 / S7';
-          sMeterBase = 'S9+10 dB';
-          midObstacleElev = 140;
-          midLabel = 'Central Belt Valley';
-        } else if (dist > 95) {
-          quality = 'Long-Haul DX / Highland Path';
-          qualityColor = 'rose';
-          sMeterHT = 'Below Noise Floor';
-          sMeterBase = 'S2 / S4 (High-Gain Yagi / Tropo)';
-          midObstacleElev = 520;
-          midLabel = 'Highland / Grampian Divide';
-        }
-
-        terrainProfiles[qthKey] = {
-          quality: quality,
-          qualityColor: qualityColor,
-          sMeterHT: sMeterHT,
-          sMeterBase: sMeterBase,
-          points: [
-            { d: 0, e: qth.elevMeters, label: qth.name },
-            { d: 0.25, e: Math.round(midObstacleElev * 0.55), label: 'Near Horizon' },
-            { d: 0.55, e: midObstacleElev, label: midLabel },
-            { d: 0.82, e: Math.round((midObstacleElev + siteElev) * 0.5), label: town + ' Approach' },
-            { d: 1.0, e: siteElev, label: callsign + ' ' + town }
-          ],
-          narrative: isOff
-            ? callsign + ' (' + town + ') is currently listed as NOT OPERATIONAL on the RSGB ETCC Scotland database.'
-            : dist.toFixed(1) + ' km path from ' + qth.name + ' to ' + callsign + ' in ' + town + ' (' + locator + '). ' + (
-                dist <= 45
-                  ? 'Workable across the Clyde/Central corridor with a 50W base/mobile collinear or well-sited handheld.'
-                  : 'Extended Scottish path—best worked mobile while travelling near ' + town + ' or from home using an elevated directional beam.'
-              )
-        };
-      });
-
       return {
         id: callsign,
         apiCallsign: callsign,
@@ -1926,8 +1551,7 @@
         funFact: 'Official RSGB ETCC Scottish repeater (' + callsign + ') located in ' + town + ' (Grid ' + locator + '), maintained by keeper ' + keeper + '.',
         htAdvice: '5W Handheld: Program RX ' + rxFreq + ' MHz / TX ' + txFreq + ' MHz (' + offsetStr + ') with access parameter ' + ctcssDisplay + '.',
         baseAdvice: '50W Base/Mobile: Use ' + band + ' external collinear or directional antenna for extended range toward ' + town + '.',
-        coveragePolygon: coveragePolygon,
-        terrainProfiles: terrainProfiles
+        coveragePolygon: coveragePolygon
       };
     }
 
@@ -2695,11 +2319,9 @@
 
       const activeRep = REPEATERS.find(function(r) { return r.id === selectedRepeaterId; });
       if (activeRep) {
-        const prof = getDynamicProfileForQTH(activeRep, currentQTH);
-        const beamColor = prof.qualityColor === 'emerald' ? '#10b981' : (prof.qualityColor === 'amber' ? '#f59e0b' : '#f43f5e');
-
+        const profColor = '#10b981'; // Defaulting to emerald for the path line
         losLineLayer = L.polyline([[qth.lat, qth.lng], [activeRep.lat, activeRep.lng]], {
-          color: beamColor,
+          color: profColor,
           weight: 3.5,
           dashArray: '8, 6',
           opacity: 0.95
@@ -2772,14 +2394,50 @@
     }
 
     /*************************************************************************
-     * 5. TERRAIN & FRESNEL PROFILE CANVAS
+     * 5. TERRAIN & FRESNEL PROFILE CANVAS (REAL OPENTOPODATA INTEGRATION)
      *************************************************************************/
-    function renderTerrainProfile() {
+    
+    // FETCH REAL TERRAIN FROM OPENTOPODATA
+    async function fetchRealTerrain(lat1, lng1, lat2, lng2, numPoints = 40) {
+      const coords = [];
+      for (let i = 0; i <= numPoints; i++) {
+        const fraction = i / numPoints;
+        const lat = lat1 + (lat2 - lat1) * fraction;
+        const lng = lng1 + (lng2 - lng1) * fraction;
+        coords.push(lat.toFixed(5) + ',' + lng.toFixed(5));
+      }
+      
+      const locationsStr = coords.join('|');
+      
+      // NOTE: Using the public API for immediate testing! 
+      // Change this to your Plesk domain once your Docker container is running:
+      // const apiUrl = `https://topo.angry-heisenberg.77-68-91-194.plesk.page/v1/srtm30m?locations=${locationsStr}`;
+      const apiUrl = `https://api.opentopodata.org/v1/srtm30m?locations=${locationsStr}`;
+      
+      try {
+        const resp = await fetch(apiUrl);
+        if (!resp.ok) throw new Error('Terrain API Error');
+        const data = await resp.json();
+        
+        return data.results.map((r, idx) => ({
+          d: idx / numPoints,
+          e: (r.elevation !== null && r.elevation > 0) ? r.elevation : 0,
+          label: idx === 0 ? 'QTH' : (idx === numPoints ? 'RX' : '')
+        }));
+      } catch (err) {
+        console.error("Failed to fetch real terrain:", err);
+        return null; // Fallback handled in render
+      }
+    }
+
+    let currentTerrainFetchId = 0;
+
+    async function renderTerrainProfile() {
       const qth = QTH_LOCATIONS[currentQTH] || QTH_LOCATIONS.cardross;
       const rep = REPEATERS.find(function(r) { return r.id === selectedRepeaterId; });
       if (!rep) return;
 
-      const prof = getDynamicProfileForQTH(rep, currentQTH);
+      const fetchId = ++currentTerrainFetchId;
       const distKm = calcDistanceKm(qth.lat, qth.lng, rep.lat, rep.lng);
       const bearing = calcBearing(qth.lat, qth.lng, rep.lat, rep.lng);
 
@@ -2788,19 +2446,11 @@
       document.getElementById('beam-bearing').textContent = bearing;
 
       const qualEl = document.getElementById('beam-terrain-quality');
-      qualEl.textContent = prof.quality;
-      qualEl.className = 'badge ' + (
-        prof.qualityColor === 'emerald' ? 'badge-emerald' :
-        prof.qualityColor === 'amber' ? 'badge-amber' : 'badge-rose'
-      );
-
-      const dotEl = document.getElementById('path-status-dot');
-      dotEl.style.background = prof.qualityColor === 'emerald' ? '#10b981' : (prof.qualityColor === 'amber' ? '#f59e0b' : '#f43f5e');
-
-      const sMeterText = currentRig === 'ht' ? prof.sMeterHT : prof.sMeterBase;
-      document.getElementById('beam-smeter').textContent = sMeterText;
-      document.getElementById('terrain-narrative').innerHTML =
-        '<strong class="mono" style="color:#fff;">' + qth.name + ' to ' + rep.callsign + ' (' + distKm.toFixed(1) + ' km @ ' + bearing + '):</strong> ' + prof.narrative;
+      qualEl.textContent = "Fetching Real Terrain...";
+      qualEl.className = 'badge badge-amber';
+      document.getElementById('path-status-dot').style.background = '#f59e0b';
+      document.getElementById('beam-smeter').textContent = "Computing...";
+      document.getElementById('terrain-narrative').innerHTML = '<span style="color:var(--amber);"><i class="fa-solid fa-spinner fa-spin"></i> Querying SRTM 30m Elevation Data...</span>';
 
       const canvas = document.getElementById('terrain-canvas');
       const container = document.getElementById('terrain-canvas-container');
@@ -2815,6 +2465,63 @@
       canvas.height = height * dpr;
       const ctx = canvas.getContext('2d');
       ctx.scale(dpr, dpr);
+      
+      // Draw Loading State
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = '#64748b';
+      ctx.font = '12px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText("📡 Plotting Path to " + rep.callsign + "...", width / 2, height / 2);
+
+      // Fetch Real Data
+      let realPoints = null;
+      if (rep.terrainProfiles && rep.terrainProfiles[currentQTH]) {
+         // Keep bespoke handwritten arrays for the 3 local Clyde sites if they exist!
+         realPoints = rep.terrainProfiles[currentQTH].points;
+      } else {
+         // Query the API for everywhere else in the UK!
+         realPoints = await fetchRealTerrain(qth.lat, qth.lng, rep.lat, rep.lng);
+      }
+
+      // If the user clicked another repeater while we were fetching, stop drawing.
+      if (fetchId !== currentTerrainFetchId) return;
+
+      // Fallback if API fails
+      if (!realPoints) {
+          const oldFakeData = getDynamicProfileForQTH(rep, currentQTH);
+          realPoints = oldFakeData.points;
+          qualEl.textContent = "API Error - Using Estimates";
+      }
+
+      // Re-evaluate quality based on real terrain peak
+      let maxPathElev = 0;
+      realPoints.forEach(p => { if (p.e > maxPathElev) maxPathElev = p.e; });
+      
+      let finalQuality = 'Clear Line of Sight';
+      let finalColor = 'emerald';
+      let finalSmeter = currentRig === 'ht' ? 'S9' : 'S9+20 dB';
+      
+      if (rep.statusType === 'off') {
+         finalQuality = 'Repeater OFF AIR';
+         finalColor = 'rose';
+         finalSmeter = 'OFF AIR';
+      } else if (distKm > 80) {
+         finalQuality = 'Long-Haul Tropo Path';
+         finalColor = 'rose';
+         finalSmeter = currentRig === 'ht' ? 'Below Noise Floor' : 'S2 / S4 (Beam)';
+      } else if (maxPathElev > (qth.elevMeters + 150)) {
+         finalQuality = 'Terrain Obstructed';
+         finalColor = 'amber';
+         finalSmeter = currentRig === 'ht' ? 'S3 / S4 (Knife-Edge)' : 'S7 / S8 (Refraction)';
+      }
+
+      qualEl.textContent = finalQuality;
+      qualEl.className = 'badge ' + (finalColor === 'emerald' ? 'badge-emerald' : finalColor === 'amber' ? 'badge-amber' : 'badge-rose');
+      document.getElementById('path-status-dot').style.background = finalColor === 'emerald' ? '#10b981' : finalColor === 'amber' ? '#f59e0b' : '#f43f5e';
+      document.getElementById('beam-smeter').textContent = finalSmeter;
+      document.getElementById('terrain-narrative').innerHTML = `<strong class="mono" style="color:#fff;">${qth.name} to ${rep.callsign} (${distKm.toFixed(1)} km @ ${bearing}):</strong> Real terrain plotted. ${maxPathElev > (qth.elevMeters + 100) ? 'Notice the high terrain blocking direct visual line-of-sight.' : 'Path is relatively clear of major ridgelines.'}`;
+
+      // DRAW THE REAL CANVAS
       ctx.clearRect(0, 0, width, height);
 
       const padLeft = 46;
@@ -2824,17 +2531,15 @@
       const plotW = width - padLeft - padRight;
       const plotH = height - padTop - padBottom;
 
-      let maxPointElev = 260;
-      prof.points.forEach(function(p) { if (p.e > maxPointElev) maxPointElev = p.e; });
-      const maxElev = maxPointElev * 1.18;
+      const maxElev = Math.max(maxPathElev * 1.18, 50);
 
       const toX = function(normD) { return padLeft + normD * plotW; };
       const toY = function(elev) { return padTop + plotH - (elev / maxElev) * plotH; };
 
       ctx.font = '10px monospace';
       ctx.textAlign = 'right';
-      [0, 100, 200, 300, 400, 500].forEach(function(elevVal) {
-        if (elevVal <= maxElev) {
+      [0, 100, 200, 300, 400, 500, 800, 1000].forEach(function(elevVal) {
+        if (elevVal <= maxElev && maxElev > 0) {
           const gy = toY(elevVal);
           ctx.beginPath();
           ctx.setLineDash([3, 3]);
@@ -2848,8 +2553,8 @@
         }
       });
 
-      const qthAntElev = prof.points[0].e + (currentRig === 'base' ? 12 : 2);
-      const repAntElev = prof.points[prof.points.length - 1].e + 22;
+      const qthAntElev = realPoints[0].e + (currentRig === 'base' ? 12 : 2);
+      const repAntElev = realPoints[realPoints.length - 1].e + 22;
       const xStart = toX(0);
       const yStart = toY(qthAntElev);
       const xEnd = toX(1);
@@ -2857,7 +2562,7 @@
       const midX = (xStart + xEnd) / 2;
       const midY = (yStart + yEnd) / 2;
 
-      const beamStroke = prof.qualityColor === 'emerald' ? '#10b981' : (prof.qualityColor === 'amber' ? '#f59e0b' : '#f43f5e');
+      const beamStroke = finalColor === 'emerald' ? '#10b981' : (finalColor === 'amber' ? '#f59e0b' : '#f43f5e');
 
       // Fresnel Zone
       ctx.save();
@@ -2877,7 +2582,7 @@
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(toX(0), padTop + plotH);
-      prof.points.forEach(function(pt) {
+      realPoints.forEach(function(pt) {
         ctx.lineTo(toX(pt.d), toY(pt.e));
       });
       ctx.lineTo(toX(1), padTop + plotH);
@@ -2886,7 +2591,7 @@
       ctx.fill();
 
       ctx.beginPath();
-      prof.points.forEach(function(pt, idx) {
+      realPoints.forEach(function(pt, idx) {
         if (idx === 0) ctx.moveTo(toX(pt.d), toY(pt.e));
         else ctx.lineTo(toX(pt.d), toY(pt.e));
       });
@@ -2908,17 +2613,19 @@
 
       // Labels
       ctx.font = '10px monospace';
-      prof.points.forEach(function(pt, idx) {
-        const lx = toX(pt.d);
-        const ly = toY(pt.e);
-        ctx.beginPath();
-        ctx.arc(lx, ly, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#cbd5e1';
-        ctx.fill();
+      realPoints.forEach(function(pt, idx) {
+        if (pt.label) {
+            const lx = toX(pt.d);
+            const ly = toY(pt.e);
+            ctx.beginPath();
+            ctx.arc(lx, ly, 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fill();
 
-        ctx.fillStyle = '#cbd5e1';
-        ctx.textAlign = idx === 0 ? 'left' : (idx === prof.points.length - 1 ? 'right' : 'center');
-        ctx.fillText(pt.label, lx, padTop + plotH + 16);
+            ctx.fillStyle = '#cbd5e1';
+            ctx.textAlign = idx === 0 ? 'left' : (idx === realPoints.length - 1 ? 'right' : 'center');
+            ctx.fillText(pt.label, lx, padTop + plotH + 16);
+        }
       });
     }
 
