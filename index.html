@@ -144,6 +144,7 @@
       display: flex;
       align-items: center;
       gap: 4px;
+      flex-wrap: wrap; /* Fixes mobile overflow */
     }
 
     .qth-label {
@@ -260,6 +261,7 @@
       font-size: 11px;
       color: var(--text-muted);
       overflow-x: auto;
+      white-space: nowrap;
     }
 
     .legend-item {
@@ -397,6 +399,7 @@
       padding: 7px 10px;
       font-size: 12px;
       outline: none;
+      min-width: 0;
     }
 
     .search-input:focus {
@@ -912,6 +915,17 @@
     Synced with <a href="https://ukrepeater.net/repeaterlist.html?filter=SCOTLAND" target="_blank" rel="noopener">ukrepeater.net</a> &
     <a href="https://netfinder.radio/nets/country/scotland" target="_blank" rel="noopener">netfinder.radio/nets/country/scotland</a>
   </footer>
+
+  <script>
+    // Register the PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker Registered!', reg))
+          .catch(err => console.log('Service Worker Failed:', err));
+      });
+    }
+  </script>
 
   <script>
     /*************************************************************************
