@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rf-mapper-v2';
+const CACHE_NAME = 'rf-mapper-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -7,8 +7,9 @@ const ASSETS_TO_CACHE = [
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
 
-// Install event: Cache our core files
+// Install event: Cache core files and skip waiting so new code takes effect immediately
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       return cache.addAll(ASSETS_TO_CACHE);
@@ -16,7 +17,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activate event: Remove earlier app caches and take control immediately
+// Activate event: Remove earlier app caches (v1, v2) and take control immediately
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(names =>
@@ -29,11 +30,17 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch event: Serve from cache if offline
+// Fetch event: Always go to network for /elevation/ API calls; use network-first for index.html
 self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+
+  // Never cache local OpenTopoData /elevation/ API requests
+  if (url.pathname.startsWith('/elevation/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
+    fetch(event.request).catch(() => caches.match(event.request))
   );
 });
