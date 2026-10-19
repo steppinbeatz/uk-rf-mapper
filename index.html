@@ -2661,7 +2661,7 @@
       ctx.stroke();
       ctx.restore();
 
-      // Terrain polygon
+      // Terrain polygon + Water (0m) detection
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(toX(0), padTop + plotH);
@@ -2673,16 +2673,31 @@
       ctx.fillStyle = 'rgba(30, 41, 59, 0.92)';
       ctx.fill();
 
-      ctx.beginPath();
-      realPoints.forEach(function(pt, idx) {
-        if (idx === 0) ctx.moveTo(toX(pt.d), toY(pt.e));
-        else ctx.lineTo(toX(pt.d), toY(pt.e));
-      });
-      ctx.strokeStyle = '#64748b';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.restore();
+      // Draw segment-by-segment: Blue for water (<= 0m), Slate for land (> 0m)
+      for (let i = 0; i < realPoints.length - 1; i++) {
+        const pt1 = realPoints[i];
+        const pt2 = realPoints[i + 1];
+        const x1 = toX(pt1.d);
+        const y1 = toY(pt1.e);
+        const x2 = toX(pt2.d);
+        const y2 = toY(pt2.e);
+        const isWater = (pt1.e <= 0 && pt2.e <= 0);
 
+        if (isWater) {
+          // Subtle cyan-blue water highlight along the 0m baseline
+          ctx.fillStyle = 'rgba(6, 182, 212, 0.28)';
+          ctx.fillRect(x1, toY(0) - 4, x2 - x1, 6);
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = isWater ? '#06b6d4' : '#64748b';
+        ctx.lineWidth = isWater ? 3.5 : 2;
+        ctx.stroke();
+      }
+      ctx.restore();
+      
       // Direct LoS Line
       ctx.save();
       ctx.beginPath();
