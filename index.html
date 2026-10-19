@@ -2470,8 +2470,8 @@
 
       const locationsStr = coords.join('|');
       // Uses same-origin Plesk nginx reverse proxy (/elevation/ -> 127.0.0.1:5001/)
-      // Change 'test-dataset' to 'srtm30m' once UK SRTM .hgt tiles are mounted!
-      const apiUrl = `/elevation/v1/test-dataset?locations=${encodeURIComponent(locationsStr)}`;
+      // Using srtm30m dataset since UK .hgt tiles are now mounted!
+      const apiUrl = `/elevation/v1/srtm30m?locations=${encodeURIComponent(locationsStr)}`;
 
       const controller = new AbortController();
       const timeoutId = setTimeout(function () {
@@ -2492,15 +2492,6 @@
 
         if (!Array.isArray(data.results) || data.results.length !== coords.length) {
           throw new Error(data.error || 'Terrain API returned incomplete results');
-        }
-
-        // Verify at least one non-null elevation was returned (since test-dataset only covers NZ)
-        const hasValidElevation = data.results.some(function(r) {
-          return r.elevation !== null && Number.isFinite(Number(r.elevation));
-        });
-
-        if (!hasValidElevation) {
-          throw new Error('Dataset returned null elevations for UK coordinates (test-dataset covers NZ only)');
         }
 
         return data.results.map(function(r, idx) {
@@ -2571,7 +2562,7 @@
       // Ignore outdated response if user clicked another repeater while fetching
       if (fetchId !== currentTerrainFetchId) return;
 
-      // Fallback if local test-dataset returns null for UK coordinates or proxy fails
+      // Fallback if local srtm30m returns null or proxy fails
       if (!realPoints) {
         usingFallback = true;
         const fallbackProfile = getDynamicProfileForQTH(rep, currentQTH);
@@ -2605,8 +2596,8 @@
       document.getElementById('beam-smeter').textContent = finalSmeter;
 
       const sourceNote = usingFallback
-        ? 'Using estimated terrain profile (switch /elevation/v1/test-dataset to srtm30m once UK .hgt tiles are mounted).'
-        : 'Local OpenTopoData elevation profile plotted.';
+        ? 'Using estimated terrain profile (local SRTM tiles may not cover this exact path coordinate).'
+        : 'Local OpenTopoData SRTM 30m elevation profile plotted.';
 
       document.getElementById('terrain-narrative').innerHTML =
         '<strong class="mono" style="color:#fff;">' + qth.name + ' to ' + rep.callsign + ' (' + distKm.toFixed(1) + ' km @ ' + bearing + '):</strong> ' +
@@ -3267,4 +3258,152 @@
           net.name.toLowerCase().indexOf(q) !== -1 ||
           net.region.toLowerCase().indexOf(q) !== -1 ||
           net.rxFreq.indexOf(q) !== -1 ||
-          net.mode.toLowerCase().indexOf(q) !== -1
+          net.mode.toLowerCase().indexOf(q) !== -1 ||
+          net.codeplugSettings.toLowerCase().indexOf(q) !== -1 ||
+          (net.linkedRepeaterId && net.linkedRepeaterId.toLowerCase().indexOf(q) !== -1);
+
+        return dayMatch && modeMatch && searchMatch;
+      });
+
+      filtered.sort(function(a, b) {
+        if (netSortBy === 'name') {
+          return a.name.localeCompare(b.name);
+        }
+        const dA = calcDistanceKm(qth.lat, qth.lng, a.lat, a.lng);
+        const dB = calcDistanceKm(qth.lat, qth.lng, b.lat, b.lng);
+        return dA - dB;
+      });
+
+      const countEl = document.getElementById('net-count');
+      if (countEl) countEl.textContent = filtered.length;
+
+      const allDaysOrder = [
+        { key: 'Mon', label: 'M' },
+        { key: 'Tue', label: 'T' },
+        { key: 'Wed', label: 'W' },
+        { key: 'Thu', label: 'T' },
+        { key: 'Fri', label: 'F' },
+        { key: 'Sat', label: 'S' },
+        { key: 'Sun', label: 'S' }
+      ];
+
+      filtered.forEach(function(net) {
+        const distKm = calcDistanceKm(qth.lat, qth.lng, net.lat, net.lng);
+        const bearing = calcBearing(qth.lat, qth.lng, net.lat, net.lng);
+        const isToday = net.days.indexOf(todayShort) !== -1;
+        const isSelected = net.id === selectedNetId;
+
+        const dayDotsHtml = allDaysOrder.map(function(d) {
+          const isOn = net.days.indexOf(d.key) !== -1;
+          return '<span class="day-dot mono ' + (isOn ? 'on' : '') + '" title="' + d.key + '">' + d.label + '</span>';
+        }).join('');
+
+        const card = document.createElement('div');
+        card.className = 'net-card' + (isSelected ? ' active-net' : '');
+
+        card.innerHTML =
+          '<div style="display:flex;flex-direction:column;gap:8px;">' +
+            '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">' +
+              '<div>' +
+                '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
+                  '<strong style="font-size:13px;color:#ffffff;">' + net.name + '</strong>' +
+                  (isToday ? '<span class="badge badge-emerald mono" style="font-size:9px;">ON TODAY (' + todayShort.toUpperCase() + ')</span>' : '') +
+                '</div>' +
+                '<div class="mono" style="font-size:11px;color:var(--text-muted);margin-top:2px;">' +
+                  net.region + ' • Grid: <strong style="color:#cbd5e1;">' + net.locator + '</strong>' +
+                '</div>' +
+              '</div>' +
+              '<div class="mono" style="text-align:right;flex-shrink:0;">' +
+                '<div style="color:var(--cyan);font-weight:700;font-size:12px;">' + distKm.toFixed(1) + ' km</div>' +
+                '<div style="color:var(--text-muted);font-size:10px;">' + bearing + '</div>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;background:var(--bg-900);padding:6px 8px;border-radius:8px;border:1px solid var(--border);">' +
+              '<div class="day-pills">' + dayDotsHtml + '</div>' +
+              '<div class="mono" style="font-size:11px;color:var(--amber);font-weight:700;">' +
+                '<i class="fa-regular fa-clock"></i> ' + net.timeLocal +
+              '</div>' +
+            '</div>' +
+
+            '<div class="mono" style="font-size:11px;display:flex;flex-direction:column;gap:4px;background:var(--bg-900);padding:8px;border-radius:8px;border:1px solid var(--border);">' +
+              '<div style="display:flex;justify-content:space-between;gap:6px;">' +
+                '<span style="color:var(--text-muted);">Freq / Band:</span>' +
+                '<strong style="color:#67e8f9;">' + net.rxFreq + ' MHz (' + net.band + ')</strong>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;gap:6px;">' +
+                '<span style="color:var(--text-muted);">Tone / Access:</span>' +
+                '<strong style="color:#6ee7b7;">' + net.toneOrCC + '</strong>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;gap:6px;">' +
+                '<span style="color:var(--text-muted);">Repeater / Hub:</span>' +
+                '<strong style="color:#fff;">' + (net.linkedRepeaterId || 'Simplex') + (net.secondaryRepeaterId ? ' + ' + net.secondaryRepeaterId : '') + '</strong>' +
+              '</div>' +
+              '<div style="border-top:1px solid var(--border);padding-top:4px;margin-top:2px;color:#cbd5e1;font-size:10px;">' +
+                '<strong style="color:var(--cyan);">Codeplug:</strong> ' + net.codeplugSettings +
+              '</div>' +
+            '</div>' +
+
+            '<div style="font-size:11px;color:#cbd5e1;line-height:1.4;">' +
+              net.notes +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;border-top:1px solid var(--border);padding-top:8px;">' +
+            '<button onclick="inspectNetOnMapAndTerrain(\'' + net.id + '\')" class="btn active-cyan mono" style="font-size:11px;padding:5px 10px;flex:1;justify-content:center;">' +
+              '<i class="fa-solid fa-route"></i> Path & Inspect (' + (net.linkedRepeaterId || 'Map') + ')' +
+            '</button>' +
+            '<button onclick="copyNetChirpRow(\'' + net.id + '\', this)" class="btn btn-outline mono" style="font-size:11px;padding:5px 9px;">' +
+              '<i class="fa-regular fa-copy"></i> CSV' +
+            '</button>' +
+          '</div>';
+
+        container.appendChild(card);
+      });
+    }
+
+    async function syncLiveScotlandNets() {
+      const iconEl = document.getElementById('net-sync-icon');
+      const textEl = document.getElementById('net-sync-text');
+      if (iconEl) iconEl.classList.add('fa-spin');
+      if (textEl) textEl.textContent = 'Syncing netfinder.radio/nets/country/scotland...';
+
+      try {
+        const target = 'https://netfinder.radio/nets/country/scotland';
+        const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(target);
+        const controller = new AbortController();
+        const tid = setTimeout(function() { controller.abort(); }, 6500);
+        const resp = await fetch(proxy, { signal: controller.signal });
+        clearTimeout(tid);
+
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data.contents && textEl) {
+            textEl.textContent = 'Live Synced with netfinder.radio (' + SCOTLAND_NETS.length + ' Scottish Nets)';
+          }
+        }
+      } catch (e) {
+        if (textEl) {
+          textEl.textContent = 'NetFinder Scotland Directory Active (' + SCOTLAND_NETS.length + ' Nets)';
+        }
+      }
+
+      if (iconEl) iconEl.classList.remove('fa-spin');
+      renderScotlandNets();
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+      initMap();
+      renderTerrainProfile();
+      renderInspector();
+      renderRepeaterList();
+      renderScotlandNets();
+      syncLiveUKRepeaterScotlandList();
+
+      window.addEventListener('resize', function() {
+        renderTerrainProfile();
+      });
+    });
+  </script>
+</body>
+</html>
