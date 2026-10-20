@@ -1520,6 +1520,7 @@
 
       const coords = locatorToLatLng(locator, callsign);
       const KNOWN_COORDS = {
+        // Clyde, Ayrshire & West Central Scotland
         GB3AY: { lat: 55.7100, lng: -4.7210, elev: 245 },
         GB3WA: { lat: 55.7220, lng: -4.7350, elev: 240 },
         GB3PA: { lat: 55.8110, lng: -4.4550, elev: 220 },
@@ -1536,10 +1537,101 @@
         GB7DM: { lat: 55.9420, lng: -4.5650, elev: 65 },
         GB7AC: { lat: 55.7950, lng: -4.8650, elev: 170 },
         GB7IR: { lat: 55.6200, lng: -4.6600, elev: 95 },
-        GB3FE: { lat: 56.1150, lng: -3.9350, elev: 185 },
-        GB7FE: { lat: 56.1160, lng: -3.9320, elev: 185 }
-      };
+        GB7ZT: { lat: 55.1050, lng: -5.0040, elev: 190 },
 
+        // Stirling, Forth Valley, Edinburgh & Lothians (Fixed from Galashiels cluster)
+        GB3FE: { lat: 56.1150, lng: -3.9350, elev: 185 },
+        GB7FE: { lat: 56.1160, lng: -3.9320, elev: 185 },
+        GB3OH: { lat: 55.9610, lng: -3.6120, elev: 255 },
+        GB7BG: { lat: 55.9020, lng: -3.6430, elev: 210 },
+        GB7CB: { lat: 55.8860, lng: -3.5220, elev: 175 },
+        GB7LV: { lat: 55.9320, lng: -3.4710, elev: 130 },
+        GB3ED: { lat: 55.9533, lng: -3.1883, elev: 165 },
+        GB7EE: { lat: 55.9510, lng: -3.1950, elev: 150 },
+        GB7ET: { lat: 55.9480, lng: -3.1820, elev: 155 },
+        GB7EU: { lat: 55.9560, lng: -3.1790, elev: 145 },
+        GB7ID: { lat: 55.9450, lng: -3.2080, elev: 140 },
+        GB7KN: { lat: 55.9260, lng: -3.2140, elev: 160 },
+        GB7SQ: { lat: 55.8930, lng: -3.0680, elev: 135 },
+
+        // Scottish Borders (True individual hilltops)
+        GB3AD: { lat: 55.3850, lng: -2.7930, elev: 310 },
+        GB7AI: { lat: 55.4210, lng: -2.7840, elev: 245 },
+        GB7HK: { lat: 55.4240, lng: -2.7790, elev: 235 },
+        GB3AS: { lat: 55.1520, lng: -2.9980, elev: 320 },
+        GB3HK: { lat: 55.5340, lng: -2.8630, elev: 295 },
+        GB3SB: { lat: 55.5580, lng: -2.8380, elev: 340 },
+        GB7GA: { lat: 55.6180, lng: -2.8080, elev: 265 },
+        GB7LS: { lat: 55.6140, lng: -2.8120, elev: 260 },
+        GB3LB: { lat: 55.7200, lng: -2.7480, elev: 330 },
+        GB7JD: { lat: 55.4780, lng: -2.5540, elev: 250 },
+        GB3DU: { lat: 55.7780, lng: -2.3440, elev: 240 },
+        GB3BE: { lat: 55.7920, lng: -2.3180, elev: 265 },
+        GB3BT: { lat: 55.7710, lng: -2.0120, elev: 165 },
+
+        // Dumfries & Galloway (South West)
+        GB7GM: { lat: 55.0710, lng: -3.6050, elev: 185 },
+        GB7PG: { lat: 54.9410, lng: -3.9310, elev: 210 },
+        GB3DG: { lat: 54.9580, lng: -4.4820, elev: 230 },
+        GB7DG: { lat: 54.8420, lng: -5.1150, elev: 145 },
+        GB7RG: { lat: 54.9040, lng: -5.0250, elev: 160 },
+
+        // Fife, Perthshire, Dundee & Angus
+        GB7KY: { lat: 56.1180, lng: -3.1670, elev: 165 },
+        GB7DE: { lat: 56.2080, lng: -3.0450, elev: 185 },
+        GB3FF: { lat: 56.2240, lng: -2.9280, elev: 245 },
+        GB7EF: { lat: 56.2760, lng: -3.1220, elev: 140 },
+        GB7LL: { lat: 56.2060, lng: -3.4210, elev: 215 },
+        GB3PR: { lat: 56.3780, lng: -3.4320, elev: 230 },
+        GB3PU: { lat: 56.3795, lng: -3.4300, elev: 230 },
+        GB3SF: { lat: 56.3980, lng: -3.4410, elev: 175 },
+        GB3DD: { lat: 56.4720, lng: -2.9710, elev: 170 },
+        GB3AG: { lat: 56.5560, lng: -2.9880, elev: 310 },
+
+        // Aberdeen, Grampian & Moray
+        GB3AO: { lat: 57.0760, lng: -2.7820, elev: 285 },
+        GB7AB: { lat: 57.1490, lng: -2.0940, elev: 135 },
+        GB7EM: { lat: 57.1620, lng: -2.1150, elev: 155 },
+        GB7FP: { lat: 57.1210, lng: -2.1380, elev: 145 },
+        GB7GD: { lat: 57.1850, lng: -2.0880, elev: 150 },
+        GB7KV: { lat: 57.2350, lng: -2.4410, elev: 195 },
+        MB5TH: { lat: 57.2680, lng: -2.3520, elev: 160 },
+        GB7EC: { lat: 57.3360, lng: -2.3180, elev: 185 },
+        GB7BB: { lat: 57.6620, lng: -2.5240, elev: 175 },
+        GB7GK: { lat: 57.5420, lng: -2.9520, elev: 220 },
+        GB3SS: { lat: 57.6480, lng: -3.3150, elev: 195 },
+        GB7SS: { lat: 57.7180, lng: -3.2880, elev: 85 },
+        GB7MM: { lat: 57.5840, lng: -3.8690, elev: 110 },
+
+        // Highlands, Hebrides, Orkney & Shetland
+        GB7II: { lat: 57.4778, lng: -4.2247, elev: 165 },
+        GB3BI: { lat: 57.5210, lng: -4.4620, elev: 240 },
+        GB7BI: { lat: 57.5225, lng: -4.4600, elev: 240 },
+        GB7AK: { lat: 56.9080, lng: -5.8540, elev: 145 },
+        GB3HI: { lat: 56.4520, lng: -5.7120, elev: 310 },
+        GB3IS: { lat: 57.1620, lng: -7.3580, elev: 195 },
+        GB3EI: { lat: 57.5980, lng: -7.1580, elev: 140 },
+        GB7EI: { lat: 57.5995, lng: -7.1560, elev: 140 },
+        GB3IG: { lat: 58.2090, lng: -6.3880, elev: 135 },
+        GB7IG: { lat: 58.2120, lng: -6.3820, elev: 135 },
+        GB3OC: { lat: 58.9810, lng: -2.9610, elev: 185 },
+        GB3LU: { lat: 60.1550, lng: -1.1450, elev: 210 },
+
+        // UK Regional Reference Repeaters
+        GB3NB: { lat: 52.3680, lng: -1.8840, elev: 165 },
+        GB3LO: { lat: 51.5140, lng: -0.1320, elev: 155 },
+        GB7LO: { lat: 51.5090, lng: -0.1180, elev: 145 },
+        GB3MN: { lat: 53.4080, lng: -2.1480, elev: 185 },
+        GB3MR: { lat: 53.4110, lng: -2.1450, elev: 185 },
+        GB3HG: { lat: 53.9920, lng: -1.5420, elev: 215 },
+        GB3WW: { lat: 51.4816, lng: -3.1791, elev: 140 },
+        GB3NI: { lat: 54.6120, lng: -5.9450, elev: 280 },
+        GB3GD: { lat: 54.2630, lng: -4.4620, elev: 620 },
+        GB3EV: { lat: 54.6650, lng: -2.7520, elev: 260 },
+        GB3NT: { lat: 54.9780, lng: -1.6180, elev: 175 },
+        GB3BP: { lat: 51.9970, lng: -0.7420, elev: 115 }
+      };
+      
       const lat = KNOWN_COORDS[callsign] ? KNOWN_COORDS[callsign].lat : coords.lat;
       const lng = KNOWN_COORDS[callsign] ? KNOWN_COORDS[callsign].lng : coords.lng;
       const siteElev = KNOWN_COORDS[callsign] ? KNOWN_COORDS[callsign].elev : 160;
