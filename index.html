@@ -2916,7 +2916,7 @@
           return a.callsign.localeCompare(b.callsign);
         }
         const dA = calcDistanceKm(qth.lat, qth.lng, a.lat, a.lng);
-        const dB = calcDistanceKm(qth.lat, qth.lng, b.lat, a.lng ? b.lng : -4.0);
+        const dB = calcDistanceKm(qth.lat, qth.lng, b.lat, b.lng);
         return dA - dB;
       });
 
