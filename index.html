@@ -2731,7 +2731,7 @@
         .addTo(map)
         .bindPopup('<strong>' + qth.name + ' QTH (' + qth.locator + ')</strong><br>' + qth.desc);
 
-REPEATERS.forEach(function(rep) {
+      REPEATERS.forEach(function(rep) {
         const isSelected = rep.id === selectedRepeaterId;
 
         const hasExtra2m = rep.extraBands && rep.extraBands.indexOf('2m') !== -1;
@@ -3637,6 +3637,7 @@ REPEATERS.forEach(function(rep) {
         const btn = document.getElementById('filter-band-' + b);
         if (btn) btn.className = b === band ? 'pill-btn active' : 'pill-btn';
       });
+      renderMapElements(); // <-- THIS FORCES THE MAP PINS TO RE-FILTER BY BAND
       renderRepeaterList();
     }
 
@@ -3646,6 +3647,7 @@ REPEATERS.forEach(function(rep) {
         const btn = document.getElementById('filter-mode-' + m);
         if (btn) btn.className = m === mode ? 'pill-btn active' : 'pill-btn';
       });
+      renderMapElements(); // <-- THIS FORCES THE MAP PINS TO RE-FILTER BY MODE (DMR, YSF, etc.)
       renderRepeaterList();
     }
 
