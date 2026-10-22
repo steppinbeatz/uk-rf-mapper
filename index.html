@@ -619,7 +619,7 @@
             </span>
           </div>
           <div class="brand-subtitle">
-            Choose Any UK Region, GPS, Grid Locator or Map Click • All UK Repeaters & Nets • SRTM 30m Terrain LoS & Codeplug Inspector
+            Choose Any UK Region, GPS, Grid Locator or Map Click • All UK Repeaters & Nets • SRTM 30m Terrain LoS & Live DMR TG Inspector
           </div>
         </div>
       </div>
@@ -922,9 +922,10 @@
   </section>
 
   <footer class="mono">
-    UK RF Repeater, NetFinder & Terrain Mapper • All 802 RSGB ETCC UK Repeaters + Gateways & UK Nets •
-    Synced with <a href="https://ukrepeater.net" target="_blank" rel="noopener">ukrepeater.net</a> &
-    <a href="https://netfinder.radio/nets/country/united-kingdom" target="_blank" rel="noopener">netfinder.radio/nets/country/united-kingdom</a>
+    UK RF Repeater, NetFinder & Terrain Mapper • All 802 RSGB ETCC UK Repeaters + Gateways, Live BrandMeister DMR TGs & UK Nets •
+    Synced with <a href="https://ukrepeater.net" target="_blank" rel="noopener">ukrepeater.net</a>,
+    <a href="https://api.brandmeister.network/v2" target="_blank" rel="noopener">BrandMeister API v2</a> &
+    <a href="https://netfinder.radio/nets/country/united-kingdom" target="_blank" rel="noopener">netfinder.radio</a>
   </footer>
 
   <script>
@@ -1140,6 +1141,76 @@
     }
 
     /*************************************************************************
+     * 1B. UK DMR TALKGROUP DICTIONARY & REGIONAL DEFAULTS
+     *************************************************************************/
+    const UK_TG_NAMES = {
+      '9': 'Local',
+      '8': 'Regional Cluster',
+      '91': 'World-Wide',
+      '235': 'Phoenix UK Wide',
+      '2350': 'UK Wide',
+      '2351': 'UK Call / South East',
+      '2352': 'UK Call / Midlands & North',
+      '2353': 'UK Chat',
+      '2354': 'Wales Wide',
+      '2355': 'Scotland Wide',
+      '2356': 'Northern Ireland',
+      '23510': 'England South East',
+      '23520': 'England North & Midlands',
+      '23526': 'HUBNet DMR Bridge',
+      '23530': 'England South West',
+      '23540': 'Wales Regional',
+      '23550': 'Scotland Chat',
+      '23551': 'Scotland Multi-Mode',
+      '23558': 'Scotland East',
+      '23559': 'Scotland West',
+      '23560': 'Northern Ireland Regional',
+      '23599': 'UK Emergency / RAYNET'
+    };
+
+    function formatTgBadge(tgNum) {
+      const s = String(tgNum).trim();
+      return UK_TG_NAMES[s] ? ('TG ' + s + ' (' + UK_TG_NAMES[s] + ')') : ('TG ' + s);
+    }
+
+    function getRegionalDefaultDmrTGs(regionGroup) {
+      if (regionGroup && regionGroup.indexOf('Scotland') !== -1) {
+        return {
+          ts1: 'TS1: Dynamic TGs (e.g. TG 2350 UK Wide, TG 23559 Scot West)',
+          ts2: 'TS2: Static TG 2355 (Scotland Wide), TG 23551 (Scot Multi) & TG 9 (Local)'
+        };
+      }
+      if (regionGroup === 'Wales') {
+        return {
+          ts1: 'TS1: Dynamic TGs (e.g. TG 2350 UK Wide, TG 91 WW)',
+          ts2: 'TS2: Static TG 2354 (Wales Wide), TG 8 (Regional) & TG 9 (Local)'
+        };
+      }
+      if (regionGroup === 'Northern Ireland') {
+        return {
+          ts1: 'TS1: Dynamic TGs (e.g. TG 2350 UK Wide, TG 2301 Ireland)',
+          ts2: 'TS2: Static TG 2356 (NI Wide), TG 8 (Regional) & TG 9 (Local)'
+        };
+      }
+      if (regionGroup === 'England London & South East' || regionGroup === 'England East Anglia') {
+        return {
+          ts1: 'TS1: Dynamic / Wide-Area (TG 2350 UK Wide, TG 2351 SE, TG 23526 HUBNet)',
+          ts2: 'TS2: Local (TG 9), Regional Cluster (TG 8) & TG 23510 (South East)'
+        };
+      }
+      if (regionGroup === 'England South West') {
+        return {
+          ts1: 'TS1: Dynamic / Wide-Area (TG 2350 UK Wide, TG 23526 HUBNet)',
+          ts2: 'TS2: Local (TG 9), Regional Cluster (TG 8) & TG 23530 (South West)'
+        };
+      }
+      return {
+        ts1: 'TS1: Dynamic / Wide-Area (TG 2350 UK Wide, TG 2352 Midlands/North, TG 23526 HUBNet)',
+        ts2: 'TS2: Local (TG 9), Regional Cluster (TG 8) & TG 23520 (Midlands/North)'
+      };
+    }
+
+    /*************************************************************************
      * 2. VERIFIED HILLTOP COORDINATES & BESPOKE GATEWAYS
      *************************************************************************/
     const KNOWN_COORDS = {
@@ -1277,11 +1348,13 @@
         modes: ['FM', 'DMR'],
         ctcss: '103.5 Hz',
         dvConfig: {
-          protocol: 'BrandMeister Mixed-Mode FM & DMR Tier II',
+          protocol: 'BrandMeister Mixed-Mode FM & DMR Tier II (ID 234248)',
           accessParam: 'DMR Color Code 1 (CC1) | FM CTCSS 103.5 Hz ("Pip" on FM)',
-          ts1: 'TS1: Static TG 23559 (Scot West) + Dynamic Talkgroups',
-          ts2: 'TS2: Static TG 2355 (Scot Wide) & TG 23551 (Scot Multi) + TG 9 Local',
-          network: 'BrandMeister UK (ID 234248) + Analogue FM'
+          ts1: 'TS1: Static TG 23559 (Scotland West) + Dynamic Talkgroups',
+          ts2: 'TS2: Static TG 2355 (Scotland Wide) & TG 23551 (Scotland Multi-Mode) + TG 9 Local',
+          network: 'BrandMeister UK (ID 234248) + Analogue FM',
+          dmrId: '234248',
+          colorCode: 'CC1'
         },
         keeper: 'GM4SVW',
         color: '#06b6d4',
@@ -1626,6 +1699,7 @@
         : toneOrCC + ' Hz';
 
       const regionGroup = getUKRegionGroup(lat, lng, callsign);
+      const dmrDefaults = getRegionalDefaultDmrTGs(regionGroup);
 
       const coveragePolygon = [];
       for (let i = 0; i < 8; i++) {
@@ -1659,8 +1733,8 @@
         dvConfig: {
           protocol: 'RSGB ETCC Coordinated (' + modes.join(' / ') + ')',
           accessParam: 'Tone / Access: ' + ctcssDisplay + ' | Chan: ' + channel,
-          ts1: modes.indexOf('DMR') !== -1 ? 'TS1: Wide-Area / Dynamic Talkgroups (TG 2350 / Regional)' : 'Output (RX): ' + rxFreq + ' MHz',
-          ts2: modes.indexOf('DMR') !== -1 ? 'TS2: Local (TG 9) & Regional Talkgroups' : 'Input (TX): ' + txFreq + ' MHz (' + offsetStr + ')',
+          ts1: modes.indexOf('DMR') !== -1 ? dmrDefaults.ts1 : 'Output (RX): ' + rxFreq + ' MHz',
+          ts2: modes.indexOf('DMR') !== -1 ? dmrDefaults.ts2 : 'Input (TX): ' + txFreq + ' MHz (' + offsetStr + ')',
           network: regionGroup + ' • RSGB ETCC Directory'
         },
         keeper: keeper,
@@ -1795,6 +1869,7 @@
           const offsetStr = diff === 0 ? 'Simplex (0.0 MHz)' : (diff > 0 ? '+' : '') + diff + ' MHz';
           const ctcssDisplay = rawCtcss ? (rawCtcss + ' Hz') : (isDmr ? 'DMR CC1' : (isFusion ? 'YSF DG-ID 00' : (isDstar ? 'D-STAR' : 'CSQ')));
           const regionGroup = getUKRegionGroup(lat, lng, callsign);
+          const dmrDefaults = getRegionalDefaultDmrTGs(regionGroup);
 
           const isSpecialBand = (band === '6m/10m' || band === '23cm');
           const color = isSpecialBand ? '#a855f7' : '#10b981';
@@ -1806,6 +1881,27 @@
               +(lat + Math.sin(ang) * 0.075).toFixed(4),
               +(lng + Math.cos(ang) * 0.125).toFixed(4)
             ]);
+          }
+
+          let dvConfigObj = {
+            protocol: 'RSGB ETCC Coordinated (' + modes.join(' / ') + ')',
+            accessParam: 'Tone / Access: ' + ctcssDisplay + ' | Band: ' + rawBand + ' (' + channel + ')',
+            ts1: isDmr ? dmrDefaults.ts1 : 'Repeater Output (User RX): ' + rxFreq + ' MHz',
+            ts2: isDmr ? dmrDefaults.ts2 : 'Repeater Input (User TX): ' + txFreq + ' MHz (' + offsetStr + ')',
+            network: regionGroup + ' • UK ETCC Directory'
+          };
+
+          // Restore cached live DMR TGs from localStorage if previously fetched
+          if (isDmr) {
+            try {
+              const cached = localStorage.getItem('dmr_tg_v1_' + callsign);
+              if (cached) {
+                const parsedCache = JSON.parse(cached);
+                if (parsedCache && parsedCache.dvConfig) {
+                  dvConfigObj = parsedCache.dvConfig;
+                }
+              }
+            } catch (e) {}
           }
 
           parsedRepeaters.push({
@@ -1829,13 +1925,7 @@
             offset: offsetStr,
             modes: modes,
             ctcss: ctcssDisplay,
-            dvConfig: {
-              protocol: 'RSGB ETCC Coordinated (' + modes.join(' / ') + ')',
-              accessParam: 'Tone / Access: ' + ctcssDisplay + ' | Band: ' + rawBand + ' (' + channel + ')',
-              ts1: isDmr ? 'TS1: Wide-Area / Dynamic Talkgroups' : 'Repeater Output (User RX): ' + rxFreq + ' MHz',
-              ts2: isDmr ? 'TS2: Local (TG 9) & Regional Cluster' : 'Repeater Input (User TX): ' + txFreq + ' MHz (' + offsetStr + ')',
-              network: regionGroup + ' • UK ETCC Directory'
-            },
+            dvConfig: dvConfigObj,
             keeper: regionGroup,
             color: color,
             funFact: 'Coordinated UK repeater (' + callsign + ') serving ' + town + ' (' + regionGroup + ', Grid ' + locator + ') on ' + rawBand + '.',
@@ -2962,7 +3052,7 @@
     }
 
     /*************************************************************************
-     * 6. INSPECTOR & DIRECTORY LIST
+     * 6. INSPECTOR, LIVE DMR TG FETCHER & DIRECTORY LIST
      *************************************************************************/
     function renderInspector() {
       const rep = REPEATERS.find(function(r) { return r.id === selectedRepeaterId; }) || REPEATERS[0];
@@ -2979,6 +3069,18 @@
       }).join(' ');
 
       const dv = rep.dvConfig || {};
+      const hasDmr = rep.modes.indexOf('DMR') !== -1;
+
+      const dmrButtonsHtml = hasDmr
+        ? '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">' +
+            '<button onclick="fetchLiveDmrTalkgroups(\'' + rep.id + '\')" id="btn-pull-dmr-tg" class="pill-btn mono" style="background:rgba(6,182,212,0.18);color:#67e8f9;border:1px solid rgba(6,182,212,0.45);padding:2px 8px;font-size:10px;" title="Query RadioID & BrandMeister API v2 for live static talkgroups">' +
+              '<i class="fa-solid fa-bolt"></i> Pull Live DMR TGs' +
+            '</button>' +
+            '<button onclick="copyDmrTgList(\'' + rep.id + '\')" id="btn-copy-dmr-tg" class="pill-btn mono" style="background:rgba(16,185,129,0.16);color:#6ee7b7;border:1px solid rgba(16,185,129,0.4);padding:2px 8px;font-size:10px;" title="Copy DMR Talkgroups & Color Code summary for CPS">' +
+              '<i class="fa-regular fa-copy"></i> Copy DMR TG List' +
+            '</button>' +
+          '</div>'
+        : '';
 
       const html =
         '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">' +
@@ -2997,13 +3099,16 @@
           '</div>' +
         '</div>' +
         '<div class="sub-box mono" style="display:flex;flex-direction:column;gap:6px;">' +
-          '<div style="color:var(--cyan);font-weight:700;font-size:11px;border-bottom:1px solid var(--border);padding-bottom:4px;">' +
-            'ACCESS & DIGITAL VOICE (DV) CODEPLUG PARAMETERS (' + rep.band + ')' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border);padding-bottom:5px;flex-wrap:wrap;">' +
+            '<span style="color:var(--cyan);font-weight:700;font-size:11px;">' +
+              'ACCESS & DIGITAL VOICE (DV) CODEPLUG PARAMETERS (' + rep.band + ')' +
+            '</span>' +
+            dmrButtonsHtml +
           '</div>' +
-          '<div style="font-size:11px;color:#fff;"><strong>Access / Tone / CC:</strong> ' + (dv.accessParam || rep.ctcss) + '</div>' +
-          '<div style="font-size:11px;color:#6ee7b7;"><strong>Protocol:</strong> ' + (dv.protocol || rep.modes.join(' / ')) + '</div>' +
-          '<div style="font-size:11px;color:#cbd5e1;"><strong>Slot 1 / Primary:</strong> ' + (dv.ts1 || 'Standard Voice') + '</div>' +
-          '<div style="font-size:11px;color:#cbd5e1;"><strong>Slot 2 / Secondary:</strong> ' + (dv.ts2 || 'Local Output') + '</div>' +
+          '<div style="font-size:11px;color:#fff;"><strong>Access / Tone / CC:</strong> <span id="insp-dv-access">' + (dv.accessParam || rep.ctcss) + '</span></div>' +
+          '<div style="font-size:11px;color:#6ee7b7;"><strong>Network / Protocol:</strong> <span id="insp-dv-proto">' + (dv.protocol || rep.modes.join(' / ')) + '</span></div>' +
+          '<div style="font-size:11px;color:#cbd5e1;"><strong>Slot 1 / Primary:</strong> <span id="insp-dv-ts1">' + (dv.ts1 || 'Standard Voice') + '</span></div>' +
+          '<div style="font-size:11px;color:#cbd5e1;"><strong>Slot 2 / Secondary:</strong> <span id="insp-dv-ts2">' + (dv.ts2 || 'Local Output') + '</span></div>' +
         '</div>' +
         '<div class="sub-box" style="display:flex;flex-direction:column;gap:6px;">' +
           '<div><strong style="color:var(--amber);">Site & Propagation Note:</strong> ' + rep.funFact + '</div>' +
@@ -3017,6 +3122,161 @@
       const toneVal = numMatch ? numMatch[1] : '103.5';
       const chirpStr = rep.callsign + ',' + rep.rxFreq + ',' + rep.offset.replace(' MHz','') + ',' + toneVal + ',' + toneVal + ',' + rep.modes[0] + ',' + rep.name + ',,,,..';
       document.getElementById('chirp-csv-string').textContent = chirpStr;
+    }
+
+    async function fetchLiveDmrTalkgroups(repId) {
+      const rep = REPEATERS.find(function(r) { return r.id === repId; });
+      if (!rep) return;
+
+      const btn = document.getElementById('btn-pull-dmr-tg');
+      if (btn) {
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Querying BM / RadioID...';
+        btn.disabled = true;
+      }
+
+      const call = rep.apiCallsign || rep.callsign.split('-')[0];
+      const cacheKey = 'dmr_tg_v1_' + call;
+
+      let dmrId = (rep.dvConfig && rep.dvConfig.dmrId) ? rep.dvConfig.dmrId : null;
+      let colorCode = (rep.dvConfig && rep.dvConfig.colorCode)
+        ? rep.dvConfig.colorCode
+        : (rep.ctcss.indexOf('CC') !== -1 ? rep.ctcss : 'CC1');
+      let networkName = 'UK DMR Network';
+      let ts1List = [];
+      let ts2List = [];
+
+      // 1. Query RadioID.net API (or CORS proxy fallback) to resolve Callsign -> 6-digit DMR ID & Color Code
+      try {
+        const radioIdUrl = 'https://radioid.net/api/dmr/repeater/?callsign=' + encodeURIComponent(call);
+        let rData = null;
+
+        try {
+          const rResp = await fetch(radioIdUrl);
+          if (rResp.ok) rData = await rResp.json();
+        } catch (corsErr) {
+          const proxyResp = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(radioIdUrl));
+          if (proxyResp.ok) {
+            const pJson = await proxyResp.json();
+            if (pJson && pJson.contents) rData = JSON.parse(pJson.contents);
+          }
+        }
+
+        if (rData && Array.isArray(rData.results) && rData.results.length > 0) {
+          const ukEntry = rData.results.find(function(x) {
+            return String(x.id).startsWith('234') || String(x.id).startsWith('235');
+          }) || rData.results[0];
+
+          dmrId = ukEntry.id;
+          if (ukEntry.color_code) colorCode = 'CC' + ukEntry.color_code;
+          if (ukEntry.ipsc_network) networkName = ukEntry.ipsc_network;
+          else if (ukEntry.assigned) networkName = ukEntry.assigned;
+        }
+      } catch (err) {
+        console.warn('RadioID lookup warning:', err);
+      }
+
+      // 2. If we found a DMR ID, query BrandMeister API v2 for live Static Talkgroups on TS1 & TS2
+      if (dmrId) {
+        try {
+          const bmTgUrl = 'https://api.brandmeister.network/v2/device/' + encodeURIComponent(dmrId) + '/talkgroup';
+          const bmResp = await fetch(bmTgUrl);
+          if (bmResp.ok) {
+            const tgArray = await bmResp.json();
+            if (Array.isArray(tgArray) && tgArray.length > 0) {
+              networkName = 'BrandMeister UK (ID ' + dmrId + ')';
+              tgArray.forEach(function(item) {
+                const slot = Number(item.slot);
+                const tg = item.talkgroup || item.group || item.tg;
+                if (!tg) return;
+                if (slot === 1) ts1List.push(formatTgBadge(tg));
+                else if (slot === 2) ts2List.push(formatTgBadge(tg));
+              });
+            }
+          }
+
+          const bmProfUrl = 'https://api.brandmeister.network/v2/device/' + encodeURIComponent(dmrId);
+          const profResp = await fetch(bmProfUrl);
+          if (profResp.ok) {
+            const prof = await profResp.json();
+            if (prof && prof.colorcode) colorCode = 'CC' + prof.colorcode;
+            if (prof && (prof.last_seen || prof.master)) {
+              networkName = 'BrandMeister UK (ID ' + dmrId + ')';
+            }
+          }
+        } catch (bmErr) {
+          console.warn('BrandMeister API v2 lookup warning:', bmErr);
+        }
+      }
+
+      // 3. Build final TS1 & TS2 strings
+      const regDefaults = getRegionalDefaultDmrTGs(rep.regionGroup);
+      const isPhoenix = networkName.toLowerCase().indexOf('phoenix') !== -1 || networkName.toLowerCase().indexOf('dmr-uk') !== -1;
+
+      const finalTs1 = ts1List.length > 0
+        ? 'TS1 Static: ' + ts1List.join(', ') + ' + User Dynamic TGs'
+        : (isPhoenix
+            ? 'TS1 (Phoenix UK): TG 235 (UK Wide), TG 2355 (Scotland), User-Activated TGs (15m hold)'
+            : regDefaults.ts1 + (dmrId ? ' (Open Dynamic Slot)' : ''));
+
+      const finalTs2 = ts2List.length > 0
+        ? 'TS2 Static: ' + ts2List.join(', ') + ' + TG 9 (Local)'
+        : (isPhoenix
+            ? 'TS2 (Phoenix UK): TG 9 (Local) & TG 8 (Regional Cluster) | Dial 4400 PC to link TG 235'
+            : regDefaults.ts2);
+
+      rep.dvConfig = {
+        protocol: networkName + (dmrId && networkName.indexOf(String(dmrId)) === -1 ? ' • DMR ID: ' + dmrId : '') + ' (' + rep.modes.join('/') + ')',
+        accessParam: 'DMR Color Code: ' + colorCode + (rep.modes.indexOf('FM') !== -1 ? ' | FM Tone: ' + rep.ctcss : '') + ' | Chan: ' + rep.channel,
+        ts1: finalTs1,
+        ts2: finalTs2,
+        network: networkName,
+        dmrId: dmrId,
+        colorCode: colorCode
+      };
+
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify({
+          ts: Date.now(),
+          dvConfig: rep.dvConfig
+        }));
+      } catch (e) {}
+
+      renderInspector();
+
+      const updatedBtn = document.getElementById('btn-pull-dmr-tg');
+      if (updatedBtn) {
+        updatedBtn.innerHTML = '<i class="fa-solid fa-check"></i> Live TGs Synced';
+      }
+    }
+
+    function copyDmrTgList(repId) {
+      const rep = REPEATERS.find(function(r) { return r.id === repId; }) || REPEATERS[0];
+      if (!rep) return;
+      const dv = rep.dvConfig || {};
+
+      const summaryLines = [
+        rep.callsign + ' (' + rep.name + ') — DMR Codeplug Summary',
+        'RX (Output): ' + rep.rxFreq + ' MHz | TX (Input): ' + rep.txFreq + ' MHz (' + rep.offset + ')',
+        'Access / Color Code: ' + (dv.accessParam || rep.ctcss),
+        'Network: ' + (dv.protocol || 'UK DMR'),
+        'Slot 1: ' + (dv.ts1 || 'Dynamic TGs'),
+        'Slot 2: ' + (dv.ts2 || 'Local / Regional Static TGs')
+      ].join('\n');
+
+      const btn = document.getElementById('btn-copy-dmr-tg');
+      const textArea = document.createElement('textarea');
+      textArea.value = summaryLines;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        if (btn) {
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied TG List';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        }
+      } catch (err) {}
+      document.body.removeChild(textArea);
     }
 
     function renderRepeaterList() {
