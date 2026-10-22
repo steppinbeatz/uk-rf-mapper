@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UK & Scotland RF Repeater, NetFinder & Terrain Mapper</title>
+  <title>UK RF Repeater, NetFinder & Terrain Mapper</title>
 
   <!-- PWA Manifest & iOS Support -->
   <link rel="manifest" href="manifest.json">
@@ -612,34 +612,32 @@
         </div>
         <div>
           <div class="brand-title">
-            <span>UK & Scotland RF Repeater, NetFinder & Terrain Mapper</span>
-            <span id="live-api-badge" class="status-pill mono">
+            <span>UK RF Repeater, NetFinder & Terrain Mapper</span>
+            <span id="live-api-badge" class="status-pill synced mono">
               <i class="fa-solid fa-satellite-dish"></i>
-              <span id="live-api-status-text">UK & Scotland Directory Active</span>
+              <span id="live-api-status-text">Loading UK Directory...</span>
             </span>
           </div>
           <div class="brand-subtitle">
-            Choose Any UK QTH (GPS, Grid Locator or Map Click) • Auto-Sorted Repeaters & UK Nets • Local Docker Terrain LoS & Codeplug Inspector
+            Choose Any UK Region, GPS, Grid Locator or Map Click • All UK Repeaters & Nets • SRTM 30m Terrain LoS & Codeplug Inspector
           </div>
         </div>
       </div>
 
-      <!-- Custom UK QTH & Location Controls -->
+      <!-- Generic UK Region QTH & Location Controls -->
       <div class="qth-controls">
         <div class="qth-group">
-          <span class="qth-label mono">Quick QTH:</span>
-          <button onclick="setQTH('cardross')" id="tab-cardross" class="btn active-cyan">Cardross</button>
-          <button onclick="setQTH('helensburgh')" id="tab-helensburgh" class="btn">Helensburgh</button>
-          <button onclick="setQTH('dumbarton')" id="tab-dumbarton" class="btn">Dumbarton</button>
-          <select id="uk-preset-select" onchange="if(this.value) setQTH(this.value)" class="search-input mono" style="padding: 4px 8px; font-size: 11px; width: auto; background: var(--bg-900);">
-            <option value="">+ UK Regions...</option>
-            <option value="edinburgh">Edinburgh (IO85jw)</option>
-            <option value="inverness">Inverness (IO77ul)</option>
-            <option value="manchester">Manchester (IO83rj)</option>
-            <option value="birmingham">Birmingham (IO92fl)</option>
-            <option value="london">London (IO91wm)</option>
-            <option value="cardiff">Cardiff Wales (IO81kj)</option>
-            <option value="belfast">Belfast NI (IO74ap)</option>
+          <span class="qth-label mono"><i class="fa-solid fa-earth-europe"></i> UK Region QTH:</span>
+          <select id="uk-preset-select" onchange="if(this.value) setQTH(this.value)" class="search-input mono" style="padding: 5px 10px; font-size: 12px; width: auto; background: var(--bg-900); border-color: var(--cyan);">
+            <option value="england_midlands" selected>England — Midlands (Birmingham)</option>
+            <option value="england_london_se">England — London & South East</option>
+            <option value="england_north">England — North & Yorkshire (Manchester / Leeds)</option>
+            <option value="england_sw">England — South West (Bristol / Exeter)</option>
+            <option value="england_east">England — East Anglia (Cambridge / Norwich)</option>
+            <option value="scotland_central">Scotland — Central & South (Glasgow / Edinburgh)</option>
+            <option value="scotland_north">Scotland — North & Highlands (Inverness)</option>
+            <option value="wales">Wales — Cardiff, Mid & North Wales</option>
+            <option value="ni">Northern Ireland — Belfast & NI</option>
           </select>
         </div>
 
@@ -649,7 +647,7 @@
             type="text"
             id="custom-locator-input"
             class="search-input mono"
-            placeholder="Grid (e.g. IO83RJ)"
+            placeholder="Grid (e.g. IO92FL)"
             maxlength="8"
             style="width: 122px; padding: 4px 8px; font-size: 11px;"
             onkeydown="if(event.key==='Enter') setCustomLocatorQTH()"
@@ -683,17 +681,17 @@
           <div class="toolbar-title mono">
             <i class="fa-solid fa-mountain" style="color: var(--cyan);"></i>
             <span>UK Topography & RF Footprints</span>
-            <span id="qth-active-pill" class="badge badge-emerald mono" style="font-size: 10px;">QTH: Cardross (IO75px)</span>
+            <span id="qth-active-pill" class="badge badge-emerald mono" style="font-size: 10px;">QTH: Midlands (IO92fl)</span>
           </div>
           <div class="filter-row">
-            <button onclick="zoomMapRegion('clyde')" class="btn btn-outline mono" style="padding: 4px 8px; font-size: 11px;">
-              <i class="fa-solid fa-location-crosshairs"></i> Clyde
-            </button>
-            <button onclick="zoomMapRegion('scotland')" class="btn btn-outline mono" style="padding: 4px 8px; font-size: 11px;">
-              <i class="fa-solid fa-mountain-sun"></i> Scotland
-            </button>
             <button onclick="zoomMapRegion('uk')" class="btn btn-outline mono" style="padding: 4px 8px; font-size: 11px;">
               <i class="fa-solid fa-earth-europe"></i> All UK
+            </button>
+            <button onclick="zoomMapRegion('england')" class="btn btn-outline mono" style="padding: 4px 8px; font-size: 11px;">
+              <i class="fa-solid fa-compass"></i> England & Wales
+            </button>
+            <button onclick="zoomMapRegion('scotland')" class="btn btn-outline mono" style="padding: 4px 8px; font-size: 11px;">
+              <i class="fa-solid fa-mountain-sun"></i> Scotland & NI
             </button>
             <button onclick="toggleCoveragePolygons()" id="btn-toggle-lobes" class="btn btn-outline mono" style="padding: 4px 8px; font-size: 11px;">
               <i class="fa-solid fa-eye-slash"></i> Selected Footprint
@@ -708,7 +706,7 @@
           <div class="legend-item"><span class="dot" style="background: var(--cyan);"></span><span>New / Highlight</span></div>
           <div class="legend-item"><span class="dot" style="background: var(--emerald);"></span><span>Operational</span></div>
           <div class="legend-item"><span class="dot" style="background: var(--amber);"></span><span>Gateway / Reduced</span></div>
-          <div class="legend-item"><span class="dot" style="background: var(--purple);"></span><span>TETRA / 6m</span></div>
+          <div class="legend-item"><span class="dot" style="background: var(--purple);"></span><span>6m / 10m / 23cm / TETRA</span></div>
           <div class="legend-item"><span class="dot" style="background: var(--rose);"></span><span>Not Operational</span></div>
         </div>
 
@@ -717,7 +715,7 @@
         <div class="telemetry-bar mono">
           <div>
             <span style="color: var(--text-muted);">Path:</span>
-            <strong id="beam-summary-title" style="color: #fff;">Cardross ➔ GB7GR Gourock</strong>
+            <strong id="beam-summary-title" style="color: #fff;">Midlands ➔ GB3NB Birmingham</strong>
           </div>
           <div class="telemetry-metrics">
             <div><span style="color: var(--text-muted);">Dist:</span> <strong id="beam-distance" style="color: var(--cyan);">--</strong></div>
@@ -756,7 +754,7 @@
         </div>
 
         <div class="sub-box" id="terrain-narrative" style="color: #cbd5e1;">
-          Select any repeater on the map or list to inspect the exact line-of-sight elevation profile, ridgeline blocking, and saltwater reflection.
+          Select any repeater on the map or list to inspect the exact line-of-sight elevation profile, ridgeline blocking, and water crossings.
         </div>
       </div>
     </div>
@@ -771,11 +769,11 @@
             <span>Repeater & DV Codeplug Inspector</span>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
-            <a id="inspector-ukrep-link" href="https://ukrepeater.net/my_repeater.php?id=GB7GR" target="_blank" rel="noopener noreferrer" class="btn btn-outline mono" style="padding: 3px 8px; font-size: 11px;">
+            <a id="inspector-ukrep-link" href="https://ukrepeater.net/my_repeater.php?id=GB3NB" target="_blank" rel="noopener noreferrer" class="btn btn-outline mono" style="padding: 3px 8px; font-size: 11px;">
               <span>ukrepeater.net</span>
               <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 9px;"></i>
             </a>
-            <span id="inspector-callsign-badge" class="badge badge-cyan mono">GB7GR</span>
+            <span id="inspector-callsign-badge" class="badge badge-cyan mono">GB3NB</span>
           </div>
         </div>
 
@@ -797,13 +795,14 @@
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
           <div class="toolbar-title">
             <i class="fa-solid fa-list" style="color: var(--cyan);"></i>
-            <span>UK & Scotland Directory (<span id="repeater-count">0</span>)</span>
+            <span>UK Repeater Directory (<span id="repeater-count">0</span>)</span>
           </div>
           <div class="filter-row mono">
             <button onclick="setBandFilter('ALL')" id="filter-band-ALL" class="pill-btn active">ALL</button>
             <button onclick="setBandFilter('2m')" id="filter-band-2m" class="pill-btn">2m</button>
             <button onclick="setBandFilter('70cm')" id="filter-band-70cm" class="pill-btn">70cm</button>
-            <button onclick="setBandFilter('6m')" id="filter-band-6m" class="pill-btn">6m/4m</button>
+            <button onclick="setBandFilter('6m')" id="filter-band-6m" class="pill-btn">6m/10m</button>
+            <button onclick="setBandFilter('23cm')" id="filter-band-23cm" class="pill-btn">23cm</button>
           </div>
         </div>
 
@@ -813,8 +812,20 @@
             id="search-input"
             class="search-input mono"
             oninput="onSearchInput(this.value)"
-            placeholder="Search callsign, town, locator, keeper, freq..."
+            placeholder="Search callsign, town, locator, region, freq..."
           />
+          <select id="region-filter-select" onchange="setRegionGroupFilter(this.value)" class="search-input mono" style="flex: 0 0 auto; width: auto; padding: 6px 8px; font-size: 11px;">
+            <option value="ALL">All UK Regions</option>
+            <option value="England Midlands & Central">England — Midlands</option>
+            <option value="England London & South East">England — London & SE</option>
+            <option value="England North & Yorkshire">England — North & Yorks</option>
+            <option value="England South West">England — South West</option>
+            <option value="England East Anglia">England — East Anglia</option>
+            <option value="Scotland Central & South">Scotland — Central & South</option>
+            <option value="Scotland North & Highlands">Scotland — North & Islands</option>
+            <option value="Wales">Wales</option>
+            <option value="Northern Ireland">Northern Ireland</option>
+          </select>
           <button onclick="toggleSortOrder()" id="btn-sort-order" class="btn btn-outline mono" style="padding: 6px 10px; font-size: 11px;">
             <i class="fa-solid fa-arrow-down-short-wide"></i> Dist
           </button>
@@ -841,7 +852,7 @@
       <div class="card-toolbar">
         <div class="toolbar-title mono">
           <i class="fa-solid fa-calendar-check" style="color: var(--amber);"></i>
-          <span>UK & Scotland Ham Radio Nets & GB2RS Schedule (<span id="net-count">0</span> Nets — Sorted Nearest First)</span>
+          <span>UK Ham Radio Nets & GB2RS Schedule (<span id="net-count">0</span> Nets — Sorted Nearest First)</span>
           <span id="net-sync-badge" class="status-pill synced mono">
             <i class="fa-solid fa-tower-cell"></i>
             <span id="net-sync-text">Synced with netfinder.radio/nets/country/united-kingdom</span>
@@ -869,7 +880,7 @@
         <div class="sub-box" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;">
           <div style="font-size: 12px; color: #cbd5e1;">
             <i class="fa-solid fa-compass" style="color: var(--cyan); margin-right: 5px;"></i>
-            <strong>Proximity-Sorted UK Nets & News:</strong> Nets and GB2RS broadcasts below are automatically ordered from closest to furthest from <strong id="net-qth-label" style="color: var(--emerald);">Cardross (IO75px)</strong>. Click <strong>"Plot Path & Inspect"</strong> on any net to plot its RF path & terrain profile.
+            <strong>Proximity-Sorted UK Nets & News:</strong> Nets and GB2RS broadcasts below are automatically ordered from closest to furthest from <strong id="net-qth-label" style="color: var(--emerald);">Midlands (IO92fl)</strong>. Click <strong>"Path & Inspect"</strong> on any net to plot its RF path & terrain profile.
           </div>
           <div class="filter-row mono">
             <span style="font-size: 11px; color: var(--text-muted);">Day:</span>
@@ -891,7 +902,7 @@
             id="net-search-input"
             class="search-input mono"
             oninput="onNetSearchInput(this.value)"
-            placeholder="Search Scottish net name, club, town, frequency, TG, repeater (e.g. Lomond, GB2RS, Clydebank, 145.3375, Phoenix)..."
+            placeholder="Search UK net name, club, town, frequency, TG, repeater (e.g. HUBNet, GB2RS, Wythall, Manchester, Phoenix)..."
           />
           <div class="filter-row mono">
             <span style="font-size: 11px; color: var(--text-muted);">Band/Mode:</span>
@@ -900,7 +911,7 @@
             <button onclick="setNetModeFilter('70cm')" id="net-mode-70cm" class="pill-btn">70cm UHF</button>
             <button onclick="setNetModeFilter('DMR')" id="net-mode-DMR" class="pill-btn">DMR / DV</button>
             <button onclick="setNetModeFilter('AllStar')" id="net-mode-AllStar" class="pill-btn">AllStar / EchoLink</button>
-            <button onclick="setNetModeFilter('HF')" id="net-mode-HF" class="pill-btn">80m / CW</button>
+            <button onclick="setNetModeFilter('HF')" id="net-mode-HF" class="pill-btn">80m / 40m / CW</button>
           </div>
         </div>
 
@@ -911,9 +922,9 @@
   </section>
 
   <footer class="mono">
-    Scotland & Clyde RF Repeater Terrain Mapper • All 85 RSGB ETCC Scottish Repeaters + Local Gateways & Scottish Nets •
-    Synced with <a href="https://ukrepeater.net/repeaterlist.html?filter=SCOTLAND" target="_blank" rel="noopener">ukrepeater.net</a> &
-    <a href="https://netfinder.radio/nets/country/scotland" target="_blank" rel="noopener">netfinder.radio/nets/country/scotland</a>
+    UK RF Repeater, NetFinder & Terrain Mapper • All 802 RSGB ETCC UK Repeaters + Gateways & UK Nets •
+    Synced with <a href="https://ukrepeater.net" target="_blank" rel="noopener">ukrepeater.net</a> &
+    <a href="https://netfinder.radio/nets/country/united-kingdom" target="_blank" rel="noopener">netfinder.radio/nets/country/united-kingdom</a>
   </footer>
 
   <script>
@@ -929,109 +940,122 @@
 
   <script>
     /*************************************************************************
-     * 1. USER QTH LOCATIONS (Presets + Custom GPS / Grid / Map Pin Support)
+     * 1. GENERIC UK REGIONAL QTH LOCATIONS (9 Simple UK Regions + Custom)
      *************************************************************************/
     const QTH_LOCATIONS = {
-      cardross: {
-        id: 'cardross',
-        name: 'Cardross',
-        locator: 'IO75px',
-        lat: 55.9630,
-        lng: -4.6540,
-        elevMeters: 18,
-        desc: 'North shore of the Firth of Clyde. Unrestricted saltwater takeoff south/west toward Gourock, Port Glasgow & Ayrshire; sheltered to the north-east by the Kilpatrick hills.'
-      },
-      helensburgh: {
-        id: 'helensburgh',
-        name: 'Helensburgh',
-        locator: 'IO76pa',
-        lat: 56.0050,
-        lng: -4.7330,
-        elevMeters: 35,
-        desc: 'Mouth of the Gare Loch overlooking the Firth of Clyde. Superb line-of-sight across the water to Gourock (GB7GR), Port Glasgow (MB6GP), and down the Clyde coast.'
-      },
-      dumbarton: {
-        id: 'dumbarton',
-        name: 'Dumbarton',
-        locator: 'IO75ri',
-        lat: 55.9450,
-        lng: -4.5710,
-        elevMeters: 15,
-        desc: 'Confluence of the River Leven and River Clyde. Direct corridor north up the Vale of Leven to Alexandria (MB7IBH / MB7IDQ) and east up the Clyde valley into Glasgow.'
-      },
-      edinburgh: {
-        id: 'edinburgh',
-        name: 'Edinburgh',
-        locator: 'IO85jw',
-        lat: 55.9533,
-        lng: -3.1883,
-        elevMeters: 65,
-        desc: 'Scottish Capital & Firth of Forth basin. Strong line-of-sight across Lothian, Fife, and the eastern Central Belt.'
-      },
-      inverness: {
-        id: 'inverness',
-        name: 'Inverness',
-        locator: 'IO77ul',
-        lat: 57.4778,
-        lng: -4.2247,
-        elevMeters: 28,
-        desc: 'Highland hub at the mouth of the Great Glen and Moray Firth.'
-      },
-      manchester: {
-        id: 'manchester',
-        name: 'Manchester',
-        locator: 'IO83rj',
-        lat: 53.4808,
-        lng: -2.2426,
-        elevMeters: 52,
-        desc: 'North West England hub overlooking the Cheshire Plain and Pennine foothills.'
-      },
-      birmingham: {
-        id: 'birmingham',
-        name: 'Birmingham',
+      england_midlands: {
+        id: 'england_midlands',
+        name: 'Midlands (Birmingham)',
         locator: 'IO92fl',
         lat: 52.4862,
         lng: -1.8904,
+        zoom: 8,
         elevMeters: 140,
-        desc: 'Elevated West Midlands plateau with wide-area VHF/UHF takeoff across Central England.'
+        desc: 'Elevated West & East Midlands plateau with wide-area VHF/UHF takeoff across Central England.'
       },
-      london: {
-        id: 'london',
-        name: 'London',
+      england_london_se: {
+        id: 'england_london_se',
+        name: 'London & South East',
         locator: 'IO91wm',
         lat: 51.5074,
         lng: -0.1278,
+        zoom: 8,
         elevMeters: 24,
-        desc: 'Thames Valley & Greater London basin.'
+        desc: 'Greater London, Thames Valley, North & South Downs, Kent, Sussex, Surrey, and Hampshire.'
       },
-      cardiff: {
-        id: 'cardiff',
-        name: 'Cardiff (Wales)',
+      england_north: {
+        id: 'england_north',
+        name: 'North England & Yorkshire',
+        locator: 'IO83rj',
+        lat: 53.5500,
+        lng: -2.1000,
+        zoom: 8,
+        elevMeters: 95,
+        desc: 'North West, Yorkshire, North East, Pennines, Peak District, Lancashire, and Cumbria.'
+      },
+      england_sw: {
+        id: 'england_sw',
+        name: 'South West England',
+        locator: 'IO80gr',
+        lat: 50.9500,
+        lng: -3.2000,
+        zoom: 8,
+        elevMeters: 85,
+        desc: 'Bristol Channel, Mendips, Somerset, Devon, Dartmoor, and Cornwall.'
+      },
+      england_east: {
+        id: 'england_east',
+        name: 'East Anglia (Cambridge / Norwich)',
+        locator: 'JO02gg',
+        lat: 52.2800,
+        lng: 0.5500,
+        zoom: 8,
+        elevMeters: 35,
+        desc: 'Cambridgeshire, Norfolk, Suffolk, and Essex low-horizon plains.'
+      },
+      scotland_central: {
+        id: 'scotland_central',
+        name: 'Central & South Scotland',
+        locator: 'IO75vu',
+        lat: 55.8642,
+        lng: -4.2518,
+        zoom: 8,
+        elevMeters: 45,
+        desc: 'Central Belt spanning Greater Glasgow, Firth of Clyde, Edinburgh, Forth Valley, Fife, and Borders.'
+      },
+      scotland_north: {
+        id: 'scotland_north',
+        name: 'North Scotland & Highlands',
+        locator: 'IO77ul',
+        lat: 57.4778,
+        lng: -4.2247,
+        zoom: 7,
+        elevMeters: 28,
+        desc: 'Highlands, Grampian, Aberdeen, Moray Firth, Hebrides, Orkney & Shetland.'
+      },
+      wales: {
+        id: 'wales',
+        name: 'Wales (Cardiff & All Wales)',
         locator: 'IO81kj',
         lat: 51.4816,
         lng: -3.1791,
+        zoom: 8,
         elevMeters: 19,
-        desc: 'South Wales coastal plain overlooking the Bristol Channel.'
+        desc: 'South Wales coastal plain, Brecon Beacons, Mid Wales, and Eryri (Snowdonia).'
       },
-      belfast: {
-        id: 'belfast',
-        name: 'Belfast (NI)',
+      ni: {
+        id: 'ni',
+        name: 'Northern Ireland (Belfast)',
         locator: 'IO74ap',
         lat: 54.5973,
         lng: -5.9301,
+        zoom: 8,
         elevMeters: 15,
-        desc: 'Belfast Lough & Lagan Valley with saltwater takeoff across the North Channel toward Southwest Scotland.'
+        desc: 'Belfast Lough, Lagan Valley, Lough Neagh basin, and North Channel.'
       },
       custom: {
         id: 'custom',
         name: 'Custom QTH',
-        locator: 'IO75px',
-        lat: 55.9630,
-        lng: -4.6540,
+        locator: 'IO92fl',
+        lat: 52.4862,
+        lng: -1.8904,
+        zoom: 9,
         elevMeters: 45,
         desc: 'User-defined UK operating location (via GPS, Maidenhead Grid Locator, or Map Pin).'
       }
     };
+
+    function getUKRegionGroup(lat, lng, callsign) {
+      if (lng < -5.2 && lat > 53.9 && lat < 55.4) return 'Northern Ireland';
+      if (lat >= 56.7) return 'Scotland North & Highlands';
+      if (lat >= 55.0 || (lat >= 54.65 && lng < -3.0)) return 'Scotland Central & South';
+      if (lng < -2.65 && lat >= 51.35 && lat < 53.4) return 'Wales';
+      if (lat >= 53.3) return 'England North & Yorkshire';
+      if (lat < 51.6 && lng < -1.7) return 'England South West';
+      if (lng >= 0.1 && lat >= 51.65 && lat < 53.1) return 'England East Anglia';
+      if (lat < 51.95 && lng >= -1.7) return 'England London & South East';
+      return 'England Midlands & Central';
+    }
 
     function latLngToLocator(lat, lon) {
       let adjLat = lat + 90;
@@ -1071,8 +1095,8 @@
     }
 
     function locatorToLatLng(locator, callsignSeed) {
-      const clean = (locator || 'IO75MM').trim().toUpperCase();
-      if (clean.length < 4) return { lat: 56.0, lng: -4.0 };
+      const clean = (locator || 'IO92FL').trim().toUpperCase().replace(/^I0/, 'IO');
+      if (clean.length < 4) return { lat: 52.5, lng: -1.9 };
 
       const A = 'A'.charCodeAt(0);
       const fieldLon = (clean.charCodeAt(0) - A) * 20 - 180;
@@ -1116,15 +1140,130 @@
     }
 
     /*************************************************************************
-     * 2. BESPOKE CLYDE & LOMOND REPEATERS & GATEWAYS
+     * 2. VERIFIED HILLTOP COORDINATES & BESPOKE GATEWAYS
      *************************************************************************/
+    const KNOWN_COORDS = {
+      // Clyde, Ayrshire & West Central Scotland
+      GB7GR: { lat: 55.9550, lng: -4.8190, elev: 110 },
+      GB3DM: { lat: 55.9480, lng: -4.5520, elev: 145 },
+      GB3AY: { lat: 55.7100, lng: -4.7210, elev: 245 },
+      GB3WA: { lat: 55.7220, lng: -4.7350, elev: 240 },
+      GB3PA: { lat: 55.8110, lng: -4.4550, elev: 220 },
+      GB7PA: { lat: 55.8125, lng: -4.4520, elev: 195 },
+      GB3KE: { lat: 55.9153, lng: -4.3077, elev: 75 },
+      GB3KW: { lat: 55.9165, lng: -4.3055, elev: 75 },
+      GB3GL: { lat: 55.8620, lng: -4.2250, elev: 135 },
+      GB7GL: { lat: 55.8640, lng: -4.2500, elev: 120 },
+      GB7GZ: { lat: 55.8600, lng: -4.2580, elev: 110 },
+      GB7CS: { lat: 55.8550, lng: -4.2400, elev: 125 },
+      GB3CS: { lat: 55.8150, lng: -3.9310, elev: 260 },
+      GB3KV: { lat: 55.9920, lng: -4.0620, elev: 390 },
+      GB3SL: { lat: 55.9900, lng: -4.0600, elev: 385 },
+      GB7DM: { lat: 55.9420, lng: -4.5650, elev: 65 },
+      GB7AC: { lat: 55.7950, lng: -4.8650, elev: 170 },
+      GB7IR: { lat: 55.6200, lng: -4.6600, elev: 95 },
+      GB7ZT: { lat: 55.1050, lng: -5.0040, elev: 190 },
+
+      // Stirling, Forth Valley, Edinburgh & Lothians
+      GB3FE: { lat: 56.1150, lng: -3.9350, elev: 185 },
+      GB7FE: { lat: 56.1160, lng: -3.9320, elev: 185 },
+      GB3OH: { lat: 55.9610, lng: -3.6120, elev: 255 },
+      GB7BG: { lat: 55.9020, lng: -3.6430, elev: 210 },
+      GB7CB: { lat: 55.8860, lng: -3.5220, elev: 175 },
+      GB7LV: { lat: 55.9320, lng: -3.4710, elev: 130 },
+      GB3ED: { lat: 55.9533, lng: -3.1883, elev: 165 },
+      GB7EE: { lat: 55.9510, lng: -3.1950, elev: 150 },
+      GB7ET: { lat: 55.9480, lng: -3.1820, elev: 155 },
+      GB7EU: { lat: 55.9560, lng: -3.1790, elev: 145 },
+      GB7ID: { lat: 55.9450, lng: -3.2080, elev: 140 },
+      GB7KN: { lat: 55.9260, lng: -3.2140, elev: 160 },
+      GB7SQ: { lat: 55.8930, lng: -3.0680, elev: 135 },
+
+      // Scottish Borders
+      GB3AD: { lat: 55.3850, lng: -2.7930, elev: 310 },
+      GB7AI: { lat: 55.4210, lng: -2.7840, elev: 245 },
+      GB7HK: { lat: 55.4240, lng: -2.7790, elev: 235 },
+      GB3AS: { lat: 55.1520, lng: -2.9980, elev: 320 },
+      GB3HK: { lat: 55.5340, lng: -2.8630, elev: 295 },
+      GB3SB: { lat: 55.5580, lng: -2.8380, elev: 340 },
+      GB7GA: { lat: 55.6180, lng: -2.8080, elev: 265 },
+      GB7LS: { lat: 55.6140, lng: -2.8120, elev: 260 },
+      GB3LB: { lat: 55.7200, lng: -2.7480, elev: 330 },
+      GB7JD: { lat: 55.4780, lng: -2.5540, elev: 250 },
+      GB3DU: { lat: 55.7780, lng: -2.3440, elev: 240 },
+      GB3BE: { lat: 55.7920, lng: -2.3180, elev: 265 },
+      GB3BT: { lat: 55.7710, lng: -2.0120, elev: 165 },
+
+      // Dumfries & Galloway
+      GB7GM: { lat: 55.0710, lng: -3.6050, elev: 185 },
+      GB7PG: { lat: 54.9410, lng: -3.9310, elev: 210 },
+      GB3DG: { lat: 54.9580, lng: -4.4820, elev: 230 },
+      GB7DG: { lat: 54.8420, lng: -5.1150, elev: 145 },
+      GB7RG: { lat: 54.9040, lng: -5.0250, elev: 160 },
+
+      // Fife, Perthshire, Dundee & Angus
+      GB7KY: { lat: 56.1180, lng: -3.1670, elev: 165 },
+      GB7DE: { lat: 56.2080, lng: -3.0450, elev: 185 },
+      GB3FF: { lat: 56.2240, lng: -2.9280, elev: 245 },
+      GB7EF: { lat: 56.2760, lng: -3.1220, elev: 140 },
+      GB7LL: { lat: 56.2060, lng: -3.4210, elev: 215 },
+      GB3PR: { lat: 56.3780, lng: -3.4320, elev: 230 },
+      GB3PU: { lat: 56.3795, lng: -3.4300, elev: 230 },
+      GB3SF: { lat: 56.3980, lng: -3.4410, elev: 175 },
+      GB3DD: { lat: 56.4720, lng: -2.9710, elev: 170 },
+      GB3AG: { lat: 56.5560, lng: -2.9880, elev: 310 },
+
+      // Aberdeen, Grampian & Moray
+      GB3AO: { lat: 57.0760, lng: -2.7820, elev: 285 },
+      GB7AB: { lat: 57.1490, lng: -2.0940, elev: 135 },
+      GB7EM: { lat: 57.1620, lng: -2.1150, elev: 155 },
+      GB7FP: { lat: 57.1210, lng: -2.1380, elev: 145 },
+      GB7GD: { lat: 57.1850, lng: -2.0880, elev: 150 },
+      GB7KV: { lat: 57.2350, lng: -2.4410, elev: 195 },
+      MB5TH: { lat: 57.2680, lng: -2.3520, elev: 160 },
+      GB7EC: { lat: 57.3360, lng: -2.3180, elev: 185 },
+      GB7BB: { lat: 57.6620, lng: -2.5240, elev: 175 },
+      GB7GK: { lat: 57.5420, lng: -2.9520, elev: 220 },
+      GB3SS: { lat: 57.6480, lng: -3.3150, elev: 195 },
+      GB7SS: { lat: 57.7180, lng: -3.2880, elev: 85 },
+      GB7MM: { lat: 57.5840, lng: -3.8690, elev: 110 },
+
+      // Highlands, Hebrides, Orkney & Shetland
+      GB7II: { lat: 57.4778, lng: -4.2247, elev: 165 },
+      GB3BI: { lat: 57.5210, lng: -4.4620, elev: 240 },
+      GB7BI: { lat: 57.5225, lng: -4.4600, elev: 240 },
+      GB7AK: { lat: 56.9080, lng: -5.8540, elev: 145 },
+      GB3HI: { lat: 56.4520, lng: -5.7120, elev: 310 },
+      GB3IS: { lat: 57.1620, lng: -7.3580, elev: 195 },
+      GB3EI: { lat: 57.5980, lng: -7.1580, elev: 140 },
+      GB7EI: { lat: 57.5995, lng: -7.1560, elev: 140 },
+      GB3IG: { lat: 58.2090, lng: -6.3880, elev: 135 },
+      GB7IG: { lat: 58.2120, lng: -6.3820, elev: 135 },
+      GB3OC: { lat: 58.9810, lng: -2.9610, elev: 185 },
+      GB3LU: { lat: 60.1550, lng: -1.1450, elev: 210 },
+
+      // Major UK Reference Repeaters
+      GB3NB: { lat: 52.3680, lng: -1.8840, elev: 165 },
+      GB3MN: { lat: 53.4080, lng: -2.1480, elev: 185 },
+      GB3MR: { lat: 53.4110, lng: -2.1450, elev: 185 },
+      GB3HG: { lat: 54.2290, lng: -1.2090, elev: 215 },
+      GB3WW: { lat: 51.4816, lng: -3.1791, elev: 140 },
+      GB3NI: { lat: 54.6120, lng: -5.9450, elev: 280 },
+      GB3GD: { lat: 54.2630, lng: -4.4620, elev: 620 },
+      GB3EV: { lat: 54.6650, lng: -2.7520, elev: 260 },
+      GB3NT: { lat: 54.9780, lng: -1.6180, elev: 175 },
+      GB3BP: { lat: 51.9970, lng: -0.7420, elev: 115 }
+    };
+
     const BESPOKE_REPEATERS = [
       {
         id: 'GB7GR',
         apiCallsign: 'GB7GR',
         callsign: 'GB7GR',
         name: 'Gourock (Inverclyde)',
-        locator: 'IO75LL',
+        town: 'Gourock',
+        regionGroup: 'Scotland Central & South',
+        locator: 'IO75ll',
         lat: 55.9550,
         lng: -4.8190,
         siteElev: 110,
@@ -1146,9 +1285,9 @@
         },
         keeper: 'GM4SVW',
         color: '#06b6d4',
-        funFact: 'Switched on 27 Sep 2026 on the southern bank of the Firth of Clyde in Gourock! RF signals between this site and Cardross/Helensburgh travel over tidal saltwater with near-zero attenuation. Returns a single "pip" on FM and no tone when kerchunked on DMR.',
+        funFact: 'Mixed-mode FM & BrandMeister DMR repeater on the southern bank of the Firth of Clyde in Gourock with low-loss tidal saltwater propagation across the Clyde estuary.',
         htAdvice: '5W Handheld: Program RX 430.9375 / TX 438.5375 (+7.6 MHz split). For DMR set Color Code 1: TS1 = TG 23559 (Scot West), TS2 = TG 2355 (Scot Wide) & TG 23551 (Scot Multi). For Analogue FM set 103.5 Hz CTCSS.',
-        baseAdvice: '50W Base/Mobile: Full-quieting S9+ across the Clyde estuary even on 1W–5W low power settings.',
+        baseAdvice: '50W Base/Mobile: Full-quieting S9+ across the Clyde estuary and West Central Scotland.',
         coveragePolygon: [
           [56.065, -4.920], [56.045, -4.740], [56.005, -4.620],
           [55.945, -4.530], [55.890, -4.580], [55.885, -4.780],
@@ -1160,7 +1299,9 @@
         apiCallsign: 'GB3DM',
         callsign: 'GB3DM',
         name: 'Dumbarton (West Dunbartonshire)',
-        locator: 'IO75QX',
+        town: 'Dumbarton',
+        regionGroup: 'Scotland Central & South',
+        locator: 'IO75qx',
         lat: 55.9480,
         lng: -4.5520,
         siteElev: 145,
@@ -1182,9 +1323,9 @@
         },
         keeper: 'GM7GDE',
         color: '#10b981',
-        funFact: 'A true tri-mode 70cm hub overlooking the Dumbarton basin! It seamlessly bridges Analogue FM, System Fusion (YSF/C4FM), and D-STAR over the lower Clyde and Vale of Leven.',
+        funFact: 'Tri-mode 70cm hub overlooking the Dumbarton basin bridging Analogue FM, System Fusion (YSF/C4FM), and D-STAR.',
         htAdvice: '5W Handheld: Program RX 430.9250 / TX 438.5250 (+7.6 MHz split). Set 103.5 Hz CTCSS for FM, DG-ID 00 for YSF, or RPT1="GB3DM  B" for D-STAR.',
-        baseAdvice: '50W Base/Mobile: Booming local coverage across Dumbarton, Cardross, Alexandria, and Helensburgh; minimum TX power (1W–5W) is sufficient locally.',
+        baseAdvice: '50W Base/Mobile: Wide coverage across West Dunbartonshire, Clyde valley, and Loch Lomond.',
         coveragePolygon: [
           [56.040, -4.770], [56.045, -4.560], [55.995, -4.420],
           [55.910, -4.350], [55.865, -4.470], [55.895, -4.680],
@@ -1196,7 +1337,9 @@
         apiCallsign: 'MB7IBH',
         callsign: 'MB7IBH',
         name: 'Alexandria 2m Gateway (Loch Lomond Net)',
-        locator: 'IO75RX',
+        town: 'Alexandria',
+        regionGroup: 'Scotland Central & South',
+        locator: 'IO75rx',
         lat: 55.9890,
         lng: -4.5820,
         siteElev: 45,
@@ -1219,9 +1362,9 @@
         },
         keeper: 'MM3DDQ',
         color: '#f59e0b',
-        funFact: 'VHF anchor of the Loch Lomond Sunday Night Net (Sundays at 20:00 UK time, check-ins from 19:45)! Links 2m (MB7IBH), 70cm (MB7IDQ), and 4m (MB7IDR) together via AllStar Hub 67108.',
-        htAdvice: '5W Handheld: Program 145.3375 MHz FM Simplex with 103.5 Hz CTCSS tone. On 2m VHF, signals diffract cleanly over Carman Hill into Cardross and Helensburgh.',
-        baseAdvice: '50W Base/Mobile: Rock-solid copy throughout the Vale of Leven, Loch Lomond basin, Dumbarton, and Firth of Clyde.',
+        funFact: 'VHF anchor of the Loch Lomond Sunday Night Net (Sundays at 20:00 UK time)! Links 2m (MB7IBH), 70cm (MB7IDQ), and 4m (MB7IDR) together via AllStar Hub 67108.',
+        htAdvice: '5W Handheld: Program 145.3375 MHz FM Simplex with 103.5 Hz CTCSS tone.',
+        baseAdvice: '50W Base/Mobile: Strong coverage throughout the Vale of Leven, Loch Lomond basin, and Firth of Clyde.',
         coveragePolygon: [
           [56.065, -4.650], [56.050, -4.510], [55.985, -4.490],
           [55.930, -4.530], [55.940, -4.670], [56.005, -4.720]
@@ -1232,7 +1375,9 @@
         apiCallsign: 'MB7IDQ',
         callsign: 'MB7IDQ',
         name: 'Alexandria 70cm Gateway (Loch Lomond Net)',
-        locator: 'IO75RX',
+        town: 'Alexandria',
+        regionGroup: 'Scotland Central & South',
+        locator: 'IO75rx',
         lat: 55.9875,
         lng: -4.5790,
         siteElev: 45,
@@ -1254,9 +1399,9 @@
         },
         keeper: 'MM3DDQ',
         color: '#f59e0b',
-        funFact: 'The dedicated 70cm UHF sister gateway to MB7IBH in Alexandria! Allows operators to check into the Loch Lomond Sunday Night Net on 430.0125 MHz.',
-        htAdvice: '5W Handheld: Program 430.0125 MHz FM Simplex with 103.5 Hz CTCSS. Best in the Vale of Leven and Dumbarton corridor.',
-        baseAdvice: '50W Base/Mobile: Overcomes Carman Hill attenuation easily from Cardross and Helensburgh to access the AllStar 67108 hub.',
+        funFact: 'Dedicated 70cm UHF sister gateway to MB7IBH in Alexandria on AllStar Hub 67108.',
+        htAdvice: '5W Handheld: Program 430.0125 MHz FM Simplex with 103.5 Hz CTCSS.',
+        baseAdvice: '50W Base/Mobile: Reliable UHF access to the AllStar 67108 hub.',
         coveragePolygon: [
           [56.055, -4.640], [56.040, -4.515], [55.980, -4.500],
           [55.932, -4.535], [55.942, -4.655], [55.998, -4.700]
@@ -1267,7 +1412,9 @@
         apiCallsign: 'MB6GP',
         callsign: 'MB6GP',
         name: 'Port Glasgow (YSF / WIRES-X Gateway)',
-        locator: 'IO75PL',
+        town: 'Port Glasgow',
+        regionGroup: 'Scotland Central & South',
+        locator: 'IO75pl',
         lat: 55.9340,
         lng: -4.6880,
         siteElev: 30,
@@ -1290,9 +1437,9 @@
         },
         keeper: '2M0ROT',
         color: '#f59e0b',
-        funFact: 'Located directly across the narrows of the Firth of Clyde in Port Glasgow (~3.8 km south of Cardross)! Provides immediate saltwater line-of-sight access to WIRES-X (Node #78628) and YSF rooms.',
-        htAdvice: '5W Handheld: Program 431.1250 MHz (and 144.8250 MHz) Simplex. Set mode to C4FM Digital (DN) with TX/RX DG-ID 00. Point-blank across the water from Cardross!',
-        baseAdvice: '50W Base/Mobile: Use low TX power (5W) from Cardross, Helensburgh, or Dumbarton as the path across the Clyde is completely open.',
+        funFact: 'Located on the Firth of Clyde in Port Glasgow, providing line-of-sight access to WIRES-X (Node #78628) and YSF rooms.',
+        htAdvice: '5W Handheld: Program 431.1250 MHz (and 144.8250 MHz) Simplex. Set mode to C4FM Digital (DN) with TX/RX DG-ID 00.',
+        baseAdvice: '50W Base/Mobile: Low TX power (5W) recommended across the Clyde estuary.',
         coveragePolygon: [
           [56.015, -4.780], [56.000, -4.550], [55.930, -4.520],
           [55.895, -4.600], [55.905, -4.770], [55.965, -4.810]
@@ -1303,7 +1450,9 @@
         apiCallsign: 'MB6CY',
         callsign: 'MB6CY',
         name: 'Clydebank Data & Simplex Gateway',
-        locator: 'IO75SV',
+        town: 'Clydebank',
+        regionGroup: 'Scotland Central & South',
+        locator: 'IO75sv',
         lat: 55.9020,
         lng: -4.4050,
         siteElev: 35,
@@ -1325,9 +1474,9 @@
         },
         keeper: 'Local Keeper (Clydebank)',
         color: '#f59e0b',
-        funFact: 'Sits right on the north bank of the River Clyde in Clydebank (`IO75SV`), providing a flat riverbank path into Bowling, Dumbarton, and Cardross for VHF data and gateway testing.',
+        funFact: 'Sits on the north bank of the River Clyde in Clydebank (`IO75SV`) for VHF data and gateway operations.',
         htAdvice: '5W Handheld: Monitor 144.8750 MHz FM Simplex (Carrier Squelch) to copy local VHF data bursts.',
-        baseAdvice: '50W Base/Mobile: Connect your transceiver USB soundcard interface on 144.8750 MHz FM-DATA for clean packet/digital decoding.',
+        baseAdvice: '50W Base/Mobile: Connect transceiver USB soundcard interface on 144.8750 MHz FM-DATA.',
         coveragePolygon: [
           [55.980, -4.670], [55.970, -4.280], [55.850, -4.280],
           [55.860, -4.620]
@@ -1335,113 +1484,36 @@
       }
     ];
 
-  /*************************************************************************
-     * 3. COMPLETE AUDITED SCOTLAND & UK DATASET (TRUE 6-CHAR LOCATORS & COORDS)
+    /*************************************************************************
+     * 3. FALLBACK TABLE & FULL CSV INGESTION ENGINE (ALL 802 UK REPEATERS)
      *************************************************************************/
     const RAW_SCOTLAND_ETCC_TABLE = [
-      ["GB3AD","UR63","438.3875","430.7875","IO85OI","Hawick","118.8","A","G0RDI","OPERATIONAL"],
-      ["GB3AG","RV58","145.7250","145.1250","IO86MN","Angus","94.8","AF","GM5TAY","OPERATIONAL"],
-      ["GB3AO","RU78","430.9750","438.5750","IO87ob","Aboyne","67.0","A","G4SCY","OPERATIONAL"],
-      ["GB3AS","RV48","145.6000","145.0000","IO85MC","Langholm","77.0","A","GM6LJE","OPERATIONAL"],
-      ["GB3AY","RV52","145.6500","145.0500","IO75OR","Dalry","103.5","A","MM0YET","OPERATIONAL"],
-      ["GB3BE","RU69","430.8625","438.4625","IO85UR","Duns","118.8","AF","GM7LUN","OPERATIONAL"],
-      ["GB3BI","RV58","145.7250","145.1250","IO77RM","Muir of Ord","67.0","A","MM0GKB","OPERATIONAL"],
-      ["GB3BT","RV56","145.7000","145.1000","IO85WT","Berwick on Tweed","118.8","AMF","GM1DSV","OPERATIONAL"],
-      ["GB3CS","RV60","145.7500","145.1500","IO85BU","Motherwell","103.5","A","GM8HBY","OPERATIONAL"],
-      ["GB3DD","RB10","433.2500","434.8500","IO86LL","Dundee","94.8","AF","GM4FLP","OPERATIONAL"],
-      ["GB3DG","RV62","145.7750","145.1750","IO74UV","Newton Stewart","103.5","AF","GM8CJG","OPERATIONAL"],
-      ["GB3DM","RU74","430.9250","438.5250","IO75QX","Dumbarton","103.5","ADF","GM7GDE","OPERATIONAL"],
-      ["GB3DU","RV61","145.7625","145.1625","IO85US","Duns","118.8","AM","GM7LUN","OPERATIONAL"],
-      ["GB3ED","RU71","430.8875","438.4875","IO85JW","Edinburgh","94.8","AN","GM4GZW","OPERATIONAL"],
-      ["GB3EI","RV49","145.6125","145.0125","IO67IN","Lochmaddy","88.5","ADMF","GM8SAU","OPERATIONAL"],
-      ["GB3FE","RV53","145.6625","145.0625","IO86BC","Stirling","103.5","AM","GM0MZB","OPERATIONAL"],
-      ["GB3FF","RV48","145.6000","145.0000","IO86NF","Upper Largo","103.5","A","GM7LUN","OPERATIONAL"],
-      ["GB3GL","RU72","430.9000","438.5000","IO75WU","Glasgow","103.5","AF","GM3SAN","OPERATIONAL"],
-      ["GB3HI","RV56","145.7000","145.1000","IO76DK","Isle of Mull","103.5","A","MM0JRM","REDUCED OUTPUT"],
-      ["GB3HK","RB02","433.0500","434.6500","IO85NM","Selkirk","118.8","A","GM7LUN","OPERATIONAL"],
-      ["GB3IG","RV62","145.7750","145.1750","IO68QE","Stornoway","88.5","A","MM0KMQ","OPERATIONAL"],
-      ["GB3IS","RU71","430.8875","438.4875","IO67HC","Isle of South Uist","94.8","ADMF","GM8SAU","OPERATIONAL"],
-      ["GB3KE","RV55","145.6875","145.0875","IO75UV","Glasgow (NW)","103.5","AF","GM7SVK","OPERATIONAL"],
-      ["GB3KV","RU78","430.9750","438.5750","IO75XX","Kilsyth","103.5","A","GM3SAN","OPERATIONAL"],
-      ["GB3KW","RU66","430.8250","438.4250","IO75UV","Glasgow (NW UHF)","103.5","AF","GM7SVK","OPERATIONAL"],
-      ["GB3LB","RV63","145.7875","145.1875","IO85NR","Lauder","118.8","A","GM7LUN","OPERATIONAL"],
-      ["GB3LU","RV54","145.6750","145.0750","IP90JD","Lerwick (Shetland)","77.0","A","GM0GFL","OPERATIONAL"],
-      ["GB3OC","RV52","145.6500","145.0500","IO88LX","Kirkwall (Orkney)","77.0","A","GM0HQG","OPERATIONAL"],
-      ["GB3OH","RU76","430.9500","438.5500","IO85EX","Linlithgow","94.8","AM","GM0MZB","OPERATIONAL"],
-      ["GB3PA","RV50","145.6250","145.0250","IO75TT","Paisley","103.5","A","GM7GDE","OPERATIONAL"],
-      ["GB3PR","RV54","145.6750","145.0750","IO86GI","Perth","94.8","AF","GM8KPH","OPERATIONAL"],
-      ["GB3PU","RB0","433.0000","434.6000","IO86GI","Perth (UHF)","94.8","AF","GM8KPH","OPERATIONAL"],
-      ["GB3SB","RV52","145.6500","145.0500","IO85NN","Selkirk","118.8","AF","GM7LUN","OPERATIONAL"],
-      ["GB3SF","RV50","145.6250","145.0250","IO86JJ","Perth (Fusion)","--","F","GM3NFO","OPERATIONAL"],
-      ["GB3SL","R50-02","50.7300","51.2300","IO75XX","Kilsyth (6m)","103.5","A","GM4COX","OPERATIONAL"],
-      ["GB3SS","RV48","145.6000","145.0000","IO87IP","Elgin Moray","67.0","AF","GM4ILS","OPERATIONAL"],
-      ["GB3WA","RU70","430.8750","438.4750","IO75OR","Dalry (UHF)","103.5","A","GM7GDE","OPERATIONAL"],
-      ["GB7AB","DVU53","439.6625","430.6625","IO87VD","Aberdeen","--","F","GM7KBK","OPERATIONAL"],
-      ["GB7AC","RU76","430.9500","438.5500","IO75NS","Largs","103.5","AM","GM7RYR","OPERATIONAL"],
-      ["GB7AI","DMU27","439.3375","430.3375","IO85OI","Hawick","103.5","AM","GM8SJP","OPERATIONAL"],
-      ["GB7AK","DVU56","439.7000","430.7000","IO76BV","Arisaig","CC 4","DMFN","2M0SBP","OPERATIONAL"],
-      ["GB7BB","DVU57","439.7125","430.7125","IO87QP","Banff","CC 1","M","MM0BUH","OPERATIONAL"],
-      ["GB7BG","DVU53","439.6625","430.6625","IO85DV","Bathgate","CC 1","M","GM4UQD","OPERATIONAL"],
-      ["GB7BI","RU66","430.8250","438.4250","IO77RM","Muir of Ord","CC 1","M","GM0UDL","OPERATIONAL"],
-      ["GB7CB","DVU57","439.7125","430.7125","IO85FV","Livingston","CC 4","M","GM7RYR","OPERATIONAL"],
-      ["GB7CS","DVU62","439.7750","430.7750","IO75VU","Glasgow","--","F","GM7GDE","NOT OPERATIONAL"],
-      ["GB7DE","RV51","145.6375","145.0375","IO86LE","Kennoway Fife","94.8","AM","GM7RYR","NOT OPERATIONAL"],
-      ["GB7DG","RU72","430.9000","438.5000","IO74KU","Portpatrick","CC 7","AM","GM7RYR","OPERATIONAL"],
-      ["GB7DM","U324","434.0500","434.0500","IO75QX","Dumbarton (TETRA)","MCC 235","E","GM7RYR","OPERATIONAL"],
-      ["GB7EC","RU74","430.9250","438.5250","IO87UH","Oldmeldrum","CC 11","M","GM0APN","OPERATIONAL"],
-      ["GB7EE","RU74","430.9250","438.5250","IO85JW","Edinburgh","CC 1","M","GM7RYR","OPERATIONAL"],
-      ["GB7EF","DVU36","439.4500","430.4500","IO86KH","Ladybank","103.5 / CC7","ADMFPN","MM8BEC","OPERATIONAL"],
-      ["GB7EI","RU68","430.8500","438.4500","IO67IN","Lochmaddy","88.5","ADMF","GM8SAU","OPERATIONAL"],
-      ["GB7EM","DVU34","439.4250","430.4250","IO87WD","Aberdeen","CC 11","M","GM0NRT","OPERATIONAL"],
-      ["GB7ET","U324","434.0500","434.0500","IO85JW","Edinburgh (TETRA)","CC 1","E","GM7RYR","OPERATIONAL"],
-      ["GB7EU","RU67","430.8375","438.4375","IO85JW","Edinburgh","94.8","AN","GM7RYR","OPERATIONAL"],
-      ["GB7FE","DVU38","439.4750","430.4750","IO86BC","Stirling","CC 1","M","GM0MZB","OPERATIONAL"],
-      ["GB7FP","DVU12","439.1500","430.1500","IO87WC","Aberdeen","--","DF","2M0FPI","OPERATIONAL"],
-      ["GB7GA","RU65","430.8125","438.4125","IO85OO","Galashiels","118.8","AF","GM7LUN","NOT OPERATIONAL"],
-      ["GB7GD","RV55","145.6875","145.0875","IO87WE","Aberdeen","CC 1","DMF","GM4DMO","OPERATIONAL"],
-      ["GB7GK","DVU39","439.4875","430.4875","IO87ON","Keith","CC 1","M","GM0MEM","OPERATIONAL"],
-      ["GB7GL","RU68","430.8500","438.4500","IO75WU","Glasgow (DMR)","CC 7","M","GM0KUJ","OPERATIONAL"],
-      ["GB7GM","RU78","430.9750","438.5750","IO85FB","Dumfries","118.8","ADMF","M0UKB","OPERATIONAL"],
-      ["GB7GR","RU75","430.9375","438.5375","IO75LL","Gourock","103.5 / CC1","AM","GM4SVW","OPERATIONAL"],
-      ["GB7GZ","U321A","434.01875","434.01875","IO75WU","Glasgow (TETRA)","MCC 235","E","GM0KUJ","OPERATIONAL"],
-      ["GB7HK","RV50","145.6250","145.0250","IO85OI","Hawick","103.5","AM","GM8SJP","NOT OPERATIONAL"],
-      ["GB7ID","RU67","430.8375","438.4375","IO85JW","Edinburgh (NXDN)","--","N","GM7RYR","OPERATIONAL"],
-      ["GB7IG","RU75","430.9375","438.5375","IO68TE","Stornoway","88.5","AM","GM0PWS","OPERATIONAL"],
-      ["GB7II","DVU36","439.4500","430.4500","IO77UL","Inverness","CC 3","M","GM6GRE","OPERATIONAL"],
-      ["GB7IR","RU73","430.9125","438.5125","IO75OP","Irvine","CC 6","M","GM7RYR","OPERATIONAL"],
-      ["GB7JD","DVU33","439.4125","430.4125","IO85RL","Jedburgh","CC 1","DMN","GM4UPX","OPERATIONAL"],
-      ["GB7KN","DVU35","439.4375","430.4375","IO85JW","Edinburgh","CC 1","DMF","GM5JPB","OPERATIONAL"],
-      ["GB7KV","RU65","430.8125","438.4125","IO87SF","Kemnay","103.5","AFM","G0WUR","OPERATIONAL"],
-      ["GB7KY","DVU52","439.6500","430.6500","IO86KD","Kirkcaldy","103.5","ADMFPN","GM0MMN","OPERATIONAL"],
-      ["GB7LL","RU73","430.9125","438.5125","IO86GE","Kinross","94.8","AM","GM4HJO","OPERATIONAL"],
-      ["GB7LS","DVU32","439.4000","430.4000","IO85OO","Galashiels","--","DMF","GM7LUN","OPERATIONAL"],
-      ["GB7LV","RV49","145.6125","145.0125","IO85GW","Broxburn","94.8","ADMF","GM5JPB","OPERATIONAL"],
-      ["GB7MM","DVU60","439.7500","430.7500","IO87BN","Nairn","CC 5","DMF","GM0RML","OPERATIONAL"],
-      ["GB7PA","DVU42","439.5250","430.5250","IO75TT","Paisley","CC 1","M","GM7RYR","NOT OPERATIONAL"],
-      ["GB7PG","DVU61","439.7625","430.7625","IO84AW","Castle Douglas","CC 1","MFD","M5LEE","OPERATIONAL"],
-      ["GB7RG","RU75","430.9375","438.5375","IO74LV","Stranraer","103.5","AM","GM4YTD","OPERATIONAL"],
-      ["GB7SQ","DVU54","439.6750","430.6750","IO85KV","Dalkeith","CC 1","MN","MM1BJO","OPERATIONAL"],
-      ["GB7SS","DVU47","439.5875","430.5875","IO87HR","Lossiemouth","CC 1","M","MM0KLQ","OPERATIONAL"],
-      ["GB7ZT","DVU32","439.4000","430.4000","IO75LC","Ballantrae","CC 9","M","GM4ZTO","OPERATIONAL"],
-      ["MB5TH","RV59","145.7375","145.1375","IO87TG","Thainstone","69.3","ADMF","GM7KBK","OPERATIONAL"],
       ["GB3NB","RV48","145.6000","145.0000","IO92FL","Birmingham (Wythall)","77.0","A","G4WAC","OPERATIONAL"],
       ["GB3LO","RU66","430.8250","438.4250","IO91WM","Central London","88.5","AF","G3UUT","OPERATIONAL"],
+      ["GB7LO","DVU50","439.6250","430.6250","IO91WM","London (DMR)","CC 1","M","G4RKY","OPERATIONAL"],
       ["GB3MN","RV56","145.7000","145.1000","IO83RJ","Manchester (Stockport)","82.5","A","G8MNY","OPERATIONAL"],
       ["GB3MR","RU68","430.8500","438.4500","IO83RJ","Manchester (UHF)","82.5","A","G8MNY","OPERATIONAL"],
-      ["GB3HG","RV52","145.6500","145.0500","IO93FT","Harrogate (Yorkshire)","88.5","AF","G4MNY","OPERATIONAL"],
+      ["GB3HG","RV50","145.6250","145.0250","IO94JF","Thirsk (North Yorkshire)","88.5","AF","G4MNY","OPERATIONAL"],
       ["GB3WW","RU73","430.9125","438.5125","IO81KJ","Cardiff (South Wales)","94.8","AF","GW4BZD","OPERATIONAL"],
       ["GB3NI","RV54","145.6750","145.0750","IO74AP","Belfast (Northern Ireland)","110.9","A","GI0BFD","OPERATIONAL"],
       ["GB3GD","RV50","145.6250","145.0250","IO74SD","Snaefell (Isle of Man)","103.5","A","GD4IOM","OPERATIONAL"],
       ["GB3EV","RV56","145.7000","145.1000","IO84SQ","Eden Valley (Cumbria)","77.0","A","G0CWT","OPERATIONAL"],
       ["GB3NT","RV54","145.6750","145.0750","IO94AX","Newcastle (Tyneside)","103.5","AF","G0NWT","OPERATIONAL"],
       ["GB3BP","RU74","430.9250","438.5250","IO91VU","Bletchley Park (RSGB NRC)","77.0","AM","G3RSG","OPERATIONAL"],
-      ["GB7LO","DVU50","439.6250","430.6250","IO91WM","London (DMR)","CC 1","M","G4RKY","OPERATIONAL"]
+      ["GB3ED","RU71","430.8875","438.4875","IO85JW","Edinburgh","94.8","AN","GM4GZW","OPERATIONAL"],
+      ["GB3GL","RU72","430.9000","438.5000","IO75WU","Glasgow","103.5","AF","GM3SAN","OPERATIONAL"],
+      ["GB3CS","RV60","145.7500","145.1500","IO85BU","Motherwell","103.5","A","GM8HBY","OPERATIONAL"],
+      ["GB3FE","RV53","145.6625","145.0625","IO86BC","Stirling","103.5","AM","GM0MZB","OPERATIONAL"],
+      ["GB3PR","RV54","145.6750","145.0750","IO86GI","Perth","94.8","AF","GM8KPH","OPERATIONAL"],
+      ["GB3AG","RV58","145.7250","145.1250","IO86MN","Angus","94.8","AF","GM5TAY","OPERATIONAL"],
+      ["GB7II","DVU36","439.4500","430.4500","IO77UL","Inverness","CC 3","M","GM6GRE","OPERATIONAL"],
+      ["GB3BI","RV58","145.7250","145.1250","IO77RM","Muir of Ord","67.0","A","MM0GKB","OPERATIONAL"],
+      ["GB7GR","RU75","430.9375","438.5375","IO75LL","Gourock","103.5 / CC1","AM","GM4SVW","OPERATIONAL"],
+      ["GB3DM","RU74","430.9250","438.5250","IO75QX","Dumbarton","103.5","ADF","GM7GDE","OPERATIONAL"]
     ];
-    /**
-     * Restored Estimated-Terrain Fallback Generator (Prevents ReferenceError if API is unreachable)
-     */
+
     function getDynamicProfileForQTH(rep, qthKey) {
-      const qth = QTH_LOCATIONS[qthKey] || QTH_LOCATIONS.cardross;
+      const qth = QTH_LOCATIONS[qthKey] || QTH_LOCATIONS.england_midlands;
       const dist = calcDistanceKm(qth.lat, qth.lng, rep.lat, rep.lng);
       const isOff = rep.statusType === 'off';
       const siteElev = rep.siteElev || 150;
@@ -1465,7 +1537,7 @@
         sMeterHT = 'S9+10 dB';
         sMeterBase = 'S9+30 dB';
         midObstacleElev = Math.round(Math.min(qth.elevMeters, siteElev) * 0.45);
-        midLabel = 'Local Estuary / Valley';
+        midLabel = 'Local Valley / Basin';
       } else if (dist <= 50) {
         quality = 'Regional VHF/UHF Corridor';
         qualityColor = 'emerald';
@@ -1488,7 +1560,7 @@
         sMeterHT: sMeterHT,
         sMeterBase: sMeterBase,
         points: [
-          { d: 0, e: qth.elevMeters, label: qth.name },
+          { d: 0, e: qth.elevMeters, label: qth.name.split('(')[0].trim() },
           { d: 0.25, e: Math.round(midObstacleElev * 0.55), label: 'Near Horizon' },
           { d: 0.55, e: midObstacleElev, label: midLabel },
           { d: 0.82, e: Math.round((midObstacleElev + siteElev) * 0.5), label: town + ' Approach' },
@@ -1519,119 +1591,6 @@
       }
 
       const coords = locatorToLatLng(locator, callsign);
-      const KNOWN_COORDS = {
-        // Clyde, Ayrshire & West Central Scotland
-        GB3AY: { lat: 55.7100, lng: -4.7210, elev: 245 },
-        GB3WA: { lat: 55.7220, lng: -4.7350, elev: 240 },
-        GB3PA: { lat: 55.8110, lng: -4.4550, elev: 220 },
-        GB7PA: { lat: 55.8125, lng: -4.4520, elev: 195 },
-        GB3KE: { lat: 55.9153, lng: -4.3077, elev: 75 },
-        GB3KW: { lat: 55.9165, lng: -4.3055, elev: 75 },
-        GB3GL: { lat: 55.8620, lng: -4.2250, elev: 135 },
-        GB7GL: { lat: 55.8640, lng: -4.2500, elev: 120 },
-        GB7GZ: { lat: 55.8600, lng: -4.2580, elev: 110 },
-        GB7CS: { lat: 55.8550, lng: -4.2400, elev: 125 },
-        GB3CS: { lat: 55.8150, lng: -3.9310, elev: 260 },
-        GB3KV: { lat: 55.9920, lng: -4.0620, elev: 390 },
-        GB3SL: { lat: 55.9900, lng: -4.0600, elev: 385 },
-        GB7DM: { lat: 55.9420, lng: -4.5650, elev: 65 },
-        GB7AC: { lat: 55.7950, lng: -4.8650, elev: 170 },
-        GB7IR: { lat: 55.6200, lng: -4.6600, elev: 95 },
-        GB7ZT: { lat: 55.1050, lng: -5.0040, elev: 190 },
-
-        // Stirling, Forth Valley, Edinburgh & Lothians (Fixed from Galashiels cluster)
-        GB3FE: { lat: 56.1150, lng: -3.9350, elev: 185 },
-        GB7FE: { lat: 56.1160, lng: -3.9320, elev: 185 },
-        GB3OH: { lat: 55.9610, lng: -3.6120, elev: 255 },
-        GB7BG: { lat: 55.9020, lng: -3.6430, elev: 210 },
-        GB7CB: { lat: 55.8860, lng: -3.5220, elev: 175 },
-        GB7LV: { lat: 55.9320, lng: -3.4710, elev: 130 },
-        GB3ED: { lat: 55.9533, lng: -3.1883, elev: 165 },
-        GB7EE: { lat: 55.9510, lng: -3.1950, elev: 150 },
-        GB7ET: { lat: 55.9480, lng: -3.1820, elev: 155 },
-        GB7EU: { lat: 55.9560, lng: -3.1790, elev: 145 },
-        GB7ID: { lat: 55.9450, lng: -3.2080, elev: 140 },
-        GB7KN: { lat: 55.9260, lng: -3.2140, elev: 160 },
-        GB7SQ: { lat: 55.8930, lng: -3.0680, elev: 135 },
-
-        // Scottish Borders (True individual hilltops)
-        GB3AD: { lat: 55.3850, lng: -2.7930, elev: 310 },
-        GB7AI: { lat: 55.4210, lng: -2.7840, elev: 245 },
-        GB7HK: { lat: 55.4240, lng: -2.7790, elev: 235 },
-        GB3AS: { lat: 55.1520, lng: -2.9980, elev: 320 },
-        GB3HK: { lat: 55.5340, lng: -2.8630, elev: 295 },
-        GB3SB: { lat: 55.5580, lng: -2.8380, elev: 340 },
-        GB7GA: { lat: 55.6180, lng: -2.8080, elev: 265 },
-        GB7LS: { lat: 55.6140, lng: -2.8120, elev: 260 },
-        GB3LB: { lat: 55.7200, lng: -2.7480, elev: 330 },
-        GB7JD: { lat: 55.4780, lng: -2.5540, elev: 250 },
-        GB3DU: { lat: 55.7780, lng: -2.3440, elev: 240 },
-        GB3BE: { lat: 55.7920, lng: -2.3180, elev: 265 },
-        GB3BT: { lat: 55.7710, lng: -2.0120, elev: 165 },
-
-        // Dumfries & Galloway (South West)
-        GB7GM: { lat: 55.0710, lng: -3.6050, elev: 185 },
-        GB7PG: { lat: 54.9410, lng: -3.9310, elev: 210 },
-        GB3DG: { lat: 54.9580, lng: -4.4820, elev: 230 },
-        GB7DG: { lat: 54.8420, lng: -5.1150, elev: 145 },
-        GB7RG: { lat: 54.9040, lng: -5.0250, elev: 160 },
-
-        // Fife, Perthshire, Dundee & Angus
-        GB7KY: { lat: 56.1180, lng: -3.1670, elev: 165 },
-        GB7DE: { lat: 56.2080, lng: -3.0450, elev: 185 },
-        GB3FF: { lat: 56.2240, lng: -2.9280, elev: 245 },
-        GB7EF: { lat: 56.2760, lng: -3.1220, elev: 140 },
-        GB7LL: { lat: 56.2060, lng: -3.4210, elev: 215 },
-        GB3PR: { lat: 56.3780, lng: -3.4320, elev: 230 },
-        GB3PU: { lat: 56.3795, lng: -3.4300, elev: 230 },
-        GB3SF: { lat: 56.3980, lng: -3.4410, elev: 175 },
-        GB3DD: { lat: 56.4720, lng: -2.9710, elev: 170 },
-        GB3AG: { lat: 56.5560, lng: -2.9880, elev: 310 },
-
-        // Aberdeen, Grampian & Moray
-        GB3AO: { lat: 57.0760, lng: -2.7820, elev: 285 },
-        GB7AB: { lat: 57.1490, lng: -2.0940, elev: 135 },
-        GB7EM: { lat: 57.1620, lng: -2.1150, elev: 155 },
-        GB7FP: { lat: 57.1210, lng: -2.1380, elev: 145 },
-        GB7GD: { lat: 57.1850, lng: -2.0880, elev: 150 },
-        GB7KV: { lat: 57.2350, lng: -2.4410, elev: 195 },
-        MB5TH: { lat: 57.2680, lng: -2.3520, elev: 160 },
-        GB7EC: { lat: 57.3360, lng: -2.3180, elev: 185 },
-        GB7BB: { lat: 57.6620, lng: -2.5240, elev: 175 },
-        GB7GK: { lat: 57.5420, lng: -2.9520, elev: 220 },
-        GB3SS: { lat: 57.6480, lng: -3.3150, elev: 195 },
-        GB7SS: { lat: 57.7180, lng: -3.2880, elev: 85 },
-        GB7MM: { lat: 57.5840, lng: -3.8690, elev: 110 },
-
-        // Highlands, Hebrides, Orkney & Shetland
-        GB7II: { lat: 57.4778, lng: -4.2247, elev: 165 },
-        GB3BI: { lat: 57.5210, lng: -4.4620, elev: 240 },
-        GB7BI: { lat: 57.5225, lng: -4.4600, elev: 240 },
-        GB7AK: { lat: 56.9080, lng: -5.8540, elev: 145 },
-        GB3HI: { lat: 56.4520, lng: -5.7120, elev: 310 },
-        GB3IS: { lat: 57.1620, lng: -7.3580, elev: 195 },
-        GB3EI: { lat: 57.5980, lng: -7.1580, elev: 140 },
-        GB7EI: { lat: 57.5995, lng: -7.1560, elev: 140 },
-        GB3IG: { lat: 58.2090, lng: -6.3880, elev: 135 },
-        GB7IG: { lat: 58.2120, lng: -6.3820, elev: 135 },
-        GB3OC: { lat: 58.9810, lng: -2.9610, elev: 185 },
-        GB3LU: { lat: 60.1550, lng: -1.1450, elev: 210 },
-
-        // UK Regional Reference Repeaters
-        GB3NB: { lat: 52.3680, lng: -1.8840, elev: 165 },
-        GB3LO: { lat: 51.5140, lng: -0.1320, elev: 155 },
-        GB7LO: { lat: 51.5090, lng: -0.1180, elev: 145 },
-        GB3MN: { lat: 53.4080, lng: -2.1480, elev: 185 },
-        GB3MR: { lat: 53.4110, lng: -2.1450, elev: 185 },
-        GB3HG: { lat: 53.9920, lng: -1.5420, elev: 215 },
-        GB3WW: { lat: 51.4816, lng: -3.1791, elev: 140 },
-        GB3NI: { lat: 54.6120, lng: -5.9450, elev: 280 },
-        GB3GD: { lat: 54.2630, lng: -4.4620, elev: 620 },
-        GB3EV: { lat: 54.6650, lng: -2.7520, elev: 260 },
-        GB3NT: { lat: 54.9780, lng: -1.6180, elev: 175 },
-        GB3BP: { lat: 51.9970, lng: -0.7420, elev: 115 }
-      };
-      
       const lat = KNOWN_COORDS[callsign] ? KNOWN_COORDS[callsign].lat : coords.lat;
       const lng = KNOWN_COORDS[callsign] ? KNOWN_COORDS[callsign].lng : coords.lng;
       const siteElev = KNOWN_COORDS[callsign] ? KNOWN_COORDS[callsign].elev : 160;
@@ -1642,8 +1601,9 @@
       const offsetStr = diff === 0 ? 'Simplex (0.0 MHz)' : (diff > 0 ? '+' : '') + diff + ' MHz';
 
       let band = '70cm';
-      if (rxNum < 60) band = '6m/4m';
+      if (rxNum < 60) band = '6m/10m';
       else if (rxNum < 200) band = '2m';
+      else if (rxNum > 1000) band = '23cm';
 
       const modes = decodeModeFlags(modeFlags);
       const isOff = rawStatus.indexOf('NOT') !== -1;
@@ -1657,13 +1617,15 @@
       } else if (isReduced) {
         statusType = 'net';
         color = '#f59e0b';
-      } else if (modes.indexOf('TETRA') !== -1 || band === '6m/4m') {
+      } else if (modes.indexOf('TETRA') !== -1 || band === '6m/10m' || band === '23cm') {
         color = '#a855f7';
       }
 
       const ctcssDisplay = (toneOrCC.indexOf('CC') !== -1 || toneOrCC === '--' || toneOrCC.indexOf('MCC') !== -1)
         ? toneOrCC
         : toneOrCC + ' Hz';
+
+      const regionGroup = getUKRegionGroup(lat, lng, callsign);
 
       const coveragePolygon = [];
       for (let i = 0; i < 8; i++) {
@@ -1680,6 +1642,7 @@
         callsign: callsign,
         name: town + ' (' + channel + ')',
         town: town,
+        regionGroup: regionGroup,
         locator: locator,
         lat: lat,
         lng: lng,
@@ -1696,13 +1659,13 @@
         dvConfig: {
           protocol: 'RSGB ETCC Coordinated (' + modes.join(' / ') + ')',
           accessParam: 'Tone / Access: ' + ctcssDisplay + ' | Chan: ' + channel,
-          ts1: modes.indexOf('DMR') !== -1 ? 'TS1: Wide-Area / Dynamic Talkgroups (TG 2350 / 2355)' : 'Output (RX): ' + rxFreq + ' MHz',
-          ts2: modes.indexOf('DMR') !== -1 ? 'TS2: Local (TG 9) & Regional Cluster (TG 2355x)' : 'Input (TX): ' + txFreq + ' MHz (' + offsetStr + ')',
-          network: 'RSGB ETCC Scotland Directory'
+          ts1: modes.indexOf('DMR') !== -1 ? 'TS1: Wide-Area / Dynamic Talkgroups (TG 2350 / Regional)' : 'Output (RX): ' + rxFreq + ' MHz',
+          ts2: modes.indexOf('DMR') !== -1 ? 'TS2: Local (TG 9) & Regional Talkgroups' : 'Input (TX): ' + txFreq + ' MHz (' + offsetStr + ')',
+          network: regionGroup + ' • RSGB ETCC Directory'
         },
         keeper: keeper,
         color: color,
-        funFact: 'Official RSGB ETCC Scottish repeater (' + callsign + ') located in ' + town + ' (Grid ' + locator + '), maintained by keeper ' + keeper + '.',
+        funFact: 'Official RSGB ETCC UK repeater (' + callsign + ') located in ' + town + ' (' + regionGroup + ', Grid ' + locator + ').',
         htAdvice: '5W Handheld: Program RX ' + rxFreq + ' MHz / TX ' + txFreq + ' MHz (' + offsetStr + ') with access parameter ' + ctcssDisplay + '.',
         baseAdvice: '50W Base/Mobile: Use ' + band + ' external collinear or directional antenna for extended range toward ' + town + '.',
         coveragePolygon: coveragePolygon
@@ -1710,7 +1673,8 @@
     }
 
     let REPEATERS = [];
-    function initializeFullScotlandDataset() {
+
+    function initializeFallbackDataset() {
       const etccBuilt = RAW_SCOTLAND_ETCC_TABLE.map(function(row) {
         return buildRepeaterFromETCCRow(row);
       });
@@ -1721,519 +1685,197 @@
       });
       REPEATERS = etccBuilt.concat(extraGateways);
     }
-    initializeFullScotlandDataset();
+    initializeFallbackDataset();
+
+    /**
+     * Loads all 802 UK repeaters directly from same-origin repeaterlist_all.csv
+     */
+    async function loadAllUKRepeatersFromCSV() {
+      const statusTextEl = document.getElementById('live-api-status-text');
+      const badgeEl = document.getElementById('live-api-badge');
+
+      try {
+        const resp = await fetch('repeaterlist_all.csv', { cache: 'no-cache' });
+        if (!resp.ok) throw new Error('CSV HTTP ' + resp.status);
+        const csvText = await resp.text();
+        const lines = csvText.split(/\r?\n/).filter(function(l) { return l.trim().length > 0; });
+
+        const seenIdMap = {};
+        const seenCallMap = {};
+        const coordCountMap = {};
+        const parsedRepeaters = [];
+
+        const bespokeLookup = {};
+        BESPOKE_REPEATERS.forEach(function(b) { bespokeLookup[b.callsign] = b; });
+
+        // Skip header row (CALL,BAND,CHAN,txMHz,rxMHz,CTCSS,QTHR,WHERE,lat,lon,ANALOG,DMR,DSTAR,FUSION,)
+        for (let i = 1; i < lines.length; i++) {
+          const cols = lines[i].split(',');
+          if (cols.length < 10) continue;
+
+          const callsign = (cols[0] || '').trim().toUpperCase();
+          if (!callsign) continue;
+
+          // If bespoke repeater exists, use bespoke rich profile once
+          if (bespokeLookup[callsign]) {
+            if (!seenCallMap[callsign]) {
+              seenCallMap[callsign] = true;
+              parsedRepeaters.push(bespokeLookup[callsign]);
+            }
+            continue;
+          }
+
+          const rawBand = (cols[1] || '70CM').trim().toUpperCase();
+          const channel = (cols[2] || 'SIMPLEX').trim() || 'SIMPLEX';
+          const txNum = parseFloat(cols[3] || '0'); // Repeater Output = User RX
+          const rxNum = parseFloat(cols[4] || '0'); // Repeater Input  = User TX
+          const rxFreq = txNum.toFixed(4);
+          const txFreq = rxNum.toFixed(4);
+          const rawCtcss = (cols[5] || '').trim();
+          const rawQthr = (cols[6] || '').trim().toUpperCase().replace(/^I0/, 'IO').slice(0, 6);
+          const rawTown = (cols[7] || 'UK').trim();
+          const csvLat = parseFloat(cols[8]);
+          const csvLon = parseFloat(cols[9]);
+
+          if (!Number.isFinite(csvLat) || !Number.isFinite(csvLon)) continue;
+
+          const isAnalog = (cols[10] || '').trim().toUpperCase() === 'Y';
+          const isDmr = (cols[11] || '').trim().toUpperCase() === 'Y';
+          const isDstar = (cols[12] || '').trim().toUpperCase() === 'Y';
+          const isFusion = (cols[13] || '').trim().toUpperCase() === 'Y';
+
+          // Deduplicate exact duplicate rows (e.g. GB3IV appears twice identically)
+          const dedupKey = callsign + '_' + rawBand + '_' + rxFreq + '_' + rawTown;
+          if (seenIdMap[dedupKey]) continue;
+          seenIdMap[dedupKey] = true;
+
+          // Disambiguate ID if same callsign operates on two bands or sites (e.g. GB7FR, GB7HQ, M0JXR, MB5YN)
+          let uniqueId = callsign;
+          if (seenCallMap[callsign]) {
+            uniqueId = callsign + '-' + rawBand + (seenCallMap[callsign] > 1 ? '-' + seenCallMap[callsign] : '');
+            seenCallMap[callsign]++;
+          } else {
+            seenCallMap[callsign] = 1;
+          }
+
+          const town = rawTown.toLowerCase().replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+
+          let lat = KNOWN_COORDS[callsign] ? KNOWN_COORDS[callsign].lat : csvLat;
+          let lng = KNOWN_COORDS[callsign] ? KNOWN_COORDS[callsign].lng : csvLon;
+          const siteElev = KNOWN_COORDS[callsign] ? KNOWN_COORDS[callsign].elev : 145;
+
+          // De-cluster co-located repeaters sharing identical coordinates so every pin is clickable
+          const coordKey = lat.toFixed(3) + ',' + lng.toFixed(3);
+          const stackIdx = coordCountMap[coordKey] || 0;
+          coordCountMap[coordKey] = stackIdx + 1;
+          if (stackIdx > 0) {
+            const angle = (stackIdx * 2 * Math.PI) / 6;
+            const ring = Math.ceil(stackIdx / 6);
+            lat = +(lat + Math.sin(angle) * 0.0028 * ring).toFixed(4);
+            lng = +(lng + Math.cos(angle) * 0.0042 * ring).toFixed(4);
+          }
+
+          const locator = (rawQthr.length === 6)
+            ? rawQthr.slice(0, 4) + rawQthr.slice(4, 6).toLowerCase()
+            : latLngToLocator(lat, lng);
+
+          const modes = [];
+          if (isAnalog) modes.push('FM');
+          if (isDmr) modes.push('DMR');
+          if (isFusion) modes.push('YSF');
+          if (isDstar) modes.push('D-STAR');
+          if (modes.length === 0) modes.push('FM');
+
+          let band = '70cm';
+          if (rawBand === '2M') band = '2m';
+          else if (rawBand === '6M' || rawBand === '10M') band = '6m/10m';
+          else if (rawBand === '23CM') band = '23cm';
+
+          const diff = +(rxNum - txNum).toFixed(4);
+          const offsetStr = diff === 0 ? 'Simplex (0.0 MHz)' : (diff > 0 ? '+' : '') + diff + ' MHz';
+          const ctcssDisplay = rawCtcss ? (rawCtcss + ' Hz') : (isDmr ? 'DMR CC1' : (isFusion ? 'YSF DG-ID 00' : (isDstar ? 'D-STAR' : 'CSQ')));
+          const regionGroup = getUKRegionGroup(lat, lng, callsign);
+
+          const isSpecialBand = (band === '6m/10m' || band === '23cm');
+          const color = isSpecialBand ? '#a855f7' : '#10b981';
+
+          const coveragePolygon = [];
+          for (let p = 0; p < 8; p++) {
+            const ang = (p * Math.PI) / 4;
+            coveragePolygon.push([
+              +(lat + Math.sin(ang) * 0.075).toFixed(4),
+              +(lng + Math.cos(ang) * 0.125).toFixed(4)
+            ]);
+          }
+
+          parsedRepeaters.push({
+            id: uniqueId,
+            apiCallsign: callsign,
+            callsign: uniqueId,
+            name: town + ' (' + channel + ')',
+            town: town,
+            regionGroup: regionGroup,
+            locator: locator,
+            lat: lat,
+            lng: lng,
+            siteElev: siteElev,
+            status: 'OPERATIONAL',
+            statusType: 'active',
+            band: band,
+            rawBand: rawBand,
+            channel: channel,
+            rxFreq: rxFreq,
+            txFreq: txFreq,
+            offset: offsetStr,
+            modes: modes,
+            ctcss: ctcssDisplay,
+            dvConfig: {
+              protocol: 'RSGB ETCC Coordinated (' + modes.join(' / ') + ')',
+              accessParam: 'Tone / Access: ' + ctcssDisplay + ' | Band: ' + rawBand + ' (' + channel + ')',
+              ts1: isDmr ? 'TS1: Wide-Area / Dynamic Talkgroups' : 'Repeater Output (User RX): ' + rxFreq + ' MHz',
+              ts2: isDmr ? 'TS2: Local (TG 9) & Regional Cluster' : 'Repeater Input (User TX): ' + txFreq + ' MHz (' + offsetStr + ')',
+              network: regionGroup + ' • UK ETCC Directory'
+            },
+            keeper: regionGroup,
+            color: color,
+            funFact: 'Coordinated UK repeater (' + callsign + ') serving ' + town + ' (' + regionGroup + ', Grid ' + locator + ') on ' + rawBand + '.',
+            htAdvice: '5W Handheld: Program RX ' + rxFreq + ' MHz / TX ' + txFreq + ' MHz (' + offsetStr + ') with ' + ctcssDisplay + '.',
+            baseAdvice: '50W Base/Mobile: Use ' + rawBand + ' external collinear or beam antenna for optimal path toward ' + town + '.',
+            coveragePolygon: coveragePolygon
+          });
+        }
+
+        // Append any bespoke gateways not in CSV
+        BESPOKE_REPEATERS.forEach(function(b) {
+          if (!seenCallMap[b.callsign]) {
+            parsedRepeaters.push(b);
+          }
+        });
+
+        if (parsedRepeaters.length > 0) {
+          REPEATERS = parsedRepeaters;
+          if (badgeEl) badgeEl.className = 'status-pill synced mono';
+          if (statusTextEl) statusTextEl.textContent = REPEATERS.length + ' UK Repeaters Active';
+        }
+      } catch (err) {
+        console.warn('Could not load repeaterlist_all.csv, using built-in dataset:', err);
+        if (statusTextEl) statusTextEl.textContent = REPEATERS.length + ' UK Repeaters (Fallback)';
+      }
+
+      renderMapElements();
+      renderTerrainProfile();
+      renderInspector();
+      renderRepeaterList();
+    }
 
     /*************************************************************************
-     * 3B. COMPLETE SCOTTISH HAM RADIO NETS DATASET (NETFINDER.RADIO SCOTLAND)
+     * 3B. UK & SCOTLAND HAM RADIO NETS DATASET (NETFINDER.RADIO UK)
      *************************************************************************/
     const SCOTLAND_NETS = [
       {
-        id: 'NET-LOMOND',
-        name: 'Loch Lomond Sunday Night NET 8PM',
-        region: 'Alexandria / Loch Lomond & Clyde',
-        days: ['Sun'],
-        timeLocal: '20:00 UK (Check-ins 19:45)',
-        band: '2m & 70cm',
-        mode: 'FM / AllStar / EchoLink',
-        tags: ['2m', '70cm', 'AllStar'],
-        rxFreq: '145.3375',
-        txFreq: '145.3375',
-        offset: 'Simplex (0.0 MHz)',
-        toneOrCC: 'CTCSS 103.5 Hz',
-        linkedRepeaterId: 'MB7IBH',
-        secondaryRepeaterId: 'MB7IDQ',
-        lat: 55.9890,
-        lng: -4.5820,
-        locator: 'IO75RX',
-        codeplugSettings: 'Ch 1: MB7IBH 145.3375 MHz Simplex (103.5 Hz) | Ch 2: MB7IDQ 430.0125 MHz Simplex (103.5 Hz) | Ch 3: MB7IDR 70.3500 MHz (4m) | AllStar Hub 67108 / EchoLink MB7IBH-L',
-        notes: 'Flagship local Sunday night net for Cardross, Helensburgh, Dumbarton, and the Loch Lomond basin! Multi-band linked across 2m (MB7IBH), 70cm (MB7IDQ), and 4m (MB7IDR).'
-      },
-      {
-        id: 'NET-GB2RS-CLYDEBANK',
-        name: 'GB2RS News + Net - Clydebank',
-        region: 'Clydebank / West Central Scotland',
-        days: ['Sun'],
-        timeLocal: '10:30 UK (Sundays)',
-        band: '70cm / DMR',
-        mode: 'DMR / Internet',
-        tags: ['70cm', 'DMR'],
-        rxFreq: '430.9375',
-        txFreq: '438.5375',
-        offset: '+7.6 MHz',
-        toneOrCC: 'CC1 • TS2 TG 2355 / TG 23559',
-        linkedRepeaterId: 'GB7GR',
-        lat: 55.9020,
-        lng: -4.4050,
-        locator: 'IO75SV',
-        codeplugSettings: 'DMR TG 2355 (Scotland Wide) / TG 23559 (Scot West) via GB7GR Gourock (430.9375 / 438.5375, CC1) or Pi-Star Hotspot',
-        notes: 'Weekly RSGB news broadcast and call-in net serving Clydebank, Dumbarton, and West of Scotland DMR operators.'
-      },
-      {
-        id: 'NET-GB2RS-GLASGOW',
-        name: 'GB2RS News + Net - Glasgow',
-        region: 'Glasgow & Clyde Valley',
-        days: ['Sun'],
-        timeLocal: '10:00 UK (Sundays)',
-        band: '2m',
-        mode: 'FM (Simplex / Repeater)',
-        tags: ['2m'],
-        rxFreq: '145.5250',
-        txFreq: '145.5250',
-        offset: 'Simplex (0.0 MHz)',
-        toneOrCC: 'CSQ (Follow-on via GB3CS 145.7500)',
-        linkedRepeaterId: 'GB3CS',
-        lat: 55.8620,
-        lng: -4.2500,
-        locator: 'IO75WU',
-        codeplugSettings: 'Primary News: 145.5250 MHz FM Simplex (CSQ) | Follow-on Check-ins: GB3CS 145.7500 MHz (-0.6 MHz, 103.5 Hz)',
-        notes: 'Long-running Sunday morning Glasgow GB2RS news broadcast with call-ins from across the Clyde Valley and Dunbartonshire.'
-      },
-      {
-        id: 'NET-GB2RS-LENZIE',
-        name: 'GB2RS News + Net - Lenzie',
-        region: 'Lenzie / North Glasgow',
-        days: ['Sun'],
-        timeLocal: '10:00 UK (Sundays)',
-        band: 'Multi-Band (2m / 70cm)',
-        mode: 'FM Multi-Band',
-        tags: ['2m', '70cm'],
-        rxFreq: '145.5250',
-        txFreq: '145.5250',
-        offset: 'Simplex / RU78',
-        toneOrCC: '103.5 Hz (GB3KV 430.9750)',
-        linkedRepeaterId: 'GB3KV',
-        lat: 55.9230,
-        lng: -4.1530,
-        locator: 'IO75WW',
-        codeplugSettings: '2m Simplex: 145.5250 MHz FM | 70cm Companion: GB3KV Kilsyth (430.9750 MHz RX / 438.5750 MHz TX, 103.5 Hz)',
-        notes: 'Multi-band Sunday morning RSGB news transmission and check-in net from Lenzie covering North Glasgow and the Campsie/Kilsyth corridor.'
-      },
-      {
-        id: 'NET-PAISLEY-VHF',
-        name: 'Paisley Amateur Radio Club (2m Net)',
-        region: 'Paisley / Renfrewshire & Clyde',
-        days: ['Wed'],
-        timeLocal: '20:00 UK (Wednesdays)',
-        band: '2m',
-        mode: 'FM',
-        tags: ['2m'],
-        rxFreq: '145.4500',
-        txFreq: '145.4500',
-        offset: 'Simplex (or GB3PA)',
-        toneOrCC: 'CSQ / 103.5 Hz on GB3PA',
-        linkedRepeaterId: 'GB3PA',
-        lat: 55.8450,
-        lng: -4.4230,
-        locator: 'IO75TT',
-        codeplugSettings: 'Simplex Ch: 145.4500 MHz (S18) FM | Repeater Backup: GB3PA (145.6250 MHz RX / 145.0250 MHz TX, 103.5 Hz CTCSS)',
-        notes: 'Friendly mid-week club net hosted by Paisley ARC (GM0PYA). Strong signal straight across the Clyde into Cardross, Dumbarton, and Helensburgh.'
-      },
-      {
-        id: 'NET-PAISLEY-DMR',
-        name: 'Paisley Amateur Radio Club (DMR Net)',
-        region: 'Paisley / West of Scotland',
-        days: ['Mon', 'Thu'],
-        timeLocal: '20:00 UK',
-        band: '70cm / DMR',
-        mode: 'DMR / Internet',
-        tags: ['70cm', 'DMR'],
-        rxFreq: '430.9375',
-        txFreq: '438.5375',
-        offset: '+7.6 MHz',
-        toneOrCC: 'CC1 • TS1 TG 23559 (Scot West)',
-        linkedRepeaterId: 'GB7GR',
-        lat: 55.8450,
-        lng: -4.4230,
-        locator: 'IO75TT',
-        codeplugSettings: 'Use GB7GR Gourock (430.9375 MHz RX / 438.5375 MHz TX, CC1, TS1 TG 23559 Scot West) while GB7PA is offline',
-        notes: 'Digital Voice net for Paisley and Clyde Coast operators. Accessible over RF via GB7GR Gourock from Cardross and Helensburgh!'
-      },
-      {
-        id: 'NET-GUWS',
-        name: 'Glasgow University Wireless Society Net',
-        region: 'Glasgow West End (GM6UW)',
-        days: ['Thu'],
-        timeLocal: '19:30 UK (Thursdays)',
-        band: '2m',
-        mode: 'FM / YSF',
-        tags: ['2m'],
-        rxFreq: '145.6875',
-        txFreq: '145.0875',
-        offset: '-0.6 MHz',
-        toneOrCC: '103.5 Hz (GB3KE RV55)',
-        linkedRepeaterId: 'GB3KE',
-        lat: 55.8720,
-        lng: -4.2880,
-        locator: 'IO75UV',
-        codeplugSettings: 'GB3KE NW Glasgow (145.6875 MHz RX / 145.0875 MHz TX, -0.6 MHz, 103.5 Hz) or 145.5500 MHz Simplex',
-        notes: 'Hosted by GUWS (GM6UW), one of the UK’s oldest university wireless societies. Uses NW Glasgow repeater GB3KE down the Clyde corridor.'
-      },
-      {
-        id: 'NET-GB2CW-GLASGOW',
-        name: 'GB2CW FM Slow Morse and Net (Glasgow)',
-        region: 'Glasgow & Clyde Basin',
-        days: ['Tue', 'Thu'],
-        timeLocal: '20:00 UK',
-        band: '2m',
-        mode: 'CW over FM / Voice',
-        tags: ['2m', 'HF'],
-        rxFreq: '145.2500',
-        txFreq: '145.2500',
-        offset: 'Simplex (0.0 MHz)',
-        toneOrCC: 'CSQ (FM Audio Tone CW)',
-        linkedRepeaterId: 'GB3KE',
-        lat: 55.8850,
-        lng: -4.3100,
-        locator: 'IO75UV',
-        codeplugSettings: '2m FM Simplex: 145.2500 MHz (S10) or via GB3KE (145.6875 MHz, 103.5 Hz) — Set radio to standard FM mode',
-        notes: 'Learn and practice Morse code on 2m VHF FM with voice chat between overs. Ideal for beginners and seasoned CW operators in West Central Scotland.'
-      },
-      {
-        id: 'NET-PHOENIX-MON',
-        name: 'DV Scotland Phoenix : Monday Night Net',
-        region: 'All Scotland (Multi-Protocol DV)',
-        days: ['Mon'],
-        timeLocal: '20:00 UK (Mondays)',
-        band: '70cm / Multi-Mode DV',
-        mode: 'DMR / D-STAR / YSF / AllStar / EchoLink',
-        tags: ['70cm', 'DMR', 'AllStar'],
-        rxFreq: '430.9375',
-        txFreq: '438.5375',
-        offset: '+7.6 MHz',
-        toneOrCC: 'DMR TG 2355 / YSF Scotland / D-STAR DCS005B',
-        linkedRepeaterId: 'GB7GR',
-        secondaryRepeaterId: 'GB3DM',
-        lat: 55.9550,
-        lng: -4.8190,
-        locator: 'IO75LL',
-        codeplugSettings: 'DMR: GB7GR TS2 TG 2355 (Scot Wide) | YSF/D-STAR: GB3DM Dumbarton (430.9250 MHz) or MB6GP Port Glasgow (431.1250 MHz)',
-        notes: 'National Scottish Digital Voice net bridging DMR, D-STAR, Yaesu System Fusion (C4FM), AllStar, and EchoLink into one shared Scottish room.'
-      },
-      {
-        id: 'NET-PHOENIX-C2C',
-        name: 'DV Scotland Phoenix : Coast To Coast Net',
-        region: 'Scotland Wide (West to East Coast)',
-        days: ['Wed', 'Sun'],
-        timeLocal: '20:00 UK',
-        band: '70cm',
-        mode: 'DMR / D-STAR / Fusion / AllStar / DX',
-        tags: ['70cm', 'DMR', 'AllStar'],
-        rxFreq: '430.9250',
-        txFreq: '438.5250',
-        offset: '+7.6 MHz',
-        toneOrCC: 'GB3DM (YSF/D-STAR) or GB7GR (DMR TG 2355)',
-        linkedRepeaterId: 'GB3DM',
-        secondaryRepeaterId: 'GB7GR',
-        lat: 55.9480,
-        lng: -4.5520,
-        locator: 'IO75QX',
-        codeplugSettings: 'GB3DM Dumbarton (430.9250 / 438.5250, 103.5 Hz / DG-ID 00 / D-STAR) or GB7GR Gourock (430.9375, CC1, TS2 TG 2355)',
-        notes: 'Links operators from the Firth of Clyde & Hebrides across to Edinburgh, Fife, and Aberdeen over bridged Scottish repeaters and gateways.'
-      },
-      {
-        id: 'NET-SPARC',
-        name: 'Strathclyde Park Amateur Radio Club Net',
-        region: 'Motherwell / Glasgow & Clyde Valley',
-        days: ['Tue'],
-        timeLocal: '19:30 UK (Tuesdays)',
-        band: '2m',
-        mode: 'FM',
-        tags: ['2m'],
-        rxFreq: '145.7500',
-        txFreq: '145.1500',
-        offset: '-0.6 MHz',
-        toneOrCC: '103.5 Hz (GB3CS) / 145.4750 Simplex',
-        linkedRepeaterId: 'GB3CS',
-        lat: 55.7920,
-        lng: -4.0180,
-        locator: 'IO75YT',
-        codeplugSettings: 'Repeater: GB3CS (145.7500 MHz RX / 145.1500 MHz TX, 103.5 Hz) | Club Simplex: 145.4750 MHz FM',
-        notes: 'Active Lanarkshire & Greater Glasgow 2m net. Travels straight down the Clyde valley corridor into Dumbarton and Cardross.'
-      },
-      {
-        id: 'NET-MLARS',
-        name: 'Mid Lanarkshire Amateur Radio Society Net',
-        region: 'Lanarkshire / Central Belt',
-        days: ['Wed', 'Fri'],
-        timeLocal: '20:00 UK',
-        band: '70cm / DMR',
-        mode: 'DMR / Internet',
-        tags: ['70cm', 'DMR'],
-        rxFreq: '430.8500',
-        txFreq: '438.4500',
-        offset: '+7.6 MHz',
-        toneOrCC: 'CC7 (GB7GL) or CC1 (GB7GR TG 2355)',
-        linkedRepeaterId: 'GB7GL',
-        lat: 55.8640,
-        lng: -4.2500,
-        locator: 'IO75LL',
-        codeplugSettings: 'GB7GL Glasgow DMR (430.8500 / 438.4500, CC7) or GB7GR Gourock (430.9375 / 438.5375, CC1, TG 2355 / 23559)',
-        notes: 'Mid Lanarkshire ARS (MLARS) digital voice net welcoming check-ins from across the Central Belt and Clyde coast.'
-      },
-      {
-        id: 'NET-KLARC-CW',
-        name: 'Kilmarnock and Loudoun ARC (80m CW Net)',
-        region: 'Ayrshire & West Scotland',
-        days: ['Mon', 'Thu'],
-        timeLocal: '19:30 UK',
-        band: '80m (3.5 MHz)',
-        mode: 'CW (Morse)',
-        tags: ['HF'],
-        rxFreq: '3.5550',
-        txFreq: '3.5550',
-        offset: 'Simplex CW',
-        toneOrCC: 'CW Narrow Filter (~500 Hz)',
-        linkedRepeaterId: 'GB3AY',
-        lat: 55.6110,
-        lng: -4.4950,
-        locator: 'IO75RO',
-        codeplugSettings: 'HF Transceiver: 3.555 MHz CW (80m Band) | Local VHF Calling via GB3AY Dalry (145.6500 MHz, 103.5 Hz)',
-        notes: 'Regional 80-metre NVIS Morse code net run by Kilmarnock & Loudoun ARC. Short-skip 80m signals cover all of Scotland effortlessly.'
-      },
-      {
-        id: 'NET-FALKIRK',
-        name: 'Falkirk Club Net (Stirlingshire)',
-        region: 'Falkirk / Stirling & Forth Valley',
-        days: ['Wed'],
-        timeLocal: '20:00 UK (Wednesdays)',
-        band: '2m',
-        mode: 'FM Repeater',
-        tags: ['2m'],
-        rxFreq: '145.6625',
-        txFreq: '145.0625',
-        offset: '-0.6 MHz',
-        toneOrCC: '103.5 Hz (GB3FE RV53)',
-        linkedRepeaterId: 'GB3FE',
-        lat: 56.1150,
-        lng: -3.9350,
-        locator: 'IO86BC',
-        codeplugSettings: 'GB3FE Stirling/Falkirk Repeater: RX 145.6625 MHz / TX 145.0625 MHz (-0.6 MHz split, 103.5 Hz CTCSS)',
-        notes: 'Hosted by Stirling & District ARS / Falkirk operators on GB3FE. Workable from elevated stations in Helensburgh and Gartocharn through the Campsie/Lomond gap.'
-      },
-      {
-        id: 'NET-LIVINGSTON',
-        name: 'Livingston and District ARS Net',
-        region: 'West Lothian',
-        days: ['Tue'],
-        timeLocal: '20:00 UK (Tuesdays)',
-        band: '2m',
-        mode: 'FM',
-        tags: ['2m'],
-        rxFreq: '145.6125',
-        txFreq: '145.0125',
-        offset: '-0.6 MHz',
-        toneOrCC: '94.8 Hz (GB7LV RV49) / 145.5750 Simplex',
-        linkedRepeaterId: 'GB7LV',
-        lat: 55.9320,
-        lng: -3.5200,
-        locator: 'IO85GW',
-        codeplugSettings: 'GB7LV Broxburn (145.6125 MHz RX / 145.0125 MHz TX, 94.8 Hz CTCSS) or 145.5750 MHz FM Simplex',
-        notes: 'Weekly West Lothian club net (LADARS) covering the eastern Central Belt and Forth corridor.'
-      },
-      {
-        id: 'NET-EDINBURGH-EDARS',
-        name: 'Edinburgh and District ARS Net (EDARS)',
-        region: 'Edinburgh & Lothians',
-        days: ['Thu'],
-        timeLocal: '20:00 UK (Thursdays)',
-        band: '70cm',
-        mode: 'FM / NXDN',
-        tags: ['70cm'],
-        rxFreq: '430.8875',
-        txFreq: '438.4875',
-        offset: '+7.6 MHz',
-        toneOrCC: '94.8 Hz (GB3ED RU71)',
-        linkedRepeaterId: 'GB3ED',
-        lat: 55.9530,
-        lng: -3.1880,
-        locator: 'IO85JW',
-        codeplugSettings: 'GB3ED Edinburgh (430.8875 MHz RX / 438.4875 MHz TX, +7.6 MHz split, 94.8 Hz CTCSS)',
-        notes: 'Capital city 70cm net hosted by Edinburgh & District Amateur Radio Society on GB3ED.'
-      },
-      {
-        id: 'NET-GB2RS-EDINBURGH',
-        name: 'GB2RS News + Net - Edinburgh',
-        region: 'Edinburgh & Forth Basin',
-        days: ['Sun'],
-        timeLocal: '10:00 UK (Sundays)',
-        band: 'Multi-Band (2m / 70cm)',
-        mode: 'FM',
-        tags: ['2m', '70cm'],
-        rxFreq: '430.8875',
-        txFreq: '438.4875',
-        offset: '+7.6 MHz',
-        toneOrCC: '94.8 Hz (GB3ED) & 145.5250 MHz',
-        linkedRepeaterId: 'GB3ED',
-        lat: 55.9530,
-        lng: -3.1880,
-        locator: 'IO85JW',
-        codeplugSettings: '70cm: GB3ED (430.8875 / 438.4875, 94.8 Hz) | 2m Simplex: 145.5250 MHz FM',
-        notes: 'Sunday morning RSGB news bulletin and check-in net for Edinburgh, Lothian, and Fife stations.'
-      },
-      {
-        id: 'NET-KINGDOM-FIFE',
-        name: 'Kingdom Amateur Radio Society Net (Fife)',
-        region: 'Fife (Upper Largo / Kirkcaldy)',
-        days: ['Wed'],
-        timeLocal: '20:00 UK (Wednesdays)',
-        band: '2m',
-        mode: 'FM',
-        tags: ['2m'],
-        rxFreq: '145.6000',
-        txFreq: '145.0000',
-        offset: '-0.6 MHz',
-        toneOrCC: '103.5 Hz (GB3FF RV48)',
-        linkedRepeaterId: 'GB3FF',
-        lat: 56.2200,
-        lng: -2.9300,
-        locator: 'IO86MM',
-        codeplugSettings: 'GB3FF Fife Repeater (145.6000 MHz RX / 145.0000 MHz TX, -0.6 MHz, 103.5 Hz) or 145.4250 MHz Simplex',
-        notes: 'Hosted by Kingdom ARS (GM0KRS) across Fife and the Firth of Forth.'
-      },
-      {
-        id: 'NET-WIGTOWNSHIRE-GB3DG',
-        name: 'Wigtownshire ARC & D&G RAYNET GB3DG Net',
-        region: 'Dumfries & Galloway (South West)',
-        days: ['Wed'],
-        timeLocal: '19:30 UK (Wednesdays)',
-        band: '2m',
-        mode: 'FM / IRLP / EchoLink',
-        tags: ['2m', 'AllStar'],
-        rxFreq: '145.7750',
-        txFreq: '145.1750',
-        offset: '-0.6 MHz',
-        toneOrCC: '103.5 Hz (GB3DG RV62)',
-        linkedRepeaterId: 'GB3DG',
-        lat: 54.9600,
-        lng: -4.4800,
-        locator: 'IO74UV',
-        codeplugSettings: 'GB3DG Newton Stewart (145.7750 MHz RX / 145.1750 MHz TX, -0.6 MHz split, 103.5 Hz CTCSS)',
-        notes: 'Joint Wigtownshire ARC and Dumfries & Galloway RAYNET net on GB3DG, with coastal takeoff north up the Firth of Clyde.'
-      },
-      {
-        id: 'NET-GB2RS-PERTH',
-        name: 'GB2RS News + Net - Perth',
-        region: 'Perth & Tayside',
-        days: ['Sun'],
-        timeLocal: '10:30 UK (Sundays)',
-        band: '2m',
-        mode: 'FM',
-        tags: ['2m'],
-        rxFreq: '145.6750',
-        txFreq: '145.0750',
-        offset: '-0.6 MHz',
-        toneOrCC: '94.8 Hz (GB3PR RV54)',
-        linkedRepeaterId: 'GB3PR',
-        lat: 56.3950,
-        lng: -3.4300,
-        locator: 'IO86GI',
-        codeplugSettings: 'GB3PR Perth (145.6750 MHz RX / 145.0750 MHz TX, -0.6 MHz, 94.8 Hz CTCSS)',
-        notes: 'Sunday morning RSGB news and call-in net covering Perthshire and Strathearn.'
-      },
-      {
-        id: 'NET-DUNDEE-DARC',
-        name: 'Dundee Amateur Radio Club Net',
-        region: 'Dundee & Angus',
-        days: ['Tue'],
-        timeLocal: '19:30 UK (Tuesdays)',
-        band: '2m',
-        mode: 'FM / C4FM Repeater',
-        tags: ['2m'],
-        rxFreq: '145.7250',
-        txFreq: '145.1250',
-        offset: '-0.6 MHz',
-        toneOrCC: '94.8 Hz (GB3AG RV58)',
-        linkedRepeaterId: 'GB3AG',
-        lat: 56.5600,
-        lng: -2.9500,
-        locator: 'IO86ON',
-        codeplugSettings: 'GB3AG Angus Repeater (145.7250 MHz RX / 145.1250 MHz TX, -0.6 MHz split, 94.8 Hz CTCSS)',
-        notes: 'Weekly club net on the high-level GB3AG Angus repeater covering Tayside, Fife, and the North East.'
-      },
-      {
-        id: 'NET-GB2RS-DUNS',
-        name: 'GB2RS News + Net - Chirnside and Duns',
-        region: 'Scottish Borders (Duns)',
-        days: ['Sun'],
-        timeLocal: '10:15 UK (Sundays)',
-        band: '2m',
-        mode: 'FM',
-        tags: ['2m'],
-        rxFreq: '145.7625',
-        txFreq: '145.1625',
-        offset: '-0.6 MHz',
-        toneOrCC: '118.8 Hz (GB3DU RV61)',
-        linkedRepeaterId: 'GB3DU',
-        lat: 55.7750,
-        lng: -2.3400,
-        locator: 'IO85MM',
-        codeplugSettings: 'GB3DU Duns (145.7625 MHz RX / 145.1625 MHz TX, -0.6 MHz, 118.8 Hz CTCSS)',
-        notes: 'Borders GB2RS news broadcast and call-in net serving Berwickshire and the Tweed basin.'
-      },
-      {
-        id: 'NET-GB2RS-ELGIN',
-        name: 'GB2RS News + Net - Elgin (Moray)',
-        region: 'Elgin / Moray Firth',
-        days: ['Sun'],
-        timeLocal: '11:00 UK (Sundays)',
-        band: '2m',
-        mode: 'FM Repeater',
-        tags: ['2m'],
-        rxFreq: '145.6000',
-        txFreq: '145.0000',
-        offset: '-0.6 MHz',
-        toneOrCC: '67.0 Hz (GB3SS RV48)',
-        linkedRepeaterId: 'GB3SS',
-        lat: 57.6400,
-        lng: -3.3100,
-        locator: 'IO87ML',
-        codeplugSettings: 'GB3SS Elgin/Moray (145.6000 MHz RX / 145.0000 MHz TX, -0.6 MHz, 67.0 Hz CTCSS)',
-        notes: 'Moray Firth RSGB news and check-in net via GB3SS.'
-      },
-      {
-        id: 'NET-CAITHNESS',
-        name: 'Caithness Amateur Radio Society Net',
-        region: 'Caithness (Far North Highlands)',
-        days: ['Sun', 'Wed'],
-        timeLocal: '10:30 Sun / 20:00 Wed',
-        band: '80m & 2m',
-        mode: 'SSB (80m) / FM (2m)',
-        tags: ['HF', '2m'],
-        rxFreq: '3.6950',
-        txFreq: '3.6950',
-        offset: 'Simplex LSB / 2m',
-        toneOrCC: 'LSB Voice (80m) / 67.0 Hz (GB3BI)',
-        linkedRepeaterId: 'GB3BI',
-        lat: 58.4400,
-        lng: -3.1000,
-        locator: 'IO88KK',
-        codeplugSettings: '80m HF: 3.695 MHz LSB (±QRM) | Highland 2m Repeater: GB3BI (145.7250 MHz, 67.0 Hz)',
-        notes: 'Connects stations across Caithness, Sutherland, Orkney, and all of Scotland via 80m NVIS.'
-      },
-      {
-        id: 'NET-GB2RS-KIRKWALL',
-        name: 'GB2RS News + Net - Kirkwall (Orkney)',
-        region: 'Kirkwall / Orkney Islands',
-        days: ['Sun'],
-        timeLocal: '10:30 UK (Sundays)',
-        band: '2m',
-        mode: 'FM Repeater',
-        tags: ['2m'],
-        rxFreq: '145.6500',
-        txFreq: '145.0500',
-        offset: '-0.6 MHz',
-        toneOrCC: '77.0 Hz (GB3OC RV52)',
-        linkedRepeaterId: 'GB3OC',
-        lat: 58.9800,
-        lng: -2.9600,
-        locator: 'IO88LX',
-        codeplugSettings: 'GB3OC Orkney Repeater (145.6500 MHz RX / 145.0500 MHz TX, -0.6 MHz split, 77.0 Hz CTCSS)',
-        notes: 'Orkney Amateur Radio Club Sunday GB2RS news and Northern Isles check-in net.'
-      },
-      {
         id: 'NET-UK-HUBNET',
         name: 'HUBNet UK AllStar & EchoLink National Net',
-        region: 'United Kingdom Wide (Local Access via MB7IBH)',
+        region: 'United Kingdom Wide (AllStar / EchoLink / Gateways)',
         days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
         timeLocal: '19:00 UK (Daily)',
         band: '2m & 70cm AllStar',
@@ -2246,29 +1888,9 @@
         linkedRepeaterId: 'MB7IBH',
         lat: 53.8000,
         lng: -1.5500,
-        locator: 'IO93FT',
+        locator: 'IO93ft',
         codeplugSettings: 'AllStar Node 41223 (HUBNet) | EchoLink: HUBNET-R | Accessible via local UK AllStar Simplex Gateways',
-        notes: 'The largest interconnected FM/AllStar/EchoLink hub in the United Kingdom, linking dozens of simplex gateways and repeaters from Scotland to Cornwall.'
-      },
-      {
-        id: 'NET-UK-GB2RS-NRC',
-        name: 'GB2RS National News - Bletchley Park (RSGB NRC)',
-        region: 'Milton Keynes / South & Central England',
-        days: ['Sun'],
-        timeLocal: '10:00 UK (Sundays)',
-        band: '70cm & 40m',
-        mode: 'FM / DMR / SSB',
-        tags: ['70cm', 'DMR', 'HF'],
-        rxFreq: '430.9250',
-        txFreq: '438.5250',
-        offset: '+7.6 MHz',
-        toneOrCC: '77.0 Hz (GB3BP RU74)',
-        linkedRepeaterId: 'GB3BP',
-        lat: 51.9970,
-        lng: -0.7420,
-        locator: 'IO91VU',
-        codeplugSettings: 'GB3BP Bletchley Park (430.9250 MHz RX / 438.5250 MHz TX, 77.0 Hz) + 40m HF 7.127 MHz LSB',
-        notes: 'Broadcast from the RSGB National Radio Centre at Bletchley Park.'
+        notes: 'The largest interconnected FM/AllStar/EchoLink hub in the United Kingdom, linking dozens of simplex gateways and repeaters across England, Scotland, Wales, and NI.'
       },
       {
         id: 'NET-UK-WYTHALL',
@@ -2286,9 +1908,29 @@
         linkedRepeaterId: 'GB3NB',
         lat: 52.3700,
         lng: -1.8800,
-        locator: 'IO92FL',
+        locator: 'IO92fl',
         codeplugSettings: 'GB3NB Birmingham (145.6000 MHz RX / 145.0000 MHz TX, -0.6 MHz, 77.0 Hz CTCSS) or 145.2250 MHz Simplex',
         notes: 'Major Midlands VHF net serving Birmingham, Worcestershire, and Warwickshire.'
+      },
+      {
+        id: 'NET-UK-GB2RS-NRC',
+        name: 'GB2RS National News - Bletchley Park (RSGB NRC)',
+        region: 'Milton Keynes / South & Central England',
+        days: ['Sun'],
+        timeLocal: '10:00 UK (Sundays)',
+        band: '70cm & 40m',
+        mode: 'FM / DMR / SSB',
+        tags: ['70cm', 'DMR', 'HF'],
+        rxFreq: '430.9250',
+        txFreq: '438.5250',
+        offset: '+7.6 MHz',
+        toneOrCC: '77.0 Hz (GB3BP RU74)',
+        linkedRepeaterId: 'GB3BP',
+        lat: 51.9970,
+        lng: -0.7420,
+        locator: 'IO91vu',
+        codeplugSettings: 'GB3BP Bletchley Park (430.9250 MHz RX / 438.5250 MHz TX, 77.0 Hz) + 40m HF 7.127 MHz LSB',
+        notes: 'Broadcast from the RSGB National Radio Centre at Bletchley Park.'
       },
       {
         id: 'NET-UK-MANCHESTER',
@@ -2306,7 +1948,7 @@
         linkedRepeaterId: 'GB3MN',
         lat: 53.4100,
         lng: -2.1500,
-        locator: 'IO83RJ',
+        locator: 'IO83rj',
         codeplugSettings: 'GB3MN Manchester (145.7000 MHz RX / 145.1000 MHz TX, -0.6 MHz split, 82.5 Hz CTCSS)',
         notes: 'Regular North West England check-in net across Greater Manchester, Cheshire, and Lancashire.'
       },
@@ -2326,7 +1968,7 @@
         linkedRepeaterId: 'GB3WW',
         lat: 51.4816,
         lng: -3.1791,
-        locator: 'IO81KJ',
+        locator: 'IO81kj',
         codeplugSettings: 'GB3WW Cardiff (430.9125 MHz RX / 438.5125 MHz TX, +7.6 MHz split, 94.8 Hz CTCSS)',
         notes: 'Connects operators across South Wales, Newport, Swansea, and the Bristol Channel.'
       },
@@ -2346,21 +1988,525 @@
         linkedRepeaterId: 'GB3NI',
         lat: 54.5973,
         lng: -5.9301,
-        locator: 'IO74AP',
+        locator: 'IO74ap',
         codeplugSettings: 'GB3NI Belfast (145.6750 MHz RX / 145.0750 MHz TX, -0.6 MHz split, 110.9 Hz CTCSS)',
-        notes: 'Covers Northern Ireland and crosses the North Channel into Southwest Scotland (Stranraer & Ayrshire).'
+        notes: 'Covers Northern Ireland and crosses the North Channel into Southwest Scotland.'
+      },
+      {
+        id: 'NET-LOMOND',
+        name: 'Loch Lomond Sunday Night NET 8PM',
+        region: 'Alexandria / Loch Lomond & Clyde',
+        days: ['Sun'],
+        timeLocal: '20:00 UK (Check-ins 19:45)',
+        band: '2m & 70cm',
+        mode: 'FM / AllStar / EchoLink',
+        tags: ['2m', '70cm', 'AllStar'],
+        rxFreq: '145.3375',
+        txFreq: '145.3375',
+        offset: 'Simplex (0.0 MHz)',
+        toneOrCC: 'CTCSS 103.5 Hz',
+        linkedRepeaterId: 'MB7IBH',
+        secondaryRepeaterId: 'MB7IDQ',
+        lat: 55.9890,
+        lng: -4.5820,
+        locator: 'IO75rx',
+        codeplugSettings: 'Ch 1: MB7IBH 145.3375 MHz Simplex (103.5 Hz) | Ch 2: MB7IDQ 430.0125 MHz Simplex (103.5 Hz) | AllStar Hub 67108',
+        notes: 'Multi-band Sunday night net linking 2m (MB7IBH), 70cm (MB7IDQ), and 4m (MB7IDR) across the Loch Lomond & Clyde basin.'
+      },
+      {
+        id: 'NET-GB2RS-CLYDEBANK',
+        name: 'GB2RS News + Net - Clydebank',
+        region: 'Clydebank / West Central Scotland',
+        days: ['Sun'],
+        timeLocal: '10:30 UK (Sundays)',
+        band: '70cm / DMR',
+        mode: 'DMR / Internet',
+        tags: ['70cm', 'DMR'],
+        rxFreq: '430.9375',
+        txFreq: '438.5375',
+        offset: '+7.6 MHz',
+        toneOrCC: 'CC1 • TS2 TG 2355 / TG 23559',
+        linkedRepeaterId: 'GB7GR',
+        lat: 55.9020,
+        lng: -4.4050,
+        locator: 'IO75sv',
+        codeplugSettings: 'DMR TG 2355 (Scotland Wide) / TG 23559 (Scot West) via GB7GR Gourock (430.9375 / 438.5375, CC1)',
+        notes: 'Weekly RSGB news broadcast and call-in net serving West of Scotland DMR operators.'
+      },
+      {
+        id: 'NET-GB2RS-GLASGOW',
+        name: 'GB2RS News + Net - Glasgow',
+        region: 'Glasgow & Clyde Valley',
+        days: ['Sun'],
+        timeLocal: '10:00 UK (Sundays)',
+        band: '2m',
+        mode: 'FM (Simplex / Repeater)',
+        tags: ['2m'],
+        rxFreq: '145.5250',
+        txFreq: '145.5250',
+        offset: 'Simplex (0.0 MHz)',
+        toneOrCC: 'CSQ (Follow-on via GB3CS 145.7500)',
+        linkedRepeaterId: 'GB3CS',
+        lat: 55.8620,
+        lng: -4.2500,
+        locator: 'IO75wu',
+        codeplugSettings: 'Primary News: 145.5250 MHz FM Simplex (CSQ) | Follow-on Check-ins: GB3CS 145.7500 MHz (-0.6 MHz, 103.5 Hz)',
+        notes: 'Sunday morning Glasgow GB2RS news broadcast with call-ins from across the Clyde Valley.'
+      },
+      {
+        id: 'NET-GB2RS-LENZIE',
+        name: 'GB2RS News + Net - Lenzie',
+        region: 'Lenzie / North Glasgow',
+        days: ['Sun'],
+        timeLocal: '10:00 UK (Sundays)',
+        band: 'Multi-Band (2m / 70cm)',
+        mode: 'FM Multi-Band',
+        tags: ['2m', '70cm'],
+        rxFreq: '145.5250',
+        txFreq: '145.5250',
+        offset: 'Simplex / RU78',
+        toneOrCC: '103.5 Hz (GB3KV 430.9750)',
+        linkedRepeaterId: 'GB3KV',
+        lat: 55.9230,
+        lng: -4.1530,
+        locator: 'IO75ww',
+        codeplugSettings: '2m Simplex: 145.5250 MHz FM | 70cm Companion: GB3KV Kilsyth (430.9750 MHz RX / 438.5750 MHz TX, 103.5 Hz)',
+        notes: 'Multi-band Sunday morning RSGB news transmission and check-in net covering North Glasgow and Kilsyth.'
+      },
+      {
+        id: 'NET-PAISLEY-VHF',
+        name: 'Paisley Amateur Radio Club (2m Net)',
+        region: 'Paisley / Renfrewshire & Clyde',
+        days: ['Wed'],
+        timeLocal: '20:00 UK (Wednesdays)',
+        band: '2m',
+        mode: 'FM',
+        tags: ['2m'],
+        rxFreq: '145.4500',
+        txFreq: '145.4500',
+        offset: 'Simplex (or GB3PA)',
+        toneOrCC: 'CSQ / 103.5 Hz on GB3PA',
+        linkedRepeaterId: 'GB3PA',
+        lat: 55.8450,
+        lng: -4.4230,
+        locator: 'IO75tt',
+        codeplugSettings: 'Simplex Ch: 145.4500 MHz (S18) FM | Repeater Backup: GB3PA (145.6250 MHz RX / 145.0250 MHz TX, 103.5 Hz CTCSS)',
+        notes: 'Mid-week club net hosted by Paisley ARC (GM0PYA) across Renfrewshire and the Clyde.'
+      },
+      {
+        id: 'NET-PAISLEY-DMR',
+        name: 'Paisley Amateur Radio Club (DMR Net)',
+        region: 'Paisley / West of Scotland',
+        days: ['Mon', 'Thu'],
+        timeLocal: '20:00 UK',
+        band: '70cm / DMR',
+        mode: 'DMR / Internet',
+        tags: ['70cm', 'DMR'],
+        rxFreq: '430.9375',
+        txFreq: '438.5375',
+        offset: '+7.6 MHz',
+        toneOrCC: 'CC1 • TS1 TG 23559 (Scot West)',
+        linkedRepeaterId: 'GB7GR',
+        lat: 55.8450,
+        lng: -4.4230,
+        locator: 'IO75tt',
+        codeplugSettings: 'GB7GR Gourock (430.9375 MHz RX / 438.5375 MHz TX, CC1, TS1 TG 23559 Scot West)',
+        notes: 'Digital Voice net for Paisley and Clyde Coast operators.'
+      },
+      {
+        id: 'NET-GUWS',
+        name: 'Glasgow University Wireless Society Net',
+        region: 'Glasgow West End (GM6UW)',
+        days: ['Thu'],
+        timeLocal: '19:30 UK (Thursdays)',
+        band: '2m',
+        mode: 'FM / YSF',
+        tags: ['2m'],
+        rxFreq: '145.6875',
+        txFreq: '145.0875',
+        offset: '-0.6 MHz',
+        toneOrCC: '103.5 Hz (GB3KE RV55)',
+        linkedRepeaterId: 'GB3KE',
+        lat: 55.8720,
+        lng: -4.2880,
+        locator: 'IO75uv',
+        codeplugSettings: 'GB3KE NW Glasgow (145.6875 MHz RX / 145.0875 MHz TX, -0.6 MHz, 103.5 Hz) or 145.5500 MHz Simplex',
+        notes: 'Hosted by GUWS (GM6UW) on NW Glasgow repeater GB3KE.'
+      },
+      {
+        id: 'NET-GB2CW-GLASGOW',
+        name: 'GB2CW FM Slow Morse and Net (Glasgow)',
+        region: 'Glasgow & Clyde Basin',
+        days: ['Tue', 'Thu'],
+        timeLocal: '20:00 UK',
+        band: '2m',
+        mode: 'CW over FM / Voice',
+        tags: ['2m', 'HF'],
+        rxFreq: '145.2500',
+        txFreq: '145.2500',
+        offset: 'Simplex (0.0 MHz)',
+        toneOrCC: 'CSQ (FM Audio Tone CW)',
+        linkedRepeaterId: 'GB3KE',
+        lat: 55.8850,
+        lng: -4.3100,
+        locator: 'IO75uv',
+        codeplugSettings: '2m FM Simplex: 145.2500 MHz (S10) or via GB3KE (145.6875 MHz, 103.5 Hz)',
+        notes: 'Learn and practice Morse code on 2m VHF FM with voice chat between overs.'
+      },
+      {
+        id: 'NET-PHOENIX-MON',
+        name: 'DV Scotland Phoenix : Monday Night Net',
+        region: 'All Scotland (Multi-Protocol DV)',
+        days: ['Mon'],
+        timeLocal: '20:00 UK (Mondays)',
+        band: '70cm / Multi-Mode DV',
+        mode: 'DMR / D-STAR / YSF / AllStar / EchoLink',
+        tags: ['70cm', 'DMR', 'AllStar'],
+        rxFreq: '430.9375',
+        txFreq: '438.5375',
+        offset: '+7.6 MHz',
+        toneOrCC: 'DMR TG 2355 / YSF Scotland / D-STAR DCS005B',
+        linkedRepeaterId: 'GB7GR',
+        secondaryRepeaterId: 'GB3DM',
+        lat: 55.9550,
+        lng: -4.8190,
+        locator: 'IO75ll',
+        codeplugSettings: 'DMR: GB7GR TS2 TG 2355 (Scot Wide) | YSF/D-STAR: GB3DM Dumbarton (430.9250 MHz)',
+        notes: 'National Scottish Digital Voice net bridging DMR, D-STAR, Yaesu System Fusion, AllStar, and EchoLink.'
+      },
+      {
+        id: 'NET-PHOENIX-C2C',
+        name: 'DV Scotland Phoenix : Coast To Coast Net',
+        region: 'Scotland Wide (West to East Coast)',
+        days: ['Wed', 'Sun'],
+        timeLocal: '20:00 UK',
+        band: '70cm',
+        mode: 'DMR / D-STAR / Fusion / AllStar / DX',
+        tags: ['70cm', 'DMR', 'AllStar'],
+        rxFreq: '430.9250',
+        txFreq: '438.5250',
+        offset: '+7.6 MHz',
+        toneOrCC: 'GB3DM (YSF/D-STAR) or GB7GR (DMR TG 2355)',
+        linkedRepeaterId: 'GB3DM',
+        secondaryRepeaterId: 'GB7GR',
+        lat: 55.9480,
+        lng: -4.5520,
+        locator: 'IO75qx',
+        codeplugSettings: 'GB3DM Dumbarton (430.9250 / 438.5250) or GB7GR Gourock (430.9375, CC1, TS2 TG 2355)',
+        notes: 'Links operators from the Firth of Clyde & Hebrides across to Edinburgh, Fife, and Aberdeen.'
+      },
+      {
+        id: 'NET-SPARC',
+        name: 'Strathclyde Park Amateur Radio Club Net',
+        region: 'Motherwell / Glasgow & Clyde Valley',
+        days: ['Tue'],
+        timeLocal: '19:30 UK (Tuesdays)',
+        band: '2m',
+        mode: 'FM',
+        tags: ['2m'],
+        rxFreq: '145.7500',
+        txFreq: '145.1500',
+        offset: '-0.6 MHz',
+        toneOrCC: '103.5 Hz (GB3CS) / 145.4750 Simplex',
+        linkedRepeaterId: 'GB3CS',
+        lat: 55.7920,
+        lng: -4.0180,
+        locator: 'IO75yt',
+        codeplugSettings: 'Repeater: GB3CS (145.7500 MHz RX / 145.1500 MHz TX, 103.5 Hz) | Club Simplex: 145.4750 MHz FM',
+        notes: 'Active Lanarkshire & Greater Glasgow 2m net on GB3CS.'
+      },
+      {
+        id: 'NET-MLARS',
+        name: 'Mid Lanarkshire Amateur Radio Society Net',
+        region: 'Lanarkshire / Central Belt',
+        days: ['Wed', 'Fri'],
+        timeLocal: '20:00 UK',
+        band: '70cm / DMR',
+        mode: 'DMR / Internet',
+        tags: ['70cm', 'DMR'],
+        rxFreq: '430.8500',
+        txFreq: '438.4500',
+        offset: '+7.6 MHz',
+        toneOrCC: 'CC7 (GB7GL) or CC1 (GB7GR TG 2355)',
+        linkedRepeaterId: 'GB7GL',
+        lat: 55.8640,
+        lng: -4.2500,
+        locator: 'IO75wu',
+        codeplugSettings: 'GB7GL Glasgow DMR (430.8500 / 438.4500, CC7) or GB7GR Gourock (430.9375, CC1, TG 2355)',
+        notes: 'Mid Lanarkshire ARS (MLARS) digital voice net across the Central Belt.'
+      },
+      {
+        id: 'NET-KLARC-CW',
+        name: 'Kilmarnock and Loudoun ARC (80m CW Net)',
+        region: 'Ayrshire & West Scotland',
+        days: ['Mon', 'Thu'],
+        timeLocal: '19:30 UK',
+        band: '80m (3.5 MHz)',
+        mode: 'CW (Morse)',
+        tags: ['HF'],
+        rxFreq: '3.5550',
+        txFreq: '3.5550',
+        offset: 'Simplex CW',
+        toneOrCC: 'CW Narrow Filter (~500 Hz)',
+        linkedRepeaterId: 'GB3AY',
+        lat: 55.6110,
+        lng: -4.4950,
+        locator: 'IO75ro',
+        codeplugSettings: 'HF Transceiver: 3.555 MHz CW (80m Band) | Local VHF Calling via GB3AY Dalry (145.6500 MHz, 103.5 Hz)',
+        notes: 'Regional 80-metre NVIS Morse code net run by Kilmarnock & Loudoun ARC.'
+      },
+      {
+        id: 'NET-FALKIRK',
+        name: 'Falkirk Club Net (Stirlingshire)',
+        region: 'Falkirk / Stirling & Forth Valley',
+        days: ['Wed'],
+        timeLocal: '20:00 UK (Wednesdays)',
+        band: '2m',
+        mode: 'FM Repeater',
+        tags: ['2m'],
+        rxFreq: '145.6625',
+        txFreq: '145.0625',
+        offset: '-0.6 MHz',
+        toneOrCC: '103.5 Hz (GB3FE RV53)',
+        linkedRepeaterId: 'GB3FE',
+        lat: 56.1150,
+        lng: -3.9350,
+        locator: 'IO86bc',
+        codeplugSettings: 'GB3FE Stirling/Falkirk Repeater: RX 145.6625 MHz / TX 145.0625 MHz (-0.6 MHz split, 103.5 Hz CTCSS)',
+        notes: 'Hosted by Stirling & District ARS / Falkirk operators on GB3FE.'
+      },
+      {
+        id: 'NET-LIVINGSTON',
+        name: 'Livingston and District ARS Net',
+        region: 'West Lothian',
+        days: ['Tue'],
+        timeLocal: '20:00 UK (Tuesdays)',
+        band: '2m',
+        mode: 'FM',
+        tags: ['2m'],
+        rxFreq: '145.6125',
+        txFreq: '145.0125',
+        offset: '-0.6 MHz',
+        toneOrCC: '94.8 Hz (GB7LV RV49) / 145.5750 Simplex',
+        linkedRepeaterId: 'GB7LV',
+        lat: 55.9320,
+        lng: -3.5200,
+        locator: 'IO85gw',
+        codeplugSettings: 'GB7LV Broxburn (145.6125 MHz RX / 145.0125 MHz TX, 94.8 Hz CTCSS) or 145.5750 MHz FM Simplex',
+        notes: 'Weekly West Lothian club net (LADARS) covering the eastern Central Belt.'
+      },
+      {
+        id: 'NET-EDINBURGH-EDARS',
+        name: 'Edinburgh and District ARS Net (EDARS)',
+        region: 'Edinburgh & Lothians',
+        days: ['Thu'],
+        timeLocal: '20:00 UK (Thursdays)',
+        band: '70cm',
+        mode: 'FM / NXDN',
+        tags: ['70cm'],
+        rxFreq: '430.8875',
+        txFreq: '438.4875',
+        offset: '+7.6 MHz',
+        toneOrCC: '94.8 Hz (GB3ED RU71)',
+        linkedRepeaterId: 'GB3ED',
+        lat: 55.9530,
+        lng: -3.1880,
+        locator: 'IO85jw',
+        codeplugSettings: 'GB3ED Edinburgh (430.8875 MHz RX / 438.4875 MHz TX, +7.6 MHz split, 94.8 Hz CTCSS)',
+        notes: 'Capital city 70cm net hosted by Edinburgh & District Amateur Radio Society on GB3ED.'
+      },
+      {
+        id: 'NET-GB2RS-EDINBURGH',
+        name: 'GB2RS News + Net - Edinburgh',
+        region: 'Edinburgh & Forth Basin',
+        days: ['Sun'],
+        timeLocal: '10:00 UK (Sundays)',
+        band: 'Multi-Band (2m / 70cm)',
+        mode: 'FM',
+        tags: ['2m', '70cm'],
+        rxFreq: '430.8875',
+        txFreq: '438.4875',
+        offset: '+7.6 MHz',
+        toneOrCC: '94.8 Hz (GB3ED) & 145.5250 MHz',
+        linkedRepeaterId: 'GB3ED',
+        lat: 55.9530,
+        lng: -3.1880,
+        locator: 'IO85jw',
+        codeplugSettings: '70cm: GB3ED (430.8875 / 438.4875, 94.8 Hz) | 2m Simplex: 145.5250 MHz FM',
+        notes: 'Sunday morning RSGB news bulletin and check-in net for Edinburgh, Lothian, and Fife stations.'
+      },
+      {
+        id: 'NET-KINGDOM-FIFE',
+        name: 'Kingdom Amateur Radio Society Net (Fife)',
+        region: 'Fife (Upper Largo / Kirkcaldy)',
+        days: ['Wed'],
+        timeLocal: '20:00 UK (Wednesdays)',
+        band: '2m',
+        mode: 'FM',
+        tags: ['2m'],
+        rxFreq: '145.6000',
+        txFreq: '145.0000',
+        offset: '-0.6 MHz',
+        toneOrCC: '103.5 Hz (GB3FF RV48)',
+        linkedRepeaterId: 'GB3FF',
+        lat: 56.2200,
+        lng: -2.9300,
+        locator: 'IO86nf',
+        codeplugSettings: 'GB3FF Fife Repeater (145.6000 MHz RX / 145.0000 MHz TX, -0.6 MHz, 103.5 Hz)',
+        notes: 'Hosted by Kingdom ARS (GM0KRS) across Fife and the Firth of Forth.'
+      },
+      {
+        id: 'NET-WIGTOWNSHIRE-GB3DG',
+        name: 'Wigtownshire ARC & D&G RAYNET GB3DG Net',
+        region: 'Dumfries & Galloway (South West)',
+        days: ['Wed'],
+        timeLocal: '19:30 UK (Wednesdays)',
+        band: '2m',
+        mode: 'FM / IRLP / EchoLink',
+        tags: ['2m', 'AllStar'],
+        rxFreq: '145.7750',
+        txFreq: '145.1750',
+        offset: '-0.6 MHz',
+        toneOrCC: '103.5 Hz (GB3DG RV62)',
+        linkedRepeaterId: 'GB3DG',
+        lat: 54.9600,
+        lng: -4.4800,
+        locator: 'IO74uv',
+        codeplugSettings: 'GB3DG Newton Stewart (145.7750 MHz RX / 145.1750 MHz TX, -0.6 MHz split, 103.5 Hz CTCSS)',
+        notes: 'Joint Wigtownshire ARC and Dumfries & Galloway RAYNET net on GB3DG.'
+      },
+      {
+        id: 'NET-GB2RS-PERTH',
+        name: 'GB2RS News + Net - Perth',
+        region: 'Perth & Tayside',
+        days: ['Sun'],
+        timeLocal: '10:30 UK (Sundays)',
+        band: '2m',
+        mode: 'FM',
+        tags: ['2m'],
+        rxFreq: '145.6750',
+        txFreq: '145.0750',
+        offset: '-0.6 MHz',
+        toneOrCC: '94.8 Hz (GB3PR RV54)',
+        linkedRepeaterId: 'GB3PR',
+        lat: 56.3950,
+        lng: -3.4300,
+        locator: 'IO86gi',
+        codeplugSettings: 'GB3PR Perth (145.6750 MHz RX / 145.0750 MHz TX, -0.6 MHz, 94.8 Hz CTCSS)',
+        notes: 'Sunday morning RSGB news and call-in net covering Perthshire and Strathearn.'
+      },
+      {
+        id: 'NET-DUNDEE-DARC',
+        name: 'Dundee Amateur Radio Club Net',
+        region: 'Dundee & Angus',
+        days: ['Tue'],
+        timeLocal: '19:30 UK (Tuesdays)',
+        band: '2m',
+        mode: 'FM / C4FM Repeater',
+        tags: ['2m'],
+        rxFreq: '145.7250',
+        txFreq: '145.1250',
+        offset: '-0.6 MHz',
+        toneOrCC: '94.8 Hz (GB3AG RV58)',
+        linkedRepeaterId: 'GB3AG',
+        lat: 56.5600,
+        lng: -2.9500,
+        locator: 'IO86mn',
+        codeplugSettings: 'GB3AG Angus Repeater (145.7250 MHz RX / 145.1250 MHz TX, -0.6 MHz split, 94.8 Hz CTCSS)',
+        notes: 'Weekly club net on the high-level GB3AG Angus repeater covering Tayside and Fife.'
+      },
+      {
+        id: 'NET-GB2RS-DUNS',
+        name: 'GB2RS News + Net - Chirnside and Duns',
+        region: 'Scottish Borders (Duns)',
+        days: ['Sun'],
+        timeLocal: '10:15 UK (Sundays)',
+        band: '2m',
+        mode: 'FM',
+        tags: ['2m'],
+        rxFreq: '145.7625',
+        txFreq: '145.1625',
+        offset: '-0.6 MHz',
+        toneOrCC: '118.8 Hz (GB3DU RV61)',
+        linkedRepeaterId: 'GB3DU',
+        lat: 55.7750,
+        lng: -2.3400,
+        locator: 'IO85us',
+        codeplugSettings: 'GB3DU Duns (145.7625 MHz RX / 145.1625 MHz TX, -0.6 MHz, 118.8 Hz CTCSS)',
+        notes: 'Borders GB2RS news broadcast and call-in net serving Berwickshire and the Tweed basin.'
+      },
+      {
+        id: 'NET-GB2RS-ELGIN',
+        name: 'GB2RS News + Net - Elgin (Moray)',
+        region: 'Elgin / Moray Firth',
+        days: ['Sun'],
+        timeLocal: '11:00 UK (Sundays)',
+        band: '2m',
+        mode: 'FM Repeater',
+        tags: ['2m'],
+        rxFreq: '145.6000',
+        txFreq: '145.0000',
+        offset: '-0.6 MHz',
+        toneOrCC: '67.0 Hz (GB3SS RV48)',
+        linkedRepeaterId: 'GB3SS',
+        lat: 57.6400,
+        lng: -3.3100,
+        locator: 'IO87ip',
+        codeplugSettings: 'GB3SS Elgin/Moray (145.6000 MHz RX / 145.0000 MHz TX, -0.6 MHz, 67.0 Hz CTCSS)',
+        notes: 'Moray Firth RSGB news and check-in net via GB3SS.'
+      },
+      {
+        id: 'NET-CAITHNESS',
+        name: 'Caithness Amateur Radio Society Net',
+        region: 'Caithness (Far North Highlands)',
+        days: ['Sun', 'Wed'],
+        timeLocal: '10:30 Sun / 20:00 Wed',
+        band: '80m & 2m',
+        mode: 'SSB (80m) / FM (2m)',
+        tags: ['HF', '2m'],
+        rxFreq: '3.6950',
+        txFreq: '3.6950',
+        offset: 'Simplex LSB / 2m',
+        toneOrCC: 'LSB Voice (80m) / 67.0 Hz (GB3BI)',
+        linkedRepeaterId: 'GB3BI',
+        lat: 58.4400,
+        lng: -3.1000,
+        locator: 'IO88kk',
+        codeplugSettings: '80m HF: 3.695 MHz LSB (±QRM) | Highland 2m Repeater: GB3BI (145.7250 MHz, 67.0 Hz)',
+        notes: 'Connects stations across Caithness, Sutherland, Orkney, and Scotland via 80m NVIS.'
+      },
+      {
+        id: 'NET-GB2RS-KIRKWALL',
+        name: 'GB2RS News + Net - Kirkwall (Orkney)',
+        region: 'Kirkwall / Orkney Islands',
+        days: ['Sun'],
+        timeLocal: '10:30 UK (Sundays)',
+        band: '2m',
+        mode: 'FM Repeater',
+        tags: ['2m'],
+        rxFreq: '145.6500',
+        txFreq: '145.0500',
+        offset: '-0.6 MHz',
+        toneOrCC: '77.0 Hz (GB3OC RV52)',
+        linkedRepeaterId: 'GB3OC',
+        lat: 58.9800,
+        lng: -2.9600,
+        locator: 'IO88lx',
+        codeplugSettings: 'GB3OC Orkney Repeater (145.6500 MHz RX / 145.0500 MHz TX, -0.6 MHz split, 77.0 Hz CTCSS)',
+        notes: 'Orkney Amateur Radio Club Sunday GB2RS news and Northern Isles check-in net.'
       }
     ];
 
     /*************************************************************************
      * 4. STATE & MAP RENDERING
      *************************************************************************/
-    let currentQTH = 'cardross';
+    let currentQTH = 'england_midlands';
     let currentRig = 'ht';
-    let selectedRepeaterId = 'GB7GR';
-    let selectedNetId = 'NET-LOMOND';
+    let selectedRepeaterId = 'GB3NB';
+    let selectedNetId = 'NET-UK-WYTHALL';
     let activeBandFilter = 'ALL';
     let activeModeFilter = 'ALL';
+    let activeRegionGroupFilter = 'ALL';
     let searchQuery = '';
     let sortBy = 'distance';
     let netSortBy = 'distance';
@@ -2386,8 +2532,8 @@
     function initMap() {
       if (typeof L === 'undefined') return;
       map = L.map('rf-map', {
-        center: [55.945, -4.580],
-        zoom: 10,
+        center: [53.20, -2.10],
+        zoom: 6,
         zoomControl: true,
         preferCanvas: true
       });
@@ -2414,6 +2560,7 @@
           locator: loc,
           lat: clickedLat,
           lng: clickedLng,
+          zoom: Math.max(map.getZoom(), 9),
           elevMeters: 40,
           desc: 'Custom QTH pin dropped on map at ' + clickedLat + ', ' + clickedLng + ' (Grid ' + loc + ').'
         };
@@ -2433,18 +2580,18 @@
 
     function zoomMapRegion(region) {
       if (!map) return;
-      if (region === 'clyde') {
-        map.setView([55.945, -4.580], 10, { animate: true });
+      if (region === 'england') {
+        map.setView([52.55, -1.65], 6, { animate: true });
       } else if (region === 'scotland') {
-        map.setView([56.85, -4.20], 6, { animate: true });
+        map.setView([56.60, -4.30], 6, { animate: true });
       } else if (region === 'uk') {
-        map.setView([54.50, -3.20], 5, { animate: true });
+        map.setView([54.30, -2.90], 5, { animate: true });
       }
     }
 
     function renderMapElements() {
       if (!map || typeof L === 'undefined') return;
-      const qth = QTH_LOCATIONS[currentQTH] || QTH_LOCATIONS.cardross;
+      const qth = QTH_LOCATIONS[currentQTH] || QTH_LOCATIONS.england_midlands;
 
       if (qthMarker) map.removeLayer(qthMarker);
       if (losLineLayer) map.removeLayer(losLineLayer);
@@ -2495,12 +2642,16 @@
 
       REPEATERS.forEach(function(rep) {
         const isSelected = rep.id === selectedRepeaterId;
+        if (activeRegionGroupFilter !== 'ALL' && rep.regionGroup !== activeRegionGroupFilter && !isSelected) {
+          return;
+        }
+
         let bg = '#10b981';
         let fg = '#04121d';
         if (rep.statusType === 'new') { bg = '#06b6d4'; fg = '#04121d'; }
         else if (rep.statusType === 'net') { bg = '#f59e0b'; fg = '#04121d'; }
         else if (rep.statusType === 'off') { bg = '#f43f5e'; fg = '#ffffff'; }
-        else if (rep.modes.indexOf('TETRA') !== -1 || rep.band === '6m/4m') { bg = '#a855f7'; fg = '#ffffff'; }
+        else if (rep.modes.indexOf('TETRA') !== -1 || rep.band === '6m/10m' || rep.band === '23cm') { bg = '#a855f7'; fg = '#ffffff'; }
 
         const repIcon = L.divIcon({
           className: 'custom-rep-icon',
@@ -2560,8 +2711,6 @@
       }
 
       const locationsStr = coords.join('|');
-      // Uses same-origin Plesk nginx reverse proxy (/elevation/ -> 127.0.0.1:5001/)
-      // Using srtm30m dataset since UK .hgt tiles are now mounted!
       const apiUrl = `/elevation/v1/srtm30m?locations=${encodeURIComponent(locationsStr)}`;
 
       const controller = new AbortController();
@@ -2606,8 +2755,8 @@
     let currentTerrainFetchId = 0;
 
     async function renderTerrainProfile() {
-      const qth = QTH_LOCATIONS[currentQTH] || QTH_LOCATIONS.cardross;
-      const rep = REPEATERS.find(function(r) { return r.id === selectedRepeaterId; });
+      const qth = QTH_LOCATIONS[currentQTH] || QTH_LOCATIONS.england_midlands;
+      const rep = REPEATERS.find(function(r) { return r.id === selectedRepeaterId; }) || REPEATERS[0];
       if (!rep) return;
 
       const fetchId = ++currentTerrainFetchId;
@@ -2639,21 +2788,17 @@
       const ctx = canvas.getContext('2d');
       ctx.scale(dpr, dpr);
 
-      // Draw Loading State
       ctx.clearRect(0, 0, width, height);
       ctx.fillStyle = '#64748b';
       ctx.font = '12px monospace';
       ctx.textAlign = 'center';
       ctx.fillText('📡 Plotting Path to ' + rep.callsign + '...', width / 2, height / 2);
 
-      // Query Local Docker OpenTopoData Proxy
       let realPoints = await fetchRealTerrain(qth.lat, qth.lng, rep.lat, rep.lng, 99);
       let usingFallback = false;
 
-      // Ignore outdated response if user clicked another repeater while fetching
       if (fetchId !== currentTerrainFetchId) return;
 
-      // Fallback if local srtm30m returns null or proxy fails
       if (!realPoints) {
         usingFallback = true;
         const fallbackProfile = getDynamicProfileForQTH(rep, currentQTH);
@@ -2695,7 +2840,6 @@
         sourceNote + ' ' +
         (maxPathElev > (qth.elevMeters + 100) ? 'Notice the high terrain blocking direct visual line-of-sight.' : 'Path is relatively clear of major ridgelines.');
 
-      // DRAW THE REAL CANVAS
       ctx.clearRect(0, 0, width, height);
 
       const padLeft = 46;
@@ -2775,7 +2919,6 @@
         const isWater = (pt1.e <= 0 && pt2.e <= 0);
 
         if (isWater) {
-          // Subtle cyan-blue water highlight along the 0m baseline
           ctx.fillStyle = 'rgba(6, 182, 212, 0.28)';
           ctx.fillRect(x1, toY(0) - 4, x2 - x1, 6);
         }
@@ -2788,7 +2931,7 @@
         ctx.stroke();
       }
       ctx.restore();
-      
+
       // Direct LoS Line
       ctx.save();
       ctx.beginPath();
@@ -2822,7 +2965,7 @@
      * 6. INSPECTOR & DIRECTORY LIST
      *************************************************************************/
     function renderInspector() {
-      const rep = REPEATERS.find(function(r) { return r.id === selectedRepeaterId; });
+      const rep = REPEATERS.find(function(r) { return r.id === selectedRepeaterId; }) || REPEATERS[0];
       if (!rep) return;
 
       document.getElementById('inspector-callsign-badge').textContent = rep.callsign;
@@ -2844,7 +2987,7 @@
               '<strong style="font-size:15px;color:#fff;">' + rep.name + '</strong> ' + modePills +
             '</div>' +
             '<div class="mono" style="font-size:11px;color:var(--text-muted);margin-top:4px;">' +
-              'Status: <strong style="color:#6ee7b7;">' + rep.status + '</strong> • Grid: <strong style="color:#fff;">' + rep.locator + '</strong> • Keeper: <strong style="color:#fff;">' + rep.keeper + '</strong>' +
+              'Status: <strong style="color:#6ee7b7;">' + rep.status + '</strong> • Grid: <strong style="color:#fff;">' + rep.locator + '</strong> • Region: <strong style="color:#fff;">' + (rep.regionGroup || rep.keeper) + '</strong>' +
             '</div>' +
           '</div>' +
           '<div class="mono" style="text-align:right;font-size:12px;flex-shrink:0;">' +
@@ -2881,7 +3024,7 @@
       if (!container) return;
       container.innerHTML = '';
 
-      const qth = QTH_LOCATIONS[currentQTH];
+      const qth = QTH_LOCATIONS[currentQTH] || QTH_LOCATIONS.england_midlands;
       const q = searchQuery.trim().toLowerCase();
 
       const filtered = REPEATERS.filter(function(rep) {
@@ -2893,22 +3036,28 @@
           activeBandFilter === 'ALL' ||
           (activeBandFilter === '2m' && (rep.band === '2m' || hasExtra2m)) ||
           (activeBandFilter === '70cm' && (rep.band === '70cm' || hasExtra70cm)) ||
-          (activeBandFilter === '6m' && (rep.band === '6m/4m' || hasExtra4m));
+          (activeBandFilter === '6m' && (rep.band === '6m/10m' || rep.band === '6m/4m' || hasExtra4m)) ||
+          (activeBandFilter === '23cm' && rep.band === '23cm');
 
         const modeMatch =
           activeModeFilter === 'ALL' ||
           rep.modes.indexOf(activeModeFilter) !== -1;
+
+        const regionMatch =
+          activeRegionGroupFilter === 'ALL' ||
+          rep.regionGroup === activeRegionGroupFilter;
 
         const searchMatch =
           !q ||
           rep.callsign.toLowerCase().indexOf(q) !== -1 ||
           rep.name.toLowerCase().indexOf(q) !== -1 ||
           rep.locator.toLowerCase().indexOf(q) !== -1 ||
+          (rep.regionGroup && rep.regionGroup.toLowerCase().indexOf(q) !== -1) ||
           rep.keeper.toLowerCase().indexOf(q) !== -1 ||
           rep.rxFreq.indexOf(q) !== -1 ||
           rep.channel.toLowerCase().indexOf(q) !== -1;
 
-        return bandMatch && modeMatch && searchMatch;
+        return bandMatch && modeMatch && regionMatch && searchMatch;
       });
 
       filtered.sort(function(a, b) {
@@ -2931,7 +3080,7 @@
         if (rep.statusType === 'new') dotColor = '#06b6d4';
         else if (rep.statusType === 'net') dotColor = '#f59e0b';
         else if (rep.statusType === 'off') dotColor = '#f43f5e';
-        else if (rep.modes.indexOf('TETRA') !== -1 || rep.band === '6m/4m') dotColor = '#a855f7';
+        else if (rep.modes.indexOf('TETRA') !== -1 || rep.band === '6m/10m' || rep.band === '23cm') dotColor = '#a855f7';
 
         const card = document.createElement('div');
         card.className = 'rep-card' + (isSelected ? ' selected' : '');
@@ -2943,12 +3092,12 @@
             '<div style="min-width:0;">' +
               '<div class="mono" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
                 '<strong style="color:#fff;font-size:13px;">' + rep.callsign + '</strong>' +
-                '<span style="font-size:10px;background:#1e293b;padding:1px 5px;border-radius:4px;color:#cbd5e1;">' + rep.band + '</span>' +
+                '<span style="font-size:10px;background:#1e293b;padding:1px 5px;border-radius:4px;color:#cbd5e1;">' + (rep.rawBand || rep.band) + '</span>' +
                 '<span style="font-size:10px;color:#67e8f9;">' + rep.modes.join('/') + '</span>' +
                 '<span style="font-size:10px;color:#64748b;">' + rep.rxFreq + '</span>' +
               '</div>' +
               '<div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
-                rep.name + ' • <span class="mono">' + rep.locator + '</span>' +
+                rep.name + ' • <span class="mono">' + rep.locator + '</span> • ' + (rep.regionGroup || '') +
               '</div>' +
             '</div>' +
           '</div>' +
@@ -2962,7 +3111,7 @@
     }
 
     /*************************************************************************
-     * 7. LIVE UKREPEATER.NET SCOTLAND SYNC & UI CONTROLS
+     * 7. LIVE UKREPEATER.NET SYNC & UI CONTROLS
      *************************************************************************/
     async function syncLiveUKRepeaterScotlandList() {
       const badgeEl = document.getElementById('live-api-badge');
@@ -2970,10 +3119,11 @@
       const syncIconEl = document.getElementById('sync-icon');
 
       if (syncIconEl) syncIconEl.classList.add('fa-spin');
-      if (statusTextEl) statusTextEl.textContent = 'Syncing ukrepeater.net?filter=SCOTLAND...';
+      if (statusTextEl) statusTextEl.textContent = 'Syncing UK Directory...';
+
+      await loadAllUKRepeatersFromCSV();
 
       let discoveredNewCount = 0;
-
       try {
         const targetUrl = 'https://ukrepeater.net/repeaterlist.html?filter=SCOTLAND';
         const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
@@ -2998,13 +3148,13 @@
                 const rx = cells[2] || '';
                 const tx = cells[3] || '';
                 const loc = cells[4] || 'IO75MM';
-                const town = cells[7] || 'Scotland';
+                const town = cells[7] || 'UK';
                 const tone = cells[9] || '103.5';
                 const modeFlags = cells[10] || 'A';
                 const keeper = cells[12] || 'ETCC';
                 const statusStr = (cells[13] || 'OPERATIONAL').toUpperCase();
 
-                const existing = REPEATERS.find(function(r) { return r.callsign === call; });
+                const existing = REPEATERS.find(function(r) { return r.apiCallsign === call || r.callsign === call; });
                 if (!existing) {
                   const newRep = buildRepeaterFromETCCRow([call, chan, rx, tx, loc, town, tone, modeFlags, keeper, statusStr]);
                   newRep.status = statusStr + ' • NEW ON UKREPEATER';
@@ -3017,16 +3167,14 @@
             });
           }
         }
-      } catch (e) {
-        // Fallback: retain built-in 89 Scottish repeaters & gateways
-      }
+      } catch (e) {}
 
       if (syncIconEl) syncIconEl.classList.remove('fa-spin');
       if (badgeEl) badgeEl.className = 'status-pill synced mono';
       if (statusTextEl) {
         statusTextEl.textContent = discoveredNewCount > 0
-          ? 'Synced ' + REPEATERS.length + ' Sites (+' + discoveredNewCount + ' New)'
-          : 'Scotland ETCC Synced (' + REPEATERS.length + ' Sites)';
+          ? 'Synced ' + REPEATERS.length + ' UK Sites (+' + discoveredNewCount + ' New)'
+          : REPEATERS.length + ' UK Repeaters Active';
       }
 
       renderMapElements();
@@ -3052,6 +3200,12 @@
       renderRepeaterList();
     }
 
+    function setRegionGroupFilter(regionVal) {
+      activeRegionGroupFilter = regionVal || 'ALL';
+      renderMapElements();
+      renderRepeaterList();
+    }
+
     function toggleSortOrder() {
       sortBy = sortBy === 'distance' ? 'callsign' : 'distance';
       const btn = document.getElementById('btn-sort-order');
@@ -3066,25 +3220,42 @@
     function setQTH(qthId) {
       if (!QTH_LOCATIONS[qthId]) return;
       currentQTH = qthId;
-      ['cardross', 'helensburgh', 'dumbarton'].forEach(function(id) {
-        const btn = document.getElementById('tab-' + id);
-        if (btn) btn.className = id === qthId ? 'btn active-cyan' : 'btn';
-      });
-
       const qth = QTH_LOCATIONS[qthId];
+
+      const selectEl = document.getElementById('uk-preset-select');
+      if (selectEl && qthId !== 'custom') {
+        selectEl.value = qthId;
+      }
+
       const netQthLabel = document.getElementById('net-qth-label');
       if (netQthLabel) netQthLabel.textContent = qth.name + ' (' + qth.locator + ')';
 
       const activePill = document.getElementById('qth-active-pill');
       if (activePill) activePill.textContent = 'QTH: ' + qth.name + ' (' + qth.locator + ')';
 
+      // Auto-select nearest operational repeater to the chosen QTH
+      if (REPEATERS.length > 0) {
+        let nearest = REPEATERS[0];
+        let minDist = Infinity;
+        REPEATERS.forEach(function(r) {
+          if (r.statusType === 'off') return;
+          const d = calcDistanceKm(qth.lat, qth.lng, r.lat, r.lng);
+          if (d < minDist) {
+            minDist = d;
+            nearest = r;
+          }
+        });
+        if (nearest) selectedRepeaterId = nearest.id;
+      }
+
       renderMapElements();
       renderTerrainProfile();
+      renderInspector();
       renderRepeaterList();
       renderScotlandNets();
 
       if (map) {
-        map.panTo([qth.lat, qth.lng], { animate: true, duration: 0.6 });
+        map.setView([qth.lat, qth.lng], qth.zoom || 8, { animate: true });
       }
     }
 
@@ -3092,7 +3263,7 @@
       const inputEl = document.getElementById('custom-locator-input');
       const rawLoc = (inputEl ? inputEl.value : '').trim().toUpperCase();
       if (rawLoc.length < 4 || !/^[A-R]{2}[0-9]{2}/i.test(rawLoc)) {
-        if (inputEl) inputEl.value = 'IO75PX';
+        if (inputEl) inputEl.value = 'IO92FL';
         return;
       }
       const coords = locatorToLatLng(rawLoc, '');
@@ -3106,6 +3277,7 @@
         locator: formattedLoc,
         lat: coords.lat,
         lng: coords.lng,
+        zoom: 9,
         elevMeters: 45,
         desc: 'Custom UK Maidenhead Grid Locator QTH (' + formattedLoc + ').'
       };
@@ -3130,6 +3302,7 @@
             locator: loc,
             lat: lat,
             lng: lng,
+            zoom: 10,
             elevMeters: alt,
             desc: 'Live device GPS location (' + lat + ', ' + lng + ' • Grid ' + loc + ').'
           };
@@ -3179,7 +3352,7 @@
 
     function setBandFilter(band) {
       activeBandFilter = band;
-      ['ALL', '2m', '70cm', '6m'].forEach(function(b) {
+      ['ALL', '2m', '70cm', '6m', '23cm'].forEach(function(b) {
         const btn = document.getElementById('filter-band-' + b);
         if (btn) btn.className = b === band ? 'pill-btn active' : 'pill-btn';
       });
@@ -3247,7 +3420,7 @@
     }
 
     /*************************************************************************
-     * 8. SCOTTISH HAM NETS (NETFINDER.RADIO) DIRECTORY & MAP INTEGRATION
+     * 8. UK HAM NETS (NETFINDER.RADIO) DIRECTORY & MAP INTEGRATION
      *************************************************************************/
     function getTodayShortName() {
       const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -3309,7 +3482,7 @@
       showNetMarkersOnMap = true;
       renderMapElements();
       if (map) {
-        map.setView([56.35, -4.10], 7, { animate: true });
+        map.setView([54.30, -2.90], 6, { animate: true });
       }
       const mapCard = document.getElementById('rf-map');
       if (mapCard) {
@@ -3345,7 +3518,7 @@
       if (!container) return;
       container.innerHTML = '';
 
-      const qth = QTH_LOCATIONS[currentQTH];
+      const qth = QTH_LOCATIONS[currentQTH] || QTH_LOCATIONS.england_midlands;
       const todayShort = getTodayShortName();
       const q = netSearchQuery.trim().toLowerCase();
 
@@ -3472,10 +3645,10 @@
       const iconEl = document.getElementById('net-sync-icon');
       const textEl = document.getElementById('net-sync-text');
       if (iconEl) iconEl.classList.add('fa-spin');
-      if (textEl) textEl.textContent = 'Syncing netfinder.radio/nets/country/scotland...';
+      if (textEl) textEl.textContent = 'Syncing netfinder.radio/nets/country/united-kingdom...';
 
       try {
-        const target = 'https://netfinder.radio/nets/country/scotland';
+        const target = 'https://netfinder.radio/nets/country/united-kingdom';
         const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(target);
         const controller = new AbortController();
         const tid = setTimeout(function() { controller.abort(); }, 6500);
@@ -3485,12 +3658,12 @@
         if (resp.ok) {
           const data = await resp.json();
           if (data && data.contents && textEl) {
-            textEl.textContent = 'Live Synced with netfinder.radio (' + SCOTLAND_NETS.length + ' Scottish Nets)';
+            textEl.textContent = 'Live Synced with netfinder.radio (' + SCOTLAND_NETS.length + ' UK Nets)';
           }
         }
       } catch (e) {
         if (textEl) {
-          textEl.textContent = 'NetFinder Scotland Directory Active (' + SCOTLAND_NETS.length + ' Nets)';
+          textEl.textContent = 'NetFinder UK Directory Active (' + SCOTLAND_NETS.length + ' Nets)';
         }
       }
 
@@ -3500,11 +3673,8 @@
 
     window.addEventListener('DOMContentLoaded', function() {
       initMap();
-      renderTerrainProfile();
-      renderInspector();
-      renderRepeaterList();
       renderScotlandNets();
-      syncLiveUKRepeaterScotlandList();
+      loadAllUKRepeatersFromCSV();
 
       window.addEventListener('resize', function() {
         renderTerrainProfile();
