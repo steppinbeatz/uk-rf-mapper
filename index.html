@@ -6,7 +6,7 @@
   <title>UK RF Repeater, NetFinder & Terrain Mapper</title>
 
   <!-- PWA Manifest & iOS Support -->
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.jso-n">
   <meta name="theme-color" content="#06b6d4">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -702,9 +702,9 @@
           </div>
         </div>
 
-        <div class="legend-bar mono">
-          <div class="legend-item"><span class="dot" style="background: var(--cyan);"></span><span>New / Highlight</span></div>
-          <div class="legend-item"><span class="dot" style="background: var(--emerald);"></span><span>Operational</span></div>
+          <div class="legend-bar mono">
+          <div class="legend-item"><span class="dot" style="background: var(--cyan);"></span><span>Digital / Multi-Mode (DMR/YSF/D-STAR)</span></div>
+          <div class="legend-item"><span class="dot" style="background: var(--emerald);"></span><span>Analogue FM</span></div>
           <div class="legend-item"><span class="dot" style="background: var(--amber);"></span><span>Gateway / Reduced</span></div>
           <div class="legend-item"><span class="dot" style="background: var(--purple);"></span><span>6m / 10m / 23cm / TETRA</span></div>
           <div class="legend-item"><span class="dot" style="background: var(--rose);"></span><span>Not Operational</span></div>
@@ -1872,7 +1872,8 @@
           const dmrDefaults = getRegionalDefaultDmrTGs(regionGroup);
 
           const isSpecialBand = (band === '6m/10m' || band === '23cm');
-          const color = isSpecialBand ? '#a855f7' : '#10b981';
+          const hasDigital = (isDmr || isFusion || isDstar);
+          const color = isSpecialBand ? '#a855f7' : (hasDigital ? '#06b6d4' : '#10b981');
 
           const coveragePolygon = [];
           for (let p = 0; p < 8; p++) {
@@ -1916,7 +1917,7 @@
             lng: lng,
             siteElev: siteElev,
             status: 'OPERATIONAL',
-            statusType: 'active',
+            statusType: hasDigital ? 'new' : 'active',
             band: band,
             rawBand: rawBand,
             channel: channel,
@@ -2730,9 +2731,29 @@
         .addTo(map)
         .bindPopup('<strong>' + qth.name + ' QTH (' + qth.locator + ')</strong><br>' + qth.desc);
 
-      REPEATERS.forEach(function(rep) {
+REPEATERS.forEach(function(rep) {
         const isSelected = rep.id === selectedRepeaterId;
-        if (activeRegionGroupFilter !== 'ALL' && rep.regionGroup !== activeRegionGroupFilter && !isSelected) {
+
+        const hasExtra2m = rep.extraBands && rep.extraBands.indexOf('2m') !== -1;
+        const hasExtra70cm = rep.extraBands && rep.extraBands.indexOf('70cm') !== -1;
+        const hasExtra4m = rep.extraBands && rep.extraBands.indexOf('4m') !== -1;
+
+        const bandMatch =
+          activeBandFilter === 'ALL' ||
+          (activeBandFilter === '2m' && (rep.band === '2m' || hasExtra2m)) ||
+          (activeBandFilter === '70cm' && (rep.band === '70cm' || hasExtra70cm)) ||
+          (activeBandFilter === '6m' && (rep.band === '6m/10m' || rep.band === '6m/4m' || hasExtra4m)) ||
+          (activeBandFilter === '23cm' && rep.band === '23cm');
+
+        const modeMatch =
+          activeModeFilter === 'ALL' ||
+          rep.modes.indexOf(activeModeFilter) !== -1;
+
+        const regionMatch =
+          activeRegionGroupFilter === 'ALL' ||
+          rep.regionGroup === activeRegionGroupFilter;
+
+        if ((!bandMatch || !modeMatch || !regionMatch) && !isSelected) {
           return;
         }
 
