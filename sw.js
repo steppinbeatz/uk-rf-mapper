@@ -1,7 +1,8 @@
-const CACHE_NAME = 'rf-mapper-v3';
+const CACHE_NAME = 'rf-mapper-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
+  './repeaterlist_all.csv',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
