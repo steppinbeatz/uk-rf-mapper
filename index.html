@@ -6,7 +6,7 @@
   <title>UK RF Repeater, NetFinder & Terrain Mapper</title>
 
   <!-- PWA Manifest & iOS Support -->
-  <link rel="manifest" href="manifest.jso-n">
+  <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#06b6d4">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -902,16 +902,22 @@
             id="net-search-input"
             class="search-input mono"
             oninput="onNetSearchInput(this.value)"
-            placeholder="Search UK net name, club, town, frequency, TG, repeater (e.g. HUBNet, GB2RS, Wythall, Manchester, Phoenix)..."
+            placeholder="Search net name, AllStar node (e.g. 53937, 41223), DMR TG (23556), club, town, freq..."
           />
+          <select id="net-country-select" onchange="setNetCountryFilter(this.value)" class="search-input mono" style="flex: 0 0 auto; width: auto; padding: 6px 8px; font-size: 11px; border-color: var(--cyan);">
+            <option value="ALL">All UK & Scotland Nets</option>
+            <option value="Scotland">Scotland Nets (netfinder/scotland)</option>
+            <option value="UK">UK National & Regional (netfinder/uk)</option>
+            <option value="RSGB">RSGB Weekly Regional News Nets</option>
+          </select>
           <div class="filter-row mono">
             <span style="font-size: 11px; color: var(--text-muted);">Band/Mode:</span>
             <button onclick="setNetModeFilter('ALL')" id="net-mode-ALL" class="pill-btn active">All</button>
+            <button onclick="setNetModeFilter('AllStar')" id="net-mode-AllStar" class="pill-btn">AllStar / EchoLink</button>
+            <button onclick="setNetModeFilter('DMR')" id="net-mode-DMR" class="pill-btn">DMR / DV</button>
             <button onclick="setNetModeFilter('2m')" id="net-mode-2m" class="pill-btn">2m VHF</button>
             <button onclick="setNetModeFilter('70cm')" id="net-mode-70cm" class="pill-btn">70cm UHF</button>
-            <button onclick="setNetModeFilter('DMR')" id="net-mode-DMR" class="pill-btn">DMR / DV</button>
-            <button onclick="setNetModeFilter('AllStar')" id="net-mode-AllStar" class="pill-btn">AllStar / EchoLink</button>
-            <button onclick="setNetModeFilter('HF')" id="net-mode-HF" class="pill-btn">80m / 40m / CW</button>
+            <button onclick="setNetModeFilter('HF')" id="net-mode-HF" class="pill-btn">HF / 6m / 4m / CW</button>
           </div>
         </div>
 
@@ -1960,32 +1966,207 @@
     }
 
     /*************************************************************************
-     * 3B. UK & SCOTLAND HAM RADIO NETS DATASET (NETFINDER.RADIO UK)
+     * 3B. UK & SCOTLAND HAM RADIO NETS DATASET (NETFINDER SCOTLAND + UK + RSGB)
      *************************************************************************/
     const SCOTLAND_NETS = [
       {
-        id: 'NET-UK-HUBNET',
-        name: 'HUBNet UK AllStar & EchoLink National Net',
-        region: 'United Kingdom Wide (AllStar / EchoLink / Gateways)',
-        days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        timeLocal: '19:00 UK (Daily)',
-        band: '2m & 70cm AllStar',
+        id: 'NET-DVSPH-C2C',
+        name: 'DVSPh Network : Coast To Coast Net (GM5DVS)',
+        countryScope: 'Scotland',
+        region: 'Dundee / Scotland & UK Multi-Mode DX',
+        days: ['Sat'],
+        timeLocal: '20:00–22:00 UK (Saturdays)',
+        band: '70cm / Multi-Mode DV & AllStar',
+        mode: 'DMR / AllStar / D-STAR / YSF / EchoLink / M17',
+        tags: ['70cm', 'DMR', 'AllStar'],
+        rxFreq: '430.9375',
+        txFreq: '438.5375',
+        offset: '+7.6 MHz',
+        toneOrCC: 'DMR TS2 TG 23556 | AllStar Hub 53937',
+        allstarNode: '53937 (DVSPh Hub)',
+        echolinkNode: 'GM5DVS-L',
+        dmrTg: 'TG 23556 (TS2)',
+        dvReflectors: 'D-STAR: XLX600D | YSF: 0-DVSPh | M17: 235',
+        linkedRepeaterId: 'GB3DD',
+        secondaryRepeaterId: 'GB7GR',
+        lat: 56.4720,
+        lng: -2.9710,
+        locator: 'IO86ll',
+        codeplugSettings: 'AllStar Hub: 53937 | DMR: TG 23556 (Slot 2) | D-STAR: XLX600D | YSF: 0-DVSPh | EchoLink: GM5DVS-L',
+        notes: 'Hosted every Saturday night (8pm–10pm UK) by Kevin GM4BBK using group callsign GM5DVS. Open multi-mode net linking AllStar Hub 53937, DMR TG 23556, XLX600D, and YSF 0-DVSPh.'
+      },
+      {
+        id: 'NET-PHOENIX-MON',
+        name: 'DV Scotland Phoenix : Monday Night Net (GM5DVS)',
+        countryScope: 'Scotland',
+        region: 'All Scotland (Multi-Protocol DV & AllStar)',
+        days: ['Mon'],
+        timeLocal: '20:00 UK (Mondays)',
+        band: '70cm / Multi-Mode DV',
+        mode: 'DMR / AllStar / D-STAR / YSF / EchoLink',
+        tags: ['70cm', 'DMR', 'AllStar'],
+        rxFreq: '430.9375',
+        txFreq: '438.5375',
+        offset: '+7.6 MHz',
+        toneOrCC: 'DMR TS2 TG 2355 / TG 23556 | AllStar 53937',
+        allstarNode: '53937',
+        echolinkNode: 'GM5DVS-L',
+        dmrTg: 'TG 2355 / TG 23556 (TS2)',
+        dvReflectors: 'D-STAR: XLX600D / DCS005B | YSF: 0-DVSPh',
+        linkedRepeaterId: 'GB7GR',
+        secondaryRepeaterId: 'GB3DM',
+        lat: 55.9550,
+        lng: -4.8190,
+        locator: 'IO75ll',
+        codeplugSettings: 'AllStar: 53937 | DMR: TS2 TG 2355 / 23556 | YSF: 0-DVSPh | D-STAR: XLX600D',
+        notes: 'National Scottish Digital Voice net bridging DMR, AllStar Hub 53937, D-STAR, Yaesu System Fusion, and EchoLink.'
+      },
+      {
+        id: 'NET-LOMOND',
+        name: 'Loch Lomond Sunday Night NET 8PM',
+        countryScope: 'Scotland',
+        region: 'Alexandria / Loch Lomond & Clyde',
+        days: ['Sun'],
+        timeLocal: '20:00 UK (Check-ins 19:45)',
+        band: '2m, 70cm & 4m AllStar',
         mode: 'FM / AllStar / EchoLink',
         tags: ['2m', '70cm', 'AllStar'],
         rxFreq: '145.3375',
         txFreq: '145.3375',
+        offset: 'Simplex (0.0 MHz)',
+        toneOrCC: 'CTCSS 103.5 Hz | AllStar Hub 67108',
+        allstarNode: '67108 (Hub) / 64460 (2m) / 64516 (70cm)',
+        echolinkNode: 'MB7IBH-L',
+        dmrTg: 'N/A (FM / AllStar)',
+        linkedRepeaterId: 'MB7IBH',
+        secondaryRepeaterId: 'MB7IDQ',
+        lat: 55.9890,
+        lng: -4.5820,
+        locator: 'IO75rx',
+        codeplugSettings: 'AllStar Hub: 67108 | 2m: MB7IBH 145.3375 MHz (Node 64460, 103.5 Hz) | 70cm: MB7IDQ 430.0125 MHz (Node 64516)',
+        notes: 'Multi-band Sunday night net linking 2m (MB7IBH), 70cm (MB7IDQ), and 4m (MB7IDR 70.350 MHz) across the Loch Lomond & Clyde basin.'
+      },
+      {
+        id: 'NET-UK-HUBNET',
+        name: 'HUBNet UK AllStar, DMR & EchoLink National Net',
+        countryScope: 'UK',
+        region: 'United Kingdom Wide (AllStar / EchoLink / DMR)',
+        days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        timeLocal: '19:00 UK (Daily)',
+        band: '2m, 70cm, AllStar & DMR',
+        mode: 'AllStar / EchoLink / DMR / YSF',
+        tags: ['2m', '70cm', 'AllStar', 'DMR'],
+        rxFreq: '145.3375',
+        txFreq: '145.3375',
         offset: 'Simplex / Gateway',
-        toneOrCC: '103.5 Hz (AllStar Node 41223 / 64460)',
+        toneOrCC: 'AllStar Node 41223 | DMR TG 23526',
+        allstarNode: '41223 (HUBNet Master)',
+        echolinkNode: 'HUBNET-R (925866)',
+        dmrTg: 'TG 23526 (BrandMeister)',
         linkedRepeaterId: 'MB7IBH',
         lat: 53.8000,
         lng: -1.5500,
         locator: 'IO93ft',
-        codeplugSettings: 'AllStar Node 41223 (HUBNet) | EchoLink: HUBNET-R | Accessible via local UK AllStar Simplex Gateways',
-        notes: 'The largest interconnected FM/AllStar/EchoLink hub in the United Kingdom, linking dozens of simplex gateways and repeaters across England, Scotland, Wales, and NI.'
+        codeplugSettings: 'AllStar Node: 41223 | DMR: TG 23526 | EchoLink: HUBNET-R | Accessible via UK AllStar Gateways',
+        notes: 'The largest interconnected AllStar/EchoLink/DMR hub in the UK, linking simplex gateways and repeaters across England, Scotland, Wales, and NI.'
+      },
+      {
+        id: 'NET-UK-FMLINK',
+        name: 'UK FM Link & AllStar Multi-Repeater Net',
+        countryScope: 'UK',
+        region: 'United Kingdom Wide (AllStar Linked Repeaters)',
+        days: ['Tue', 'Thu', 'Sun'],
+        timeLocal: '20:00 UK',
+        band: '2m & 70cm AllStar',
+        mode: 'FM / AllStar',
+        tags: ['2m', '70cm', 'AllStar'],
+        rxFreq: '430.9000',
+        txFreq: '438.5000',
+        offset: '+7.6 MHz',
+        toneOrCC: 'AllStar Hub 43271',
+        allstarNode: '43271 (UK FM Link)',
+        echolinkNode: 'Via AllStar Bridge',
+        dmrTg: 'TG 23535 (Bridge)',
+        linkedRepeaterId: 'GB3GL',
+        lat: 53.4808,
+        lng: -2.2426,
+        locator: 'IO83tl',
+        codeplugSettings: 'AllStar Hub: 43271 | Linked UK FM Repeaters & Simplex Gateways',
+        notes: 'National UK AllStar linked FM repeater and gateway network.'
+      },
+      {
+        id: 'NET-RSGB-NORTH-OPS2M',
+        name: 'OPS-2m-NW VHF Simplex Net (RSGB North)',
+        countryScope: 'RSGB',
+        region: 'England North West (RSGB Regional News)',
+        days: ['Tue', 'Thu'],
+        timeLocal: '20:00 UK',
+        band: '2m',
+        mode: 'FM Simplex',
+        tags: ['2m'],
+        rxFreq: '145.3750',
+        txFreq: '145.3750',
+        offset: 'Simplex (0.0 MHz)',
+        toneOrCC: 'CSQ (2m VHF Simplex)',
+        allstarNode: 'N/A (Direct RF Simplex)',
+        dmrTg: 'N/A',
+        linkedRepeaterId: 'GB3MN',
+        lat: 53.5500,
+        lng: -2.3500,
+        locator: 'IO83tn',
+        codeplugSettings: '2m VHF FM Simplex: 145.3750 MHz (S15) — Horizontal or Vertical Polarisation',
+        notes: 'Featured in RSGB Regional News (England North): regular 2m VHF simplex net for licensed amateurs across the North West.'
+      },
+      {
+        id: 'NET-RSGB-SE-ANDOVER',
+        name: 'Andover Radio Amateur Club 4m Sunday Net (RSGB SE)',
+        countryScope: 'RSGB',
+        region: 'England South East / Hampshire (RSGB News)',
+        days: ['Sun'],
+        timeLocal: '10:30 UK (Sundays)',
+        band: '4m (70 MHz)',
+        mode: 'FM Simplex',
+        tags: ['HF', '2m'],
+        rxFreq: '70.4750',
+        txFreq: '70.4750',
+        offset: 'Simplex (0.0 MHz)',
+        toneOrCC: 'CSQ (4m Calling / Net)',
+        allstarNode: 'N/A',
+        dmrTg: 'N/A',
+        linkedRepeaterId: 'GB3BP',
+        lat: 51.2110,
+        lng: -1.4920,
+        locator: 'IO91gf',
+        codeplugSettings: '4m FM Simplex: 70.4750 MHz',
+        notes: 'Featured in RSGB Regional News (England South East): Andover RAC Sunday net on 70.475 MHz.'
+      },
+      {
+        id: 'NET-RSGB-SW-APPLEDORE',
+        name: 'Appledore & District ARC Top Band Net (RSGB SW)',
+        countryScope: 'RSGB',
+        region: 'England South West / Devon (RSGB News)',
+        days: ['Sun', 'Wed'],
+        timeLocal: '19:30 UK',
+        band: '160m (1.8 MHz)',
+        mode: 'SSB / AM',
+        tags: ['HF'],
+        rxFreq: '1.8600',
+        txFreq: '1.8600',
+        offset: 'Simplex LSB',
+        toneOrCC: '1.860 MHz LSB',
+        allstarNode: 'N/A',
+        dmrTg: 'N/A',
+        linkedRepeaterId: 'GB3WW',
+        lat: 51.0520,
+        lng: -4.1950,
+        locator: 'IO71vb',
+        codeplugSettings: '160m Top Band: 1.860 MHz LSB',
+        notes: 'Featured in RSGB Regional News (England South West): Appledore & District ARC net on 1.860 MHz.'
       },
       {
         id: 'NET-UK-WYTHALL',
         name: 'Wythall Radio Club & West Midlands Net',
+        countryScope: 'UK',
         region: 'Birmingham & West Midlands',
         days: ['Sun', 'Wed'],
         timeLocal: '20:00 UK',
@@ -1996,6 +2177,8 @@
         txFreq: '145.0000',
         offset: '-0.6 MHz',
         toneOrCC: '77.0 Hz (GB3NB RV48)',
+        allstarNode: 'N/A',
+        dmrTg: 'N/A',
         linkedRepeaterId: 'GB3NB',
         lat: 52.3700,
         lng: -1.8800,
@@ -2006,6 +2189,7 @@
       {
         id: 'NET-UK-GB2RS-NRC',
         name: 'GB2RS National News - Bletchley Park (RSGB NRC)',
+        countryScope: 'RSGB',
         region: 'Milton Keynes / South & Central England',
         days: ['Sun'],
         timeLocal: '10:00 UK (Sundays)',
@@ -2016,6 +2200,8 @@
         txFreq: '438.5250',
         offset: '+7.6 MHz',
         toneOrCC: '77.0 Hz (GB3BP RU74)',
+        allstarNode: 'N/A',
+        dmrTg: 'TG 2350 (UK Wide)',
         linkedRepeaterId: 'GB3BP',
         lat: 51.9970,
         lng: -0.7420,
@@ -2026,6 +2212,7 @@
       {
         id: 'NET-UK-MANCHESTER',
         name: 'Manchester & District ARS Net',
+        countryScope: 'UK',
         region: 'Greater Manchester & North West England',
         days: ['Tue', 'Thu'],
         timeLocal: '20:00 UK',
@@ -2036,6 +2223,8 @@
         txFreq: '145.1000',
         offset: '-0.6 MHz',
         toneOrCC: '82.5 Hz (GB3MN RV56)',
+        allstarNode: 'N/A',
+        dmrTg: 'N/A',
         linkedRepeaterId: 'GB3MN',
         lat: 53.4100,
         lng: -2.1500,
@@ -2046,6 +2235,7 @@
       {
         id: 'NET-UK-CARDIFF',
         name: 'Cardiff & South Wales Repeater Group Net',
+        countryScope: 'UK',
         region: 'Cardiff & South Wales',
         days: ['Wed', 'Sun'],
         timeLocal: '19:30 UK',
@@ -2056,6 +2246,8 @@
         txFreq: '438.5125',
         offset: '+7.6 MHz',
         toneOrCC: '94.8 Hz (GB3WW RU73)',
+        allstarNode: 'N/A',
+        dmrTg: 'TG 2354 (Wales)',
         linkedRepeaterId: 'GB3WW',
         lat: 51.4816,
         lng: -3.1791,
@@ -2066,6 +2258,7 @@
       {
         id: 'NET-UK-BELFAST',
         name: 'Belfast & Northern Ireland GB2RS + VHF Net',
+        countryScope: 'RSGB',
         region: 'Belfast & Northern Ireland (GI)',
         days: ['Sun', 'Thu'],
         timeLocal: '11:00 Sun / 20:00 Thu',
@@ -2076,6 +2269,8 @@
         txFreq: '145.0750',
         offset: '-0.6 MHz',
         toneOrCC: '110.9 Hz (GB3NI RV54)',
+        allstarNode: 'N/A',
+        dmrTg: 'TG 2356 (NI)',
         linkedRepeaterId: 'GB3NI',
         lat: 54.5973,
         lng: -5.9301,
@@ -2084,29 +2279,9 @@
         notes: 'Covers Northern Ireland and crosses the North Channel into Southwest Scotland.'
       },
       {
-        id: 'NET-LOMOND',
-        name: 'Loch Lomond Sunday Night NET 8PM',
-        region: 'Alexandria / Loch Lomond & Clyde',
-        days: ['Sun'],
-        timeLocal: '20:00 UK (Check-ins 19:45)',
-        band: '2m & 70cm',
-        mode: 'FM / AllStar / EchoLink',
-        tags: ['2m', '70cm', 'AllStar'],
-        rxFreq: '145.3375',
-        txFreq: '145.3375',
-        offset: 'Simplex (0.0 MHz)',
-        toneOrCC: 'CTCSS 103.5 Hz',
-        linkedRepeaterId: 'MB7IBH',
-        secondaryRepeaterId: 'MB7IDQ',
-        lat: 55.9890,
-        lng: -4.5820,
-        locator: 'IO75rx',
-        codeplugSettings: 'Ch 1: MB7IBH 145.3375 MHz Simplex (103.5 Hz) | Ch 2: MB7IDQ 430.0125 MHz Simplex (103.5 Hz) | AllStar Hub 67108',
-        notes: 'Multi-band Sunday night net linking 2m (MB7IBH), 70cm (MB7IDQ), and 4m (MB7IDR) across the Loch Lomond & Clyde basin.'
-      },
-      {
         id: 'NET-GB2RS-CLYDEBANK',
         name: 'GB2RS News + Net - Clydebank',
+        countryScope: 'Scotland',
         region: 'Clydebank / West Central Scotland',
         days: ['Sun'],
         timeLocal: '10:30 UK (Sundays)',
@@ -2117,6 +2292,8 @@
         txFreq: '438.5375',
         offset: '+7.6 MHz',
         toneOrCC: 'CC1 • TS2 TG 2355 / TG 23559',
+        allstarNode: '53937 (Bridge)',
+        dmrTg: 'TG 2355 / TG 23559',
         linkedRepeaterId: 'GB7GR',
         lat: 55.9020,
         lng: -4.4050,
@@ -2127,6 +2304,7 @@
       {
         id: 'NET-GB2RS-GLASGOW',
         name: 'GB2RS News + Net - Glasgow',
+        countryScope: 'Scotland',
         region: 'Glasgow & Clyde Valley',
         days: ['Sun'],
         timeLocal: '10:00 UK (Sundays)',
@@ -2147,6 +2325,7 @@
       {
         id: 'NET-GB2RS-LENZIE',
         name: 'GB2RS News + Net - Lenzie',
+        countryScope: 'Scotland',
         region: 'Lenzie / North Glasgow',
         days: ['Sun'],
         timeLocal: '10:00 UK (Sundays)',
@@ -2167,6 +2346,7 @@
       {
         id: 'NET-PAISLEY-VHF',
         name: 'Paisley Amateur Radio Club (2m Net)',
+        countryScope: 'Scotland',
         region: 'Paisley / Renfrewshire & Clyde',
         days: ['Wed'],
         timeLocal: '20:00 UK (Wednesdays)',
@@ -2187,6 +2367,7 @@
       {
         id: 'NET-PAISLEY-DMR',
         name: 'Paisley Amateur Radio Club (DMR Net)',
+        countryScope: 'Scotland',
         region: 'Paisley / West of Scotland',
         days: ['Mon', 'Thu'],
         timeLocal: '20:00 UK',
@@ -2197,6 +2378,7 @@
         txFreq: '438.5375',
         offset: '+7.6 MHz',
         toneOrCC: 'CC1 • TS1 TG 23559 (Scot West)',
+        dmrTg: 'TG 23559 (TS1)',
         linkedRepeaterId: 'GB7GR',
         lat: 55.8450,
         lng: -4.4230,
@@ -2207,6 +2389,7 @@
       {
         id: 'NET-GUWS',
         name: 'Glasgow University Wireless Society Net',
+        countryScope: 'Scotland',
         region: 'Glasgow West End (GM6UW)',
         days: ['Thu'],
         timeLocal: '19:30 UK (Thursdays)',
@@ -2227,6 +2410,7 @@
       {
         id: 'NET-GB2CW-GLASGOW',
         name: 'GB2CW FM Slow Morse and Net (Glasgow)',
+        countryScope: 'Scotland',
         region: 'Glasgow & Clyde Basin',
         days: ['Tue', 'Thu'],
         timeLocal: '20:00 UK',
@@ -2245,50 +2429,9 @@
         notes: 'Learn and practice Morse code on 2m VHF FM with voice chat between overs.'
       },
       {
-        id: 'NET-PHOENIX-MON',
-        name: 'DV Scotland Phoenix : Monday Night Net',
-        region: 'All Scotland (Multi-Protocol DV)',
-        days: ['Mon'],
-        timeLocal: '20:00 UK (Mondays)',
-        band: '70cm / Multi-Mode DV',
-        mode: 'DMR / D-STAR / YSF / AllStar / EchoLink',
-        tags: ['70cm', 'DMR', 'AllStar'],
-        rxFreq: '430.9375',
-        txFreq: '438.5375',
-        offset: '+7.6 MHz',
-        toneOrCC: 'DMR TG 2355 / YSF Scotland / D-STAR DCS005B',
-        linkedRepeaterId: 'GB7GR',
-        secondaryRepeaterId: 'GB3DM',
-        lat: 55.9550,
-        lng: -4.8190,
-        locator: 'IO75ll',
-        codeplugSettings: 'DMR: GB7GR TS2 TG 2355 (Scot Wide) | YSF/D-STAR: GB3DM Dumbarton (430.9250 MHz)',
-        notes: 'National Scottish Digital Voice net bridging DMR, D-STAR, Yaesu System Fusion, AllStar, and EchoLink.'
-      },
-      {
-        id: 'NET-PHOENIX-C2C',
-        name: 'DV Scotland Phoenix : Coast To Coast Net',
-        region: 'Scotland Wide (West to East Coast)',
-        days: ['Wed', 'Sun'],
-        timeLocal: '20:00 UK',
-        band: '70cm',
-        mode: 'DMR / D-STAR / Fusion / AllStar / DX',
-        tags: ['70cm', 'DMR', 'AllStar'],
-        rxFreq: '430.9250',
-        txFreq: '438.5250',
-        offset: '+7.6 MHz',
-        toneOrCC: 'GB3DM (YSF/D-STAR) or GB7GR (DMR TG 2355)',
-        linkedRepeaterId: 'GB3DM',
-        secondaryRepeaterId: 'GB7GR',
-        lat: 55.9480,
-        lng: -4.5520,
-        locator: 'IO75qx',
-        codeplugSettings: 'GB3DM Dumbarton (430.9250 / 438.5250) or GB7GR Gourock (430.9375, CC1, TS2 TG 2355)',
-        notes: 'Links operators from the Firth of Clyde & Hebrides across to Edinburgh, Fife, and Aberdeen.'
-      },
-      {
         id: 'NET-SPARC',
         name: 'Strathclyde Park Amateur Radio Club Net',
+        countryScope: 'Scotland',
         region: 'Motherwell / Glasgow & Clyde Valley',
         days: ['Tue'],
         timeLocal: '19:30 UK (Tuesdays)',
@@ -2309,6 +2452,7 @@
       {
         id: 'NET-MLARS',
         name: 'Mid Lanarkshire Amateur Radio Society Net',
+        countryScope: 'Scotland',
         region: 'Lanarkshire / Central Belt',
         days: ['Wed', 'Fri'],
         timeLocal: '20:00 UK',
@@ -2319,6 +2463,7 @@
         txFreq: '438.4500',
         offset: '+7.6 MHz',
         toneOrCC: 'CC7 (GB7GL) or CC1 (GB7GR TG 2355)',
+        dmrTg: 'TG 2355 (TS2)',
         linkedRepeaterId: 'GB7GL',
         lat: 55.8640,
         lng: -4.2500,
@@ -2329,6 +2474,7 @@
       {
         id: 'NET-KLARC-CW',
         name: 'Kilmarnock and Loudoun ARC (80m CW Net)',
+        countryScope: 'Scotland',
         region: 'Ayrshire & West Scotland',
         days: ['Mon', 'Thu'],
         timeLocal: '19:30 UK',
@@ -2349,6 +2495,7 @@
       {
         id: 'NET-FALKIRK',
         name: 'Falkirk Club Net (Stirlingshire)',
+        countryScope: 'Scotland',
         region: 'Falkirk / Stirling & Forth Valley',
         days: ['Wed'],
         timeLocal: '20:00 UK (Wednesdays)',
@@ -2369,6 +2516,7 @@
       {
         id: 'NET-LIVINGSTON',
         name: 'Livingston and District ARS Net',
+        countryScope: 'Scotland',
         region: 'West Lothian',
         days: ['Tue'],
         timeLocal: '20:00 UK (Tuesdays)',
@@ -2389,6 +2537,7 @@
       {
         id: 'NET-EDINBURGH-EDARS',
         name: 'Edinburgh and District ARS Net (EDARS)',
+        countryScope: 'Scotland',
         region: 'Edinburgh & Lothians',
         days: ['Thu'],
         timeLocal: '20:00 UK (Thursdays)',
@@ -2409,6 +2558,7 @@
       {
         id: 'NET-GB2RS-EDINBURGH',
         name: 'GB2RS News + Net - Edinburgh',
+        countryScope: 'Scotland',
         region: 'Edinburgh & Forth Basin',
         days: ['Sun'],
         timeLocal: '10:00 UK (Sundays)',
@@ -2429,6 +2579,7 @@
       {
         id: 'NET-KINGDOM-FIFE',
         name: 'Kingdom Amateur Radio Society Net (Fife)',
+        countryScope: 'Scotland',
         region: 'Fife (Upper Largo / Kirkcaldy)',
         days: ['Wed'],
         timeLocal: '20:00 UK (Wednesdays)',
@@ -2449,6 +2600,7 @@
       {
         id: 'NET-WIGTOWNSHIRE-GB3DG',
         name: 'Wigtownshire ARC & D&G RAYNET GB3DG Net',
+        countryScope: 'Scotland',
         region: 'Dumfries & Galloway (South West)',
         days: ['Wed'],
         timeLocal: '19:30 UK (Wednesdays)',
@@ -2459,6 +2611,7 @@
         txFreq: '145.1750',
         offset: '-0.6 MHz',
         toneOrCC: '103.5 Hz (GB3DG RV62)',
+        echolinkNode: 'GB3DG-R',
         linkedRepeaterId: 'GB3DG',
         lat: 54.9600,
         lng: -4.4800,
@@ -2469,6 +2622,7 @@
       {
         id: 'NET-GB2RS-PERTH',
         name: 'GB2RS News + Net - Perth',
+        countryScope: 'Scotland',
         region: 'Perth & Tayside',
         days: ['Sun'],
         timeLocal: '10:30 UK (Sundays)',
@@ -2489,6 +2643,7 @@
       {
         id: 'NET-DUNDEE-DARC',
         name: 'Dundee Amateur Radio Club Net',
+        countryScope: 'Scotland',
         region: 'Dundee & Angus',
         days: ['Tue'],
         timeLocal: '19:30 UK (Tuesdays)',
@@ -2509,6 +2664,7 @@
       {
         id: 'NET-GB2RS-DUNS',
         name: 'GB2RS News + Net - Chirnside and Duns',
+        countryScope: 'Scotland',
         region: 'Scottish Borders (Duns)',
         days: ['Sun'],
         timeLocal: '10:15 UK (Sundays)',
@@ -2529,6 +2685,7 @@
       {
         id: 'NET-GB2RS-ELGIN',
         name: 'GB2RS News + Net - Elgin (Moray)',
+        countryScope: 'Scotland',
         region: 'Elgin / Moray Firth',
         days: ['Sun'],
         timeLocal: '11:00 UK (Sundays)',
@@ -2549,6 +2706,7 @@
       {
         id: 'NET-CAITHNESS',
         name: 'Caithness Amateur Radio Society Net',
+        countryScope: 'Scotland',
         region: 'Caithness (Far North Highlands)',
         days: ['Sun', 'Wed'],
         timeLocal: '10:30 Sun / 20:00 Wed',
@@ -2569,6 +2727,7 @@
       {
         id: 'NET-GB2RS-KIRKWALL',
         name: 'GB2RS News + Net - Kirkwall (Orkney)',
+        countryScope: 'Scotland',
         region: 'Kirkwall / Orkney Islands',
         days: ['Sun'],
         timeLocal: '10:30 UK (Sundays)',
@@ -3403,6 +3562,7 @@
       if (statusTextEl) statusTextEl.textContent = 'Syncing UK Directory...';
 
       await loadAllUKRepeatersFromCSV();
+      await syncLiveScotlandNets();
 
       let discoveredNewCount = 0;
       try {
@@ -3703,11 +3863,18 @@
     }
 
     /*************************************************************************
-     * 8. UK HAM NETS (NETFINDER.RADIO) DIRECTORY & MAP INTEGRATION
+     * 8. UK & SCOTLAND HAM NETS (NETFINDER + RSGB NEWS) DIRECTORY & LIVE SYNC
      *************************************************************************/
+    let activeNetCountryFilter = 'ALL';
+
     function getTodayShortName() {
       const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       return days[new Date().getDay()];
+    }
+
+    function setNetCountryFilter(scope) {
+      activeNetCountryFilter = scope || 'ALL';
+      renderScotlandNets();
     }
 
     function setNetDayFilter(day) {
@@ -3777,7 +3944,7 @@
       const net = SCOTLAND_NETS.find(function(n) { return n.id === netId; });
       if (!net) return;
 
-      const numMatch = net.toneOrCC.match(/([0-9]+\.[0-9]+)/);
+      const numMatch = (net.toneOrCC || '').match(/([0-9]+\.[0-9]+)/);
       const toneVal = numMatch ? numMatch[1] : '103.5';
       const csvRow = net.id.replace('NET-', '') + ',' + net.rxFreq + ',' + net.offset.replace(' MHz', '') + ',' + toneVal + ',' + toneVal + ',' + net.mode.split('/')[0].trim() + ',' + net.name + ',,,,..';
 
@@ -3806,6 +3973,11 @@
       const q = netSearchQuery.trim().toLowerCase();
 
       const filtered = SCOTLAND_NETS.filter(function(net) {
+        const countryMatch =
+          activeNetCountryFilter === 'ALL' ||
+          net.countryScope === activeNetCountryFilter ||
+          (activeNetCountryFilter === 'Scotland' && net.region.toLowerCase().indexOf('scotland') !== -1);
+
         const dayMatch =
           activeNetDayFilter === 'ALL' ||
           (activeNetDayFilter === 'TODAY' && net.days.indexOf(todayShort) !== -1) ||
@@ -3813,7 +3985,9 @@
 
         const modeMatch =
           activeNetModeFilter === 'ALL' ||
-          net.tags.indexOf(activeNetModeFilter) !== -1;
+          net.tags.indexOf(activeNetModeFilter) !== -1 ||
+          (activeNetModeFilter === 'AllStar' && (net.allstarNode || net.echolinkNode || net.mode.toLowerCase().indexOf('allstar') !== -1)) ||
+          (activeNetModeFilter === 'DMR' && (net.dmrTg || net.mode.toLowerCase().indexOf('dmr') !== -1));
 
         const searchMatch =
           !q ||
@@ -3822,9 +3996,12 @@
           net.rxFreq.indexOf(q) !== -1 ||
           net.mode.toLowerCase().indexOf(q) !== -1 ||
           net.codeplugSettings.toLowerCase().indexOf(q) !== -1 ||
+          (net.allstarNode && net.allstarNode.toLowerCase().indexOf(q) !== -1) ||
+          (net.echolinkNode && net.echolinkNode.toLowerCase().indexOf(q) !== -1) ||
+          (net.dmrTg && net.dmrTg.toLowerCase().indexOf(q) !== -1) ||
           (net.linkedRepeaterId && net.linkedRepeaterId.toLowerCase().indexOf(q) !== -1);
 
-        return dayMatch && modeMatch && searchMatch;
+        return countryMatch && dayMatch && modeMatch && searchMatch;
       });
 
       filtered.sort(function(a, b) {
@@ -3860,6 +4037,23 @@
           return '<span class="day-dot mono ' + (isOn ? 'on' : '') + '" title="' + d.key + '">' + d.label + '</span>';
         }).join('');
 
+        const hasAllStar = net.allstarNode && net.allstarNode.indexOf('N/A') === -1;
+        const hasDmr = net.dmrTg && net.dmrTg.indexOf('N/A') === -1;
+
+        const allstarRowHtml = hasAllStar
+          ? '<div style="display:flex;justify-content:space-between;gap:6px;">' +
+              '<span style="color:var(--text-muted);">AllStar / EchoLink:</span>' +
+              '<strong style="color:var(--amber);">Node ' + net.allstarNode + (net.echolinkNode ? ' • ' + net.echolinkNode : '') + '</strong>' +
+            '</div>'
+          : '';
+
+        const dmrRowHtml = hasDmr
+          ? '<div style="display:flex;justify-content:space-between;gap:6px;">' +
+              '<span style="color:var(--text-muted);">DMR Talkgroup:</span>' +
+              '<strong style="color:var(--cyan);">' + net.dmrTg + (net.dvReflectors ? ' • ' + net.dvReflectors : '') + '</strong>' +
+            '</div>'
+          : '';
+
         const card = document.createElement('div');
         card.className = 'net-card' + (isSelected ? ' active-net' : '');
 
@@ -3870,6 +4064,8 @@
                 '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
                   '<strong style="font-size:13px;color:#ffffff;">' + net.name + '</strong>' +
                   (isToday ? '<span class="badge badge-emerald mono" style="font-size:9px;">ON TODAY (' + todayShort.toUpperCase() + ')</span>' : '') +
+                  (hasAllStar ? '<span class="badge badge-amber mono" style="font-size:9px;">ALLSTAR</span>' : '') +
+                  (hasDmr ? '<span class="badge badge-cyan mono" style="font-size:9px;">DMR/DV</span>' : '') +
                 '</div>' +
                 '<div class="mono" style="font-size:11px;color:var(--text-muted);margin-top:2px;">' +
                   net.region + ' • Grid: <strong style="color:#cbd5e1;">' + net.locator + '</strong>' +
@@ -3897,6 +4093,8 @@
                 '<span style="color:var(--text-muted);">Tone / Access:</span>' +
                 '<strong style="color:#6ee7b7;">' + net.toneOrCC + '</strong>' +
               '</div>' +
+              allstarRowHtml +
+              dmrRowHtml +
               '<div style="display:flex;justify-content:space-between;gap:6px;">' +
                 '<span style="color:var(--text-muted);">Repeater / Hub:</span>' +
                 '<strong style="color:#fff;">' + (net.linkedRepeaterId || 'Simplex') + (net.secondaryRepeaterId ? ' + ' + net.secondaryRepeaterId : '') + '</strong>' +
@@ -3912,10 +4110,10 @@
           '</div>' +
 
           '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;border-top:1px solid var(--border);padding-top:8px;">' +
-            '<button onclick="inspectNetOnMapAndTerrain(\'' + net.id + '\')" class="btn active-cyan mono" style="font-size:11px;padding:5px 10px;flex:1;justify-content:center;">' +
+            '<button onclick="inspectNetOnMapAndTerrain('' + net.id + '')" class="btn active-cyan mono" style="font-size:11px;padding:5px 10px;flex:1;justify-content:center;">' +
               '<i class="fa-solid fa-route"></i> Path & Inspect (' + (net.linkedRepeaterId || 'Map') + ')' +
             '</button>' +
-            '<button onclick="copyNetChirpRow(\'' + net.id + '\', this)" class="btn btn-outline mono" style="font-size:11px;padding:5px 9px;">' +
+            '<button onclick="copyNetChirpRow('' + net.id + '', this)" class="btn btn-outline mono" style="font-size:11px;padding:5px 9px;">' +
               '<i class="fa-regular fa-copy"></i> CSV' +
             '</button>' +
           '</div>';
@@ -3924,34 +4122,188 @@
       });
     }
 
+    /**
+     * Live scrapes NetFinder (Scotland + UK) AND RSGB Weekly Regional News posts
+     */
     async function syncLiveScotlandNets() {
       const iconEl = document.getElementById('net-sync-icon');
       const textEl = document.getElementById('net-sync-text');
       if (iconEl) iconEl.classList.add('fa-spin');
-      if (textEl) textEl.textContent = 'Syncing netfinder.radio/nets/country/united-kingdom...';
+      if (textEl) textEl.textContent = 'Syncing NetFinder (Scotland + UK) & RSGB Weekly News...';
 
-      try {
-        const target = 'https://netfinder.radio/nets/country/united-kingdom';
-        const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(target);
+      let addedCount = 0;
+
+      // Helper to fetch HTML via CORS proxy
+      async function fetchHtmlViaProxy(url) {
+        const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
         const controller = new AbortController();
-        const tid = setTimeout(function() { controller.abort(); }, 6500);
+        const tid = setTimeout(function() { controller.abort(); }, 8000);
         const resp = await fetch(proxy, { signal: controller.signal });
         clearTimeout(tid);
+        if (!resp.ok) return null;
+        const json = await resp.json();
+        return (json && json.contents) ? json.contents : null;
+      }
 
-        if (resp.ok) {
-          const data = await resp.json();
-          if (data && data.contents && textEl) {
-            textEl.textContent = 'Live Synced with netfinder.radio (' + SCOTLAND_NETS.length + ' UK Nets)';
-          }
-        }
-      } catch (e) {
-        if (textEl) {
-          textEl.textContent = 'NetFinder UK Directory Active (' + SCOTLAND_NETS.length + ' Nets)';
+      // 1. Scrape NetFinder Scotland & United Kingdom pages
+      const netfinderUrls = [
+        { url: 'https://netfinder.radio/nets/country/scotland', scope: 'Scotland', defaultLat: 55.95, defaultLng: -4.25, defaultLoc: 'IO75vu' },
+        { url: 'https://netfinder.radio/nets/country/united-kingdom', scope: 'UK', defaultLat: 52.85, defaultLng: -1.85, defaultLoc: 'IO92fl' }
+      ];
+
+      for (let i = 0; i < netfinderUrls.length; i++) {
+        try {
+          const item = netfinderUrls[i];
+          const html = await fetchHtmlViaProxy(item.url);
+          if (!html) continue;
+
+          const doc = new DOMParser().parseFromString(html, 'text/html');
+          const links = doc.querySelectorAll('a[href*="/nets/view/"]');
+
+          links.forEach(function(a) {
+            const title = (a.textContent || '').trim();
+            if (!title || title.length < 4 || title.toLowerCase() === 'view') return;
+
+            const exists = SCOTLAND_NETS.some(function(n) {
+              return n.name.toLowerCase().indexOf(title.toLowerCase().slice(0, 14)) !== -1;
+            });
+            if (exists) return;
+
+            const cardEl = a.closest('.card, tr, li, div') || a.parentElement;
+            const contextText = cardEl ? cardEl.textContent : title;
+
+            const freqMatch = contextText.match(/(\d{1,3}\.\d{3,4})/);
+            const rxFreq = freqMatch ? freqMatch[1] : '145.5000';
+            const allstarMatch = contextText.match(/AllStar\s*(?:Node|Hub)?\s*[:#]?\s*(\d{4,6})/i);
+            const tgMatch = contextText.match(/TG\s*(\d{2,6})/i);
+
+            const days = [];
+            if (/mon/i.test(contextText)) days.push('Mon');
+            if (/tue/i.test(contextText)) days.push('Tue');
+            if (/wed/i.test(contextText)) days.push('Wed');
+            if (/thu/i.test(contextText)) days.push('Thu');
+            if (/fri/i.test(contextText)) days.push('Fri');
+            if (/sat/i.test(contextText)) days.push('Sat');
+            if (/sun/i.test(contextText)) days.push('Sun');
+            if (days.length === 0) days.push('Sun');
+
+            const tags = ['2m'];
+            if (/allstar/i.test(contextText) || allstarMatch) tags.push('AllStar');
+            if (/dmr|d-star|fusion|ysf/i.test(contextText) || tgMatch) tags.push('DMR');
+            if (parseFloat(rxFreq) > 400) tags.push('70cm');
+
+            SCOTLAND_NETS.push({
+              id: 'NET-LIVE-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
+              name: title,
+              countryScope: item.scope,
+              region: item.scope + ' • Live NetFinder Sync',
+              days: days,
+              timeLocal: '20:00 UK',
+              band: parseFloat(rxFreq) > 400 ? '70cm' : '2m',
+              mode: tags.join(' / '),
+              tags: tags,
+              rxFreq: rxFreq,
+              txFreq: rxFreq,
+              offset: 'See NetFinder',
+              toneOrCC: allstarMatch ? ('AllStar ' + allstarMatch[1]) : 'See Net Info',
+              allstarNode: allstarMatch ? allstarMatch[1] : null,
+              dmrTg: tgMatch ? ('TG ' + tgMatch[1]) : null,
+              linkedRepeaterId: item.scope === 'Scotland' ? 'GB7GR' : 'GB3NB',
+              lat: item.defaultLat,
+              lng: item.defaultLng,
+              locator: item.defaultLoc,
+              codeplugSettings: 'Live synced from netfinder.radio (' + item.scope + ')',
+              notes: 'Discovered via live NetFinder sync: ' + a.href
+            });
+            addedCount++;
+          });
+        } catch (e) {
+          console.warn('NetFinder scrape warning:', e);
         }
       }
 
+      // 2. Scrape RSGB Weekly Regional News ("News Where You Are") & Dig Into Latest Regional Posts
+      try {
+        const rsgbIndexHtml = await fetchHtmlViaProxy('https://rsgb.org/main/news/news-where-you-are/');
+        if (rsgbIndexHtml) {
+          const indexDoc = new DOMParser().parseFromString(rsgbIndexHtml, 'text/html');
+          const postLinks = Array.from(indexDoc.querySelectorAll('a[href*="rsgb.org/main/blog/news/news-where-you-are/"]'))
+            .slice(0, 7); // Latest 7 regional weekly posts (Scotland, North, Midlands, SE, SW, Wales, NI)
+
+          for (let p = 0; p < postLinks.length; p++) {
+            const postUrl = postLinks[p].href;
+            const postTitle = (postLinks[p].textContent || 'RSGB Regional News').trim();
+            const postHtml = await fetchHtmlViaProxy(postUrl);
+            if (!postHtml) continue;
+
+            const postDoc = new DOMParser().parseFromString(postHtml, 'text/html');
+            const paragraphs = postDoc.querySelectorAll('p, li');
+
+            paragraphs.forEach(function(para) {
+              const txt = (para.textContent || '').trim();
+              // Look for sentences mentioning a "net" and a frequency in MHz
+              if (!/\bnet\b/i.test(txt) || !/(\d{1,3}\.\d{3,4})\s*MHz/i.test(txt)) return;
+
+              const freqMatch = txt.match(/(\d{1,3}\.\d{3,4})\s*MHz/i);
+              const freq = freqMatch ? freqMatch[1] : '145.5000';
+              const clubTitle = txt.split(/has a|holds a|runs a|meets|net/i)[0].trim().slice(0, 55) || postTitle;
+
+              const alreadyIn = SCOTLAND_NETS.some(function(n) {
+                return n.rxFreq === freq && n.name.toLowerCase().indexOf(clubTitle.toLowerCase().slice(0, 10)) !== -1;
+              });
+              if (alreadyIn) return;
+
+              const days = [];
+              if (/monday/i.test(txt)) days.push('Mon');
+              if (/tuesday/i.test(txt)) days.push('Tue');
+              if (/wednesday/i.test(txt)) days.push('Wed');
+              if (/thursday/i.test(txt)) days.push('Thu');
+              if (/friday/i.test(txt)) days.push('Fri');
+              if (/saturday/i.test(txt)) days.push('Sat');
+              if (/sunday/i.test(txt)) days.push('Sun');
+              if (days.length === 0) days.push('Sun');
+
+              const timeMatch = txt.match(/(\d{1,2}(?::\d{2})?\s*(?:am|pm|UTC|GMT|BST))/i);
+              const isScot = /scotland/i.test(postTitle);
+
+              SCOTLAND_NETS.push({
+                id: 'NET-RSGB-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
+                name: clubTitle + ' Net (RSGB Weekly)',
+                countryScope: isScot ? 'Scotland' : 'RSGB',
+                region: postTitle.replace('News for ', ''),
+                days: days,
+                timeLocal: timeMatch ? timeMatch[1] : '19:30 UK',
+                band: parseFloat(freq) < 50 ? 'HF' : (parseFloat(freq) > 400 ? '70cm' : '2m'),
+                mode: 'RSGB Club Net',
+                tags: [parseFloat(freq) < 50 ? 'HF' : (parseFloat(freq) > 400 ? '70cm' : '2m')],
+                rxFreq: freq,
+                txFreq: freq,
+                offset: 'Simplex / Club',
+                toneOrCC: 'RSGB Weekly Bulletin',
+                linkedRepeaterId: isScot ? 'GB3CS' : 'GB3NB',
+                lat: isScot ? 55.95 : 52.55,
+                lng: isScot ? -4.15 : -1.85,
+                locator: isScot ? 'IO75vu' : 'IO92fl',
+                codeplugSettings: freq + ' MHz — Extracted from ' + postTitle,
+                notes: txt.slice(0, 220)
+              });
+              addedCount++;
+            });
+          }
+        }
+      } catch (rsgbErr) {
+        console.warn('RSGB Regional News scrape warning:', rsgbErr);
+      }
+
       if (iconEl) iconEl.classList.remove('fa-spin');
+      if (textEl) {
+        textEl.textContent = addedCount > 0
+          ? 'Synced NetFinder (UK + Scotland) & RSGB News (+' + addedCount + ' New Nets)'
+          : 'Synced NetFinder (UK + Scotland) & RSGB News (' + SCOTLAND_NETS.length + ' Active Nets)';
+      }
+
       renderScotlandNets();
+      renderMapElements();
     }
 
     window.addEventListener('DOMContentLoaded', function() {
