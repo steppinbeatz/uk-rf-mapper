@@ -738,14 +738,13 @@
           </div>
         </div>
 
-        <div class="sub-box" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-          <div style="font-size: 12px; color: #cbd5e1;">
-            <i class="fa-solid fa-sliders" style="color: var(--cyan); margin-right: 5px;"></i>
-            <strong>Station Class / Antenna Elevation:</strong>
+        <div class="sub-box" style="display:flex;flex-direction:column;gap:6px;">
+          <div style="font-size:12px;color:#cbd5e1;">
+            <i class="fa-solid fa-tower-broadcast" style="color:var(--cyan);margin-right:5px;"></i>
+            <strong style="color:var(--cyan);">Operating guidance</strong>
           </div>
-          <div class="filter-row">
-            <button onclick="setRig('ht')" id="btn-rig-ht" class="pill-btn active mono">5W Handheld (2m AGL Whip)</button>
-            <button onclick="setRig('base')" id="btn-rig-base" class="pill-btn mono">50W Base / Mobile (12m AGL Collinear)</button>
+          <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">
+            Terrain results are a general path estimate. Actual performance depends on radio power, antenna type and height, feeder loss, local obstructions, receiver sensitivity and propagation conditions.
           </div>
         </div>
 
@@ -3303,9 +3302,10 @@
           '<div style="font-size:11px;color:#cbd5e1;"><strong>Slot 1 / Primary:</strong> <span id="insp-dv-ts1">' + (dv.ts1 || 'Standard Voice') + '</span></div>' +
           '<div style="font-size:11px;color:#cbd5e1;"><strong>Slot 2 / Secondary:</strong> <span id="insp-dv-ts2">' + (dv.ts2 || 'Local Output') + '</span></div>' +
         '</div>' +
-        '<div class="sub-box" style="display:flex;flex-direction:column;gap:6px;">' +
-          '<div><strong style="color:var(--amber);">Site & Propagation Note:</strong> ' + rep.funFact + '</div>' +
-          '<div style="border-top:1px solid var(--border);padding-top:6px;"><strong style="color:var(--cyan);">Operating guidance:</strong> ' + genericOperatingAdvice(rep) + '</div>' +
+        '<div class="sub-box"><strong style="color:var(--amber);">Site & Propagation Note:</strong> ' + rep.funFact + '</div>' +
+        '<div class="sub-box" style="border-left:3px solid var(--cyan);">' +
+          '<div style="margin-bottom:5px;"><strong style="color:var(--cyan);">Operating guidance</strong></div>' +
+          '<div>' + genericOperatingAdvice(rep) + '</div>' +
         '</div>';
 
       document.getElementById('inspector-content').innerHTML = html;
