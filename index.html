@@ -904,12 +904,12 @@
             oninput="onNetSearchInput(this.value)"
             placeholder="Search net name, AllStar node (e.g. 53937, 41223), DMR TG (23556), club, town, freq..."
           />
-          <select id="net-country-select" onchange="setNetCountryFilter(this.value)" class="search-input mono" style="flex: 0 0 auto; width: auto; padding: 6px 8px; font-size: 11px; border-color: var(--cyan);">
-            <option value="ALL">All UK & Scotland Nets</option>
-            <option value="Scotland">Scotland Nets (netfinder/scotland)</option>
-            <option value="UK">UK National & Regional (netfinder/uk)</option>
-            <option value="RSGB">RSGB Weekly Regional News Nets</option>
-          </select>
+          <div class="filter-row mono" aria-label="Net location filter">
+            <span style="font-size:11px;color:var(--text-muted);">Location:</span>
+            <button type="button" onclick="setNetCountryFilter('ALL')" id="net-country-ALL" class="pill-btn active">UK</button>
+            <button type="button" onclick="setNetCountryFilter('Scotland')" id="net-country-Scotland" class="pill-btn">Scotland</button>
+            <button type="button" onclick="setNetCountryFilter('England')" id="net-country-England" class="pill-btn">England</button>
+          </div>
           <div class="filter-row mono">
             <span style="font-size: 11px; color: var(--text-muted);">Band/Mode:</span>
             <button onclick="setNetModeFilter('ALL')" id="net-mode-ALL" class="pill-btn active">All</button>
@@ -2958,7 +2958,7 @@
 
           nMarker.bindPopup(
             '<div class="mono" style="font-size:11px;">' +
-              '<strong style="color:#fcd34d;">' + net.name + '</strong><br>' +
+              '<strong style="color:#fcd34d;">' + linkifyCallsigns(net.name) + '</strong><br>' +
               '<span>' + net.days.join(', ') + ' @ ' + net.timeLocal + '</span><br>' +
               '<span style="color:#67e8f9;">Freq: ' + net.rxFreq + ' MHz (' + net.toneOrCC + ')</span>' +
             '</div>'
@@ -3234,11 +3234,25 @@
     /*************************************************************************
      * 6. INSPECTOR, LIVE DMR TG FETCHER & DIRECTORY LIST
      *************************************************************************/
+    function qrzCallsignLink(callsign, label) {
+      const call = String(callsign || '').toUpperCase().split('-')[0];
+      const text = String(label || callsign || '');
+      return '<a class="qrz-link mono" href="https://www.qrz.com/db/' + encodeURIComponent(call) + '" target="_blank" rel="noopener noreferrer" title="Open ' + call + ' on QRZ.com">' + text + ' <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:8px;"></i></a>';
+    }
+
+    function linkifyCallsigns(text) {
+      const value = String(text || '');
+      const callPattern = /\b(?:2[A-Z][0-9][A-Z]{3}|[GM]{1,2}[0-9B][A-Z0-9]{2,3})\b/g;
+      return value.replace(callPattern, function(call) {
+        return qrzCallsignLink(call, call);
+      });
+    }
+
     function renderInspector() {
       const rep = REPEATERS.find(function(r) { return r.id === selectedRepeaterId; }) || REPEATERS[0];
       if (!rep) return;
 
-      document.getElementById('inspector-callsign-badge').textContent = rep.callsign;
+      document.getElementById('inspector-callsign-badge').innerHTML = qrzCallsignLink(rep.apiCallsign || rep.callsign, rep.callsign);
       const ukRepLink = document.getElementById('inspector-ukrep-link');
       if (ukRepLink) {
         ukRepLink.href = 'https://ukrepeater.net/my_repeater.php?id=' + encodeURIComponent(rep.apiCallsign);
@@ -3266,10 +3280,10 @@
         '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">' +
           '<div>' +
             '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
-              '<strong style="font-size:15px;color:#fff;">' + rep.name + '</strong> ' + modePills +
+              '<strong style="font-size:15px;color:#fff;">' + linkifyCallsigns(rep.name) + '</strong> ' + modePills +
             '</div>' +
             '<div class="mono" style="font-size:11px;color:var(--text-muted);margin-top:4px;">' +
-              'Status: <strong style="color:#6ee7b7;">' + rep.status + '</strong> • Grid: <strong style="color:#fff;">' + rep.locator + '</strong> • Region: <strong style="color:#fff;">' + (rep.regionGroup || rep.keeper) + '</strong>' +
+              'Status: <strong style="color:#6ee7b7;">' + linkifyCallsigns(rep.status) + '</strong> • Grid: <strong style="color:#fff;">' + rep.locator + '</strong> • Region: <strong style="color:#fff;">' + (rep.regionGroup || rep.keeper) + '</strong>' +
             '</div>' +
           '</div>' +
           '<div class="mono" style="text-align:right;font-size:12px;flex-shrink:0;">' +
@@ -3291,9 +3305,9 @@
           '<div style="font-size:11px;color:#cbd5e1;"><strong>Slot 2 / Secondary:</strong> <span id="insp-dv-ts2">' + (dv.ts2 || 'Local Output') + '</span></div>' +
         '</div>' +
         '<div class="sub-box" style="display:flex;flex-direction:column;gap:6px;">' +
-          '<div><strong style="color:var(--amber);">Site & Propagation Note:</strong> ' + rep.funFact + '</div>' +
-          '<div style="border-top:1px solid var(--border);padding-top:6px;"><strong style="color:var(--cyan);">5W Handheld (HT):</strong> ' + rep.htAdvice + '</div>' +
-          '<div style="border-top:1px solid var(--border);padding-top:6px;"><strong style="color:var(--emerald);">50W Base / Mobile:</strong> ' + rep.baseAdvice + '</div>' +
+          '<div><strong style="color:var(--amber);">Site & Propagation Note:</strong> ' + linkifyCallsigns(rep.funFact) + '</div>' +
+          '<div style="border-top:1px solid var(--border);padding-top:6px;"><strong style="color:var(--cyan);">5W Handheld (HT):</strong> ' + linkifyCallsigns(rep.htAdvice) + '</div>' +
+          '<div style="border-top:1px solid var(--border);padding-top:6px;"><strong style="color:var(--emerald);">50W Base / Mobile:</strong> ' + linkifyCallsigns(rep.baseAdvice) + '</div>' +
         '</div>';
 
       document.getElementById('inspector-content').innerHTML = html;
@@ -3531,7 +3545,7 @@
             '<span class="dot" style="background:' + dotColor + ';"></span>' +
             '<div style="min-width:0;">' +
               '<div class="mono" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
-                '<strong style="color:#fff;font-size:13px;">' + rep.callsign + '</strong>' +
+                '<strong style="color:#fff;font-size:13px;">' + qrzCallsignLink(rep.apiCallsign || rep.callsign, rep.callsign) + '</strong>' +
                 '<span style="font-size:10px;background:#1e293b;padding:1px 5px;border-radius:4px;color:#cbd5e1;">' + (rep.rawBand || rep.band) + '</span>' +
                 '<span style="font-size:10px;color:#67e8f9;">' + rep.modes.join('/') + '</span>' +
                 '<span style="font-size:10px;color:#64748b;">' + rep.rxFreq + '</span>' +
@@ -3661,6 +3675,9 @@
     function setQTH(qthId) {
       if (!QTH_LOCATIONS[qthId]) return;
       currentQTH = qthId;
+      sortBy = 'distance';
+      const sortBtn = document.getElementById('btn-sort-order');
+      if (sortBtn) sortBtn.innerHTML = '<i class="fa-solid fa-arrow-down-short-wide"></i> Dist';
       const qth = QTH_LOCATIONS[qthId];
 
       const selectEl = document.getElementById('uk-preset-select');
@@ -3874,6 +3891,10 @@
 
     function setNetCountryFilter(scope) {
       activeNetCountryFilter = scope || 'ALL';
+      ['ALL', 'Scotland', 'England'].forEach(function(item) {
+        const btn = document.getElementById('net-country-' + item);
+        if (btn) btn.className = item === activeNetCountryFilter ? 'pill-btn active' : 'pill-btn';
+      });
       renderScotlandNets();
     }
 
@@ -3973,10 +3994,11 @@
       const q = netSearchQuery.trim().toLowerCase();
 
       const filtered = SCOTLAND_NETS.filter(function(net) {
-        const countryMatch =
-          activeNetCountryFilter === 'ALL' ||
-          net.countryScope === activeNetCountryFilter ||
-          (activeNetCountryFilter === 'Scotland' && net.region.toLowerCase().indexOf('scotland') !== -1);
+        const regionText = String(net.region || '').toLowerCase();
+        const scopeText = String(net.countryScope || '').toLowerCase();
+        const isScotland = scopeText === 'scotland' || regionText.indexOf('scotland') !== -1 || regionText.indexOf('glasgow') !== -1 || regionText.indexOf('edinburgh') !== -1 || regionText.indexOf('fife') !== -1 || regionText.indexOf('perth') !== -1 || regionText.indexOf('dundee') !== -1 || regionText.indexOf('caithness') !== -1 || regionText.indexOf('orkney') !== -1;
+        const isEngland = !isScotland && regionText.indexOf('wales') === -1 && regionText.indexOf('northern ireland') === -1 && regionText.indexOf('belfast') === -1 && (scopeText === 'uk' || scopeText === 'rsgb' || regionText.indexOf('england') !== -1 || regionText.indexOf('london') !== -1 || regionText.indexOf('manchester') !== -1 || regionText.indexOf('birmingham') !== -1 || regionText.indexOf('milton keynes') !== -1 || regionText.indexOf('hampshire') !== -1 || regionText.indexOf('devon') !== -1);
+        const countryMatch = activeNetCountryFilter === 'ALL' || (activeNetCountryFilter === 'Scotland' && isScotland) || (activeNetCountryFilter === 'England' && isEngland);
 
         const dayMatch =
           activeNetDayFilter === 'ALL' ||
@@ -4062,13 +4084,13 @@
             '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">' +
               '<div>' +
                 '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
-                  '<strong style="font-size:13px;color:#ffffff;">' + net.name + '</strong>' +
+                  '<strong style="font-size:13px;color:#ffffff;">' + linkifyCallsigns(net.name) + '</strong>' +
                   (isToday ? '<span class="badge badge-emerald mono" style="font-size:9px;">ON TODAY (' + todayShort.toUpperCase() + ')</span>' : '') +
                   (hasAllStar ? '<span class="badge badge-amber mono" style="font-size:9px;">ALLSTAR</span>' : '') +
                   (hasDmr ? '<span class="badge badge-cyan mono" style="font-size:9px;">DMR/DV</span>' : '') +
                 '</div>' +
                 '<div class="mono" style="font-size:11px;color:var(--text-muted);margin-top:2px;">' +
-                  net.region + ' • Grid: <strong style="color:#cbd5e1;">' + net.locator + '</strong>' +
+                  linkifyCallsigns(net.region) + ' • Grid: <strong style="color:#cbd5e1;">' + net.locator + '</strong>' +
                 '</div>' +
               '</div>' +
               '<div class="mono" style="text-align:right;flex-shrink:0;">' +
@@ -4091,16 +4113,16 @@
               '</div>' +
               '<div style="display:flex;justify-content:space-between;gap:6px;">' +
                 '<span style="color:var(--text-muted);">Tone / Access:</span>' +
-                '<strong style="color:#6ee7b7;">' + net.toneOrCC + '</strong>' +
+                '<strong style="color:#6ee7b7;">' + linkifyCallsigns(net.toneOrCC) + '</strong>' +
               '</div>' +
               allstarRowHtml +
               dmrRowHtml +
               '<div style="display:flex;justify-content:space-between;gap:6px;">' +
                 '<span style="color:var(--text-muted);">Repeater / Hub:</span>' +
-                '<strong style="color:#fff;">' + (net.linkedRepeaterId || 'Simplex') + (net.secondaryRepeaterId ? ' + ' + net.secondaryRepeaterId : '') + '</strong>' +
+                '<strong style="color:#fff;">' + linkifyCallsigns((net.linkedRepeaterId || 'Simplex') + (net.secondaryRepeaterId ? ' + ' + net.secondaryRepeaterId : '')) + '</strong>' +
               '</div>' +
               '<div style="border-top:1px solid var(--border);padding-top:4px;margin-top:2px;color:#cbd5e1;font-size:10px;">' +
-                '<strong style="color:var(--cyan);">Codeplug:</strong> ' + net.codeplugSettings +
+                '<strong style="color:var(--cyan);">Codeplug:</strong> ' + linkifyCallsigns(net.codeplugSettings) +
               '</div>' +
             '</div>' +
 
