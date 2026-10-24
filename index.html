@@ -2751,7 +2751,7 @@
      * 4. STATE & MAP RENDERING
      *************************************************************************/
     let currentQTH = 'england_midlands';
-    let currentRig = 'ht';
+    let currentRig = 'generic';
     let selectedRepeaterId = 'GB3NB';
     let selectedNetId = 'NET-UK-WYTHALL';
     let activeBandFilter = 'ALL';
@@ -3080,7 +3080,7 @@
 
       let finalQuality = 'Clear Line of Sight';
       let finalColor = 'emerald';
-      let finalSmeter = currentRig === 'ht' ? 'S9' : 'S9+20 dB';
+      let finalSmeter = 'Strong / likely usable';
 
       if (rep.statusType === 'off') {
         finalQuality = 'Repeater OFF AIR';
@@ -3089,11 +3089,11 @@
       } else if (distKm > 80) {
         finalQuality = 'Long-Haul Tropo Path';
         finalColor = 'rose';
-        finalSmeter = currentRig === 'ht' ? 'Below Noise Floor' : 'S2 / S4 (Beam)';
+        finalSmeter = 'Weak / equipment and antenna dependent';
       } else if (maxPathElev > (qth.elevMeters + 150)) {
         finalQuality = 'Terrain Obstructed';
         finalColor = 'amber';
-        finalSmeter = currentRig === 'ht' ? 'S3 / S4 (Knife-Edge)' : 'S7 / S8 (Refraction)';
+        finalSmeter = 'Variable / obstructed path';
       }
 
       qualEl.textContent = usingFallback ? (finalQuality + ' (Est.)') : finalQuality;
@@ -3141,7 +3141,7 @@
         }
       });
 
-      const qthAntElev = realPoints[0].e + (currentRig === 'base' ? 12 : 2);
+      const qthAntElev = realPoints[0].e + 6;
       const repAntElev = realPoints[realPoints.length - 1].e + 22;
       const xStart = toX(0);
       const yStart = toY(qthAntElev);
@@ -3234,6 +3234,19 @@
     /*************************************************************************
      * 6. INSPECTOR, LIVE DMR TG FETCHER & DIRECTORY LIST
      *************************************************************************/
+    function genericOperatingAdvice(rep) {
+      const clean = function(value) {
+        return String(value || '')
+          .replace(/^5W Handheld(?: \(HT\))?:\s*/i, '')
+          .replace(/^50W Base\/?Mobile:\s*/i, '')
+          .replace(/^50W Base \/ Mobile:\s*/i, '');
+      };
+      const setup = clean(rep.htAdvice);
+      const coverage = clean(rep.baseAdvice);
+      if (setup && coverage) return setup + ' Expected coverage: ' + coverage;
+      return setup || coverage || 'Program the listed frequencies and access settings. Results will vary with equipment, antenna, location and conditions.';
+    }
+
     function renderInspector() {
       const rep = REPEATERS.find(function(r) { return r.id === selectedRepeaterId; }) || REPEATERS[0];
       if (!rep) return;
@@ -3292,8 +3305,7 @@
         '</div>' +
         '<div class="sub-box" style="display:flex;flex-direction:column;gap:6px;">' +
           '<div><strong style="color:var(--amber);">Site & Propagation Note:</strong> ' + rep.funFact + '</div>' +
-          '<div style="border-top:1px solid var(--border);padding-top:6px;"><strong style="color:var(--cyan);">5W Handheld (HT):</strong> ' + rep.htAdvice + '</div>' +
-          '<div style="border-top:1px solid var(--border);padding-top:6px;"><strong style="color:var(--emerald);">50W Base / Mobile:</strong> ' + rep.baseAdvice + '</div>' +
+          '<div style="border-top:1px solid var(--border);padding-top:6px;"><strong style="color:var(--cyan);">Operating guidance:</strong> ' + genericOperatingAdvice(rep) + '</div>' +
         '</div>';
 
       document.getElementById('inspector-content').innerHTML = html;
