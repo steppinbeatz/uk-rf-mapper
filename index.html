@@ -738,7 +738,7 @@
           </div>
         </div>
 
-        <div class="sub-box" style="display:flex;flex-direction:column;gap:6px;">
+        <div class="sub-box" style="display:flex;flex-direction:column;gap:6px;border-left:3px solid var(--cyan);">
           <div style="font-size:12px;color:#cbd5e1;">
             <i class="fa-solid fa-tower-broadcast" style="color:var(--cyan);margin-right:5px;"></i>
             <strong style="color:var(--cyan);">Operating guidance</strong>
@@ -3088,7 +3088,7 @@
       } else if (distKm > 80) {
         finalQuality = 'Long-Haul Tropo Path';
         finalColor = 'rose';
-        finalSmeter = 'Weak / equipment and antenna dependent';
+        finalSmeter = 'Weak / equipment dependent';
       } else if (maxPathElev > (qth.elevMeters + 150)) {
         finalQuality = 'Terrain Obstructed';
         finalColor = 'amber';
@@ -3233,19 +3233,6 @@
     /*************************************************************************
      * 6. INSPECTOR, LIVE DMR TG FETCHER & DIRECTORY LIST
      *************************************************************************/
-    function genericOperatingAdvice(rep) {
-      const clean = function(value) {
-        return String(value || '')
-          .replace(/^5W Handheld(?: \(HT\))?:\s*/i, '')
-          .replace(/^50W Base\/?Mobile:\s*/i, '')
-          .replace(/^50W Base \/ Mobile:\s*/i, '');
-      };
-      const setup = clean(rep.htAdvice);
-      const coverage = clean(rep.baseAdvice);
-      if (setup && coverage) return setup + ' Expected coverage: ' + coverage;
-      return setup || coverage || 'Program the listed frequencies and access settings. Results will vary with equipment, antenna, location and conditions.';
-    }
-
     function renderInspector() {
       const rep = REPEATERS.find(function(r) { return r.id === selectedRepeaterId; }) || REPEATERS[0];
       if (!rep) return;
@@ -3302,10 +3289,9 @@
           '<div style="font-size:11px;color:#cbd5e1;"><strong>Slot 1 / Primary:</strong> <span id="insp-dv-ts1">' + (dv.ts1 || 'Standard Voice') + '</span></div>' +
           '<div style="font-size:11px;color:#cbd5e1;"><strong>Slot 2 / Secondary:</strong> <span id="insp-dv-ts2">' + (dv.ts2 || 'Local Output') + '</span></div>' +
         '</div>' +
-        '<div class="sub-box"><strong style="color:var(--amber);">Site & Propagation Note:</strong> ' + rep.funFact + '</div>' +
-        '<div class="sub-box" style="border-left:3px solid var(--cyan);">' +
-          '<div style="margin-bottom:5px;"><strong style="color:var(--cyan);">Operating guidance</strong></div>' +
-          '<div>' + genericOperatingAdvice(rep) + '</div>' +
+        '<div class="sub-box" style="display:flex;flex-direction:column;gap:6px;">' +
+          '<div><strong style="color:var(--amber);">Site & Propagation Note:</strong> ' + rep.funFact + '</div>' +
+          '<div style="border-top:1px solid var(--border);padding-top:6px;"><strong style="color:var(--cyan);">Operating guidance:</strong> Program the listed frequencies and access settings. Coverage and signal quality depend on your radio, power, antenna, location, terrain and propagation conditions.</div>' +
         '</div>';
 
       document.getElementById('inspector-content').innerHTML = html;
@@ -3799,11 +3785,9 @@
       renderScotlandNets();
     }
 
-    function setRig(rigType) {
-      currentRig = rigType;
-      document.getElementById('btn-rig-ht').className = rigType === 'ht' ? 'pill-btn active mono' : 'pill-btn mono';
-      document.getElementById('btn-rig-base').className = rigType === 'base' ? 'pill-btn active mono' : 'pill-btn mono';
-      renderTerrainProfile();
+    function setRig() {
+      currentRig = 'generic';
+      if (selectedRepeaterId) drawTerrainProfile(selectedRepeaterId);
     }
 
     function setBandFilter(band) {
