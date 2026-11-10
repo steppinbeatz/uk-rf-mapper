@@ -1,3 +1,7 @@
+/* Rebrand and mobile overflow safeguards */
+html, body { max-width: 100%; overflow-x: hidden; }
+*, *::before, *::after { box-sizing: border-box; }
+
 :root {
       --bg-950: #060a12;
       --bg-900: #0b1323;
@@ -88,6 +92,36 @@
       color: var(--text-muted);
     }
 
+    .brand-name {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .creator-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border: 1px solid rgba(6, 182, 212, 0.65);
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(168,85,247,0.18));
+      color: #cffafe;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .creator-badge strong {
+      color: #ffffff;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    .creator-credit-mobile {
+      white-space: nowrap;
+    }
+
+
     .status-pill {
       font-size: 10px;
       padding: 2px 8px;
@@ -112,10 +146,14 @@
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
+      width: 100%;
+      min-width: 0;
     }
 
     .qth-group {
       background: var(--bg-950);
+      min-width: 0;
+      max-width: 100%;
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 4px;
@@ -577,3 +615,91 @@
     a:hover {
       text-decoration: underline;
     }
+
+
+/* Phone layout: prevent the QTH controls from widening the entire page. */
+@media (max-width: 640px) {
+  header,
+  .header-inner,
+  .brand,
+  .brand > div:last-child,
+  .brand-title,
+  .qth-controls,
+  .qth-group {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .header-inner {
+    padding-left: 10px;
+    padding-right: 10px;
+    align-items: stretch;
+  }
+
+  .brand {
+    align-items: flex-start;
+  }
+
+  .brand-title {
+    line-height: 1.3;
+  }
+
+  .brand-name {
+    flex: 1 1 100%;
+    font-size: 15px;
+  }
+
+  .creator-badge {
+    order: 2;
+    max-width: 100%;
+  }
+
+  #live-api-badge {
+    order: 3;
+    max-width: 100%;
+  }
+
+  .creator-credit-mobile {
+    display: block;
+    margin-top: 3px;
+  }
+
+  .qth-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .qth-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    gap: 6px;
+    padding: 7px;
+  }
+
+  .qth-label {
+    display: block;
+    padding: 2px 3px;
+  }
+
+  #uk-preset-select,
+  .qth-preset-select {
+    display: block;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  #custom-locator-input {
+    width: 100% !important;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .qth-group .btn {
+    width: 100%;
+    justify-content: center;
+    white-space: normal;
+  }
+}

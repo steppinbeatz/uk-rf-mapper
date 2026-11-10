@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rf-mapper-modular-2026.10.24.1';
+const CACHE_NAME = 'rf-mapper-modular-2026.11.10.1';
 const STATIC_ASSETS = [
   './', './index.html', './manifest.json', './assets/css/app.css',
   './assets/js/app.js', './data/nets.js', './data/nets.json',

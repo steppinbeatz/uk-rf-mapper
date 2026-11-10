@@ -1,7 +1,7 @@
 {
-  "name": "UK RF Terrain Mapper",
-  "short_name": "RF Mapper",
-  "description": "UK Amateur Radio Repeater & Terrain Line-of-Sight tool.",
+  "name": "UK RF Repeater, Terrain Mapper & NetFinder",
+  "short_name": "UK RF Mapper",
+  "description": "UK amateur radio repeater, terrain and net-finding app created by M7SQA.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#060a12",

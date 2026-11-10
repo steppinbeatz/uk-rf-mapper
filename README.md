@@ -1,6 +1,8 @@
 # UK RF Mapper - modular build
 
-This is a drop-in GitHub replacement based on the supplied working application.
+Created by **M7SQA**.
+
+This is the modular GitHub build of the UK amateur radio repeater, terrain and net-finding application.
 
 ## Changes
 

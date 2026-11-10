@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>UK RF Repeater, NetFinder &amp; Terrain Mapper</title>
+<title>UK RF Repeater, Terrain Mapper &amp; NetFinder</title>
 <!-- PWA Manifest & iOS Support -->
 <link href="manifest.json" rel="manifest"/>
 <meta content="#06b6d4" name="theme-color"/>
@@ -28,7 +28,11 @@
 </div>
 <div>
 <div class="brand-title">
-<span>UK RF Repeater, NetFinder &amp; Terrain Mapper</span>
+<span class="brand-name">UK RF Repeater, Terrain Mapper &amp; NetFinder</span>
+<span class="creator-badge mono" title="Application created by amateur radio operator M7SQA">
+<i class="fa-solid fa-code"></i>
+<span>Created by <strong>M7SQA</strong></span>
+</span>
 <span class="status-pill synced mono" id="live-api-badge">
 <i class="fa-solid fa-satellite-dish"></i>
 <span id="live-api-status-text">Loading UK Directory...</span>
@@ -36,6 +40,7 @@
 </div>
 <div class="brand-subtitle">
             Choose Any UK Region, GPS, Grid Locator or Map Click • All UK Repeaters &amp; Nets • SRTM 30m Terrain LoS &amp; Live DMR TG Inspector
+            <span class="creator-credit-mobile">• An app by <strong>M7SQA</strong></span>
           </div>
 </div>
 </div>
@@ -43,7 +48,7 @@
 <div class="qth-controls">
 <div class="qth-group">
 <span class="qth-label mono"><i class="fa-solid fa-earth-europe"></i> UK Region QTH:</span>
-<select class="search-input mono" id="uk-preset-select" onchange="if(this.value) setQTH(this.value)" style="padding: 5px 10px; font-size: 12px; width: auto; background: var(--bg-900); border-color: var(--cyan);">
+<select class="search-input mono qth-preset-select" id="uk-preset-select" onchange="if(this.value) setQTH(this.value)" style="padding: 5px 10px; font-size: 12px; background: var(--bg-900); border-color: var(--cyan);">
 <option selected="" value="england_midlands">England — Midlands (Birmingham)</option>
 <option value="england_london_se">England — London &amp; South East</option>
 <option value="england_north">England — North &amp; Yorkshire (Manchester / Leeds)</option>
@@ -300,7 +305,7 @@
 </div>
 </section>
 <footer class="mono">
-    UK RF Repeater, NetFinder &amp; Terrain Mapper • All 802 RSGB ETCC UK Repeaters + Gateways, Live BrandMeister DMR TGs &amp; UK Nets •
+    UK RF Repeater, Terrain Mapper &amp; NetFinder • Created by <strong style="color:var(--cyan);">M7SQA</strong> • All 802 RSGB ETCC UK Repeaters + Gateways, Live BrandMeister DMR TGs &amp; UK Nets •
     Synced with <a href="https://ukrepeater.net" rel="noopener" target="_blank">ukrepeater.net</a>,
     <a href="https://api.brandmeister.network/v2" rel="noopener" target="_blank">BrandMeister API v2</a> &amp;
     <a href="https://netfinder.radio/nets/country/united-kingdom" rel="noopener" target="_blank">netfinder.radio</a>
